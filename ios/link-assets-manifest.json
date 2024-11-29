@@ -1,0 +1,37 @@
+{
+  "migIndex": 1,
+  "data": [
+    {
+      "path": "assets/fonts/InriaSans-Bold.ttf",
+      "sha1": "296ff7429ddf34cf155d05bbf9855012e94e8e02"
+    },
+    {
+      "path": "assets/fonts/InriaSans-BoldItalic.ttf",
+      "sha1": "304267fdc84b4711eef47b1a61d83d1de3554c42"
+    },
+    {
+      "path": "assets/fonts/InriaSans-Italic.ttf",
+      "sha1": "6de9355dfea86b93fd58af526b9944097a458357"
+    },
+    {
+      "path": "assets/fonts/InriaSans-Light.ttf",
+      "sha1": "153c0cbf554ef91c8fe43c8b464fc3e128cd4c92"
+    },
+    {
+      "path": "assets/fonts/InriaSans-LightItalic.ttf",
+      "sha1": "46e6b62c6c16e627d78ce372597d34c44e6b0805"
+    },
+    {
+      "path": "assets/fonts/InriaSans-Regular.ttf",
+      "sha1": "b56ee911415e9bbb591caf6bfc3d8283e9339f41"
+    },
+    {
+      "path": "assets/fonts/Jomhuria-Regular.ttf",
+      "sha1": "1e6812ab945305665df7fb85c515dcca60b6e2cf"
+    },
+    {
+      "path": "assets/fonts/Lexend-VariableFont_wght.ttf",
+      "sha1": "93d820996bfbbe9de065e16ed2f4588db7f0f51a"
+    }
+  ]
+}

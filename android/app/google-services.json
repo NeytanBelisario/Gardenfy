@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "151422801867",
+    "project_id": "gardenfy-id",
+    "storage_bucket": "gardenfy-id.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:151422801867:android:efdc6db7a7dd4454acc84e",
+        "android_client_info": {
+          "package_name": "com.Gardenfy"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBYDMaA78DXTbwpI8Lrv_QNB-irEUlH2Us"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:151422801867:android:53e1754558a98bc0acc84e",
+        "android_client_info": {
+          "package_name": "com.virostarterkit"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBYDMaA78DXTbwpI8Lrv_QNB-irEUlH2Us"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
