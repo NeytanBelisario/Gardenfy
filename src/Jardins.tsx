@@ -82,7 +82,7 @@ export default function Jardins({ navigation }: { navigation: any }) {
 
   const favorito = async () => {
     let usuario_id = await getData();
-    axios.get(`https://rotasgardenfy-production.up.railway.app/Favoritos`, {
+    axios.get(`https://gardenfyrotas-production.up.railway.app/Favoritos`, {
       headers: {
         "Content-Type": "application/json",
         "usuario_id": usuario_id
@@ -153,7 +153,7 @@ export default function Jardins({ navigation }: { navigation: any }) {
     let imagem = conticones;
     let local_jardim = ie;
     let favorito = false;
-    axios.post('https://rotasgardenfy-production.up.railway.app/novoJardim', { nome_jardim, imagem, local_jardim, usuario_id }, {
+    axios.post('https://gardenfyrotas-production.up.railway.app/novoJardim', { nome_jardim, imagem, local_jardim, usuario_id }, {
       headers: {
         "Content-Type": "application/json"
       }
@@ -319,7 +319,7 @@ export default function Jardins({ navigation }: { navigation: any }) {
 
   const listarJardins = async () => {
     let usuario_id = await getData();
-    axios.get(`https://rotasgardenfy-production.up.railway.app/listarJardins`, {
+    axios.get(`https://gardenfyrotas-production.up.railway.app/listarJardins`, {
       headers: {
         "Content-Type": "application/json",
         "usuario_id": usuario_id
@@ -355,7 +355,7 @@ export default function Jardins({ navigation }: { navigation: any }) {
 
   const ordenarNomeAsc = async () => {
     let usuario_id = await getData();
-    axios.get(`https://rotasgardenfy-production.up.railway.app/ordernarNomeAsc`, {
+    axios.get(`https://gardenfyrotas-production.up.railway.app/ordernarNomeAsc`, {
       headers: {
         "Content-Type": "application/json",
         "usuario_id": usuario_id
@@ -376,7 +376,7 @@ export default function Jardins({ navigation }: { navigation: any }) {
 
   const ordenarNomeDesc = async () => {
     let usuario_id = await getData();
-    axios.get(`https://rotasgardenfy-production.up.railway.app/ordernarNomeDesc`, {
+    axios.get(`https://gardenfyrotas-production.up.railway.app/ordernarNomeDesc`, {
       headers: {
         "Content-Type": "application/json",
         "usuario_id": usuario_id
@@ -397,7 +397,7 @@ export default function Jardins({ navigation }: { navigation: any }) {
 
   const ordenarProxRega = async () => {
     let usuario_id = await getData();
-    axios.get(`https://rotasgardenfy-production.up.railway.app/ordernarproxRega`, {
+    axios.get(`https://gardenfyrotas-production.up.railway.app/ordernarproxRega`, {
       headers: {
         "Content-Type": "application/json",
         "usuario_id": usuario_id
@@ -418,7 +418,7 @@ export default function Jardins({ navigation }: { navigation: any }) {
 
   const ordenarPorMaisRecentes = async () => {
     let usuario_id = await getData();
-    axios.get(`https://rotasgardenfy-production.up.railway.app/ordenarPorMaisRecentes`, {
+    axios.get(`https://gardenfyrotas-production.up.railway.app/ordenarPorMaisRecentes`, {
       headers: {
         "Content-Type": "application/json",
         "usuario_id": usuario_id
@@ -439,7 +439,7 @@ export default function Jardins({ navigation }: { navigation: any }) {
 
   const ordenarPorMaisAntigos = async () => {
     let usuario_id = await getData();
-    axios.get(`https://rotasgardenfy-production.up.railway.app/ordenarPorMaisAntigos`, {
+    axios.get(`https://gardenfyrotas-production.up.railway.app/ordenarPorMaisAntigos`, {
       headers: {
         "Content-Type": "application/json",
         "usuario_id": usuario_id
@@ -460,7 +460,7 @@ export default function Jardins({ navigation }: { navigation: any }) {
 
   const filtrarExterno = async () => {
     let usuario_id = await getData();
-    axios.get(`https://rotasgardenfy-production.up.railway.app/filtrarExterno`, {
+    axios.get(`https://gardenfyrotas-production.up.railway.app/filtrarExterno`, {
       headers: {
         "Content-Type": "application/json",
         "usuario_id": usuario_id
@@ -481,7 +481,7 @@ export default function Jardins({ navigation }: { navigation: any }) {
 
   const filtrarInterno = async () => {
     let usuario_id = await getData();
-    axios.get(`https://rotasgardenfy-production.up.railway.app/filtrarInterno`, {
+    axios.get(`https://gardenfyrotas-production.up.railway.app/filtrarInterno`, {
       headers: {
         "Content-Type": "application/json",
         "usuario_id": usuario_id
@@ -501,7 +501,7 @@ export default function Jardins({ navigation }: { navigation: any }) {
   }
 
   const editar = async () => {
-    await axios.patch(`https://rotasgardenfy-production.up.railway.app/editarJardim`, {
+    await axios.patch(`https://gardenfyrotas-production.up.railway.app/editarJardim`, {
       jardim_id: jardim_id,
       nome_jardim: nomejardim,
       imagem: conticones,
@@ -522,7 +522,7 @@ export default function Jardins({ navigation }: { navigation: any }) {
   }
 
   const deletarJardim = async (jaardim_id:any) => {
-    axios.delete(`https://rotasgardenfy-production.up.railway.app/deletarJardim`, {
+    axios.delete(`https://gardenfyrotas-production.up.railway.app/deletarJardim`, {
       headers: {
         "Content-Type": "application/json",
         "jardim_id": jaardim_id
@@ -547,7 +547,7 @@ export default function Jardins({ navigation }: { navigation: any }) {
   }
 
   const favoritar = async (jardim_id: any) => {
-    axios.patch(`https://rotasgardenfy-production.up.railway.app/favoritar`, {
+    axios.patch(`https://gardenfyrotas-production.up.railway.app/favoritar`, {
       jardim_id: jardim_id
     }, {
       headers: {
@@ -569,7 +569,7 @@ export default function Jardins({ navigation }: { navigation: any }) {
   }
 
   const desfavoritar = async (jardim_id: any) => {
-    axios.patch(`https://rotasgardenfy-production.up.railway.app/desfavoritar`, {
+    axios.patch(`https://gardenfyrotas-production.up.railway.app/desfavoritar`, {
       jardim_id: jardim_id
     }, {
       headers: {

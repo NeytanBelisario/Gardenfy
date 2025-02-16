@@ -19,7 +19,7 @@ export default function Registro({ navigation }: { navigation: any }) {
       };
 
     const onPressHandler = async() => {
-        axios.post(`https://rotasgardenfy-production.up.railway.app/registro`, {nome, email, senha},
+        axios.post(`https://gardenfyrotas-production.up.railway.app/registro`, {nome, email, senha},
         {
             headers: {
             "Content-Type": "application/json",

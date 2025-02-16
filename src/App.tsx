@@ -9,6 +9,8 @@ import HomeScreen from './Planta.tsx';
 import Plantas from './Planta.tsx';
 import Jardins from './Jardins.tsx';
 
+import CameraNe from './Camera';
+
 const stack = createNativeStackNavigator()
 
 function App() {

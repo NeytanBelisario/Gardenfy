@@ -20,7 +20,7 @@ export default function Login({ navigation }: { navigation: any }) {
 
 
     const onPressHandler = () => {
-        axios.post(`https://rotasgardenfy-production.up.railway.app/login`, { email, senha },
+        axios.post(`https://gardenfyrotas-production.up.railway.app/login`, { email, senha },
             {
                 headers: {
                     "Content-Type": "application/json",

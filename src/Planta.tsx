@@ -132,7 +132,7 @@ export default function Plantas({ navigation }: { navigation: any }) {
 
   const adicionarPlanta = async (nome_planta: any, ultima_rega: any, foto_planta: string | undefined, horas_sol: any, quanti_agua: any, jardim_id: any, nivel_agua: any, nivel_sol: any, frequencia_rega: number) => {
     console.log(nome_planta, ultima_rega, foto_planta, horas_sol, quanti_agua, jardim_id, nivel_agua, nivel_sol, frequencia_rega)
-    await axios.post(`https://rotasgardenfy-production.up.railway.app/novaPlanta`, { nome_planta, ultima_rega, foto_planta, horas_sol, quanti_agua, jardim_id, nivel_agua, nivel_sol, frequencia_rega }, {
+    await axios.post(`https://gardenfyrotas-production.up.railway.app/novaPlanta`, { nome_planta, ultima_rega, foto_planta, horas_sol, quanti_agua, jardim_id, nivel_agua, nivel_sol, frequencia_rega }, {
       headers: {
         "Content-Type": "application/json"
       }
@@ -500,7 +500,7 @@ export default function Plantas({ navigation }: { navigation: any }) {
   }
 
   const apagarPlanta = (planta_id:any) => {
-    axios.delete(`https://rotasgardenfy-production.up.railway.app/deletarPlanta`, {
+    axios.delete(`https://gardenfyrotas-production.up.railway.app/deletarPlanta`, {
       headers: {
         "Content-Type": "application/json",
         "planta_id": planta_id
@@ -628,7 +628,7 @@ export default function Plantas({ navigation }: { navigation: any }) {
   }, [contBot])
 
   const listarPlantas = async () => {
-    axios.get(`https://rotasgardenfy-production.up.railway.app/listarPlantas`, {
+    axios.get(`https://gardenfyrotas-production.up.railway.app/listarPlantas`, {
       headers: {
         "Content-Type": "application/json",
         "jardim_id": jardim_id
@@ -658,7 +658,7 @@ export default function Plantas({ navigation }: { navigation: any }) {
   }, [jardim_id])
 
   const regueiPlanta = async (planta_id:any) => {
-    axios.patch(`https://rotasgardenfy-production.up.railway.app/reguei`, {
+    axios.patch(`https://gardenfyrotas-production.up.railway.app/reguei`, {
       planta_id: planta_id
     }, {
       headers: {
