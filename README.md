@@ -1,85 +1,125 @@
-# Viro Starter Kit
+# 🌱 Gardenfy - Cultive com Tecnologia  
 
-This is a new [**React Native**](https://reactnative.dev) project, set up with `@viro-community/react-viro`.
+<img src="https://s7.gifyu.com/images/SGUWw.jpg" alt="Descrição da Imagem" width="200px" />
 
-## How to Install Viro in an existing project?
+Bem-vindo ao **Gardenfy**, um aplicativo inovador para ajudar pessoas a cultivarem e gerenciarem seus jardins com o poder da **Realidade Aumentada** e da **Inteligência Artificial**. Transforme o cuidado com plantas em uma experiência simples, interativa e tecnológica!  
 
-If you are integrating ViroReact into an existing project, have a look at our [Installation instructions](https://viro-community.readme.io/docs/installation-instructions).
+---
 
-## Getting Started
+## 🚀 Funcionalidades  
 
-> **Note**: Make sure you have completed the [React Native - Environment Setup](https://reactnative.dev/docs/environment-setup) instructions. Stop before you get to the `Creating a new application` section; we have done that for you!
+- 📱 **Interface Interativa:** Layout de fácil interpretação e uso.  
+- 🌿 **Análise de Plantas:** Identifique espécies e receba informações.  
+- 💧 | 🌞 **Gestão de Rega:** Receba informações sobre o nível de água e a quantidade de tempo de exposição solar necessário para cada planta.  
+- 🌎 **Sustentabilidade:** Incentive o cultivo doméstico com uma abordagem ecológica.  
 
-## Step 1: Install Dependencies
+---
 
-```bash
-npm install
-```
+## 🛠️ Tecnologias Utilizadas  
 
-### iOS only:
+- **React Native**
+- **TypeScript**  
+- **@viro-community/react-viro**  
+- **Inteligência Artificial**: [Plant.id API](https://plant.id)  
+- **Modelos 3D**: OBJ, PNG, JPG  
 
-```bash
-cd ios
-pod install
-cd ..
-```
+---
 
-## Step 2: Start the Metro Server
+## 📸 Galeria de Funcionalidades  
 
-First, you will need to start **Metro**, the JavaScript _bundler_ that ships _with_ React Native.
+### 🔍 Identificação de Plantas  
+*Captura uma foto e receba informações detalhadas sobre a planta.*  
 
-To start Metro, run the following command from the _root_ of your React Native project:
+1. **Usuário tem opções entre tirar uma foto ou selecionar uma imagem.**
 
-```bash
-npm start
-```
+<img src="https://s13.gifyu.com/images/SJste.jpg" alt="Tela para o usuário selecionar uma imagem" width="200px" />
 
-## Step 3: Start your Application
+2. **Informações da planta**
 
-> **Warning**: Due to limitations of the Apple Simulator and the Android Emulator, you must run your project on a physical device.
+<img src="https://s7.gifyu.com/images/SJs5p.jpg" alt="Imagem com as devidas informações das plantas" width="200px"/>   
 
-Let Metro Bundler run in its _own_ terminal. Open a _new_ terminal from the _root_ of your React Native project. Run the following command to start your _Android_ or _iOS_ app:
+══════════════════════════════════════
 
-```bash
-# iOS
-npx react-native run-ios
-# Android
-npx react-native run-android
-```
+### 🌼 Gerenciamento de Jardins
+*Organize, monitore e personalize o cuidado com cada planta do seu jardim de forma eficiente e intuitiva.*
 
-If everything is set up _correctly_, you should see your new app running on you device.
+1. **Visualização dos jardins**
 
-#### Install CocoaPods
 
-```bash
-cd ios
-pod install
-cd ..
-```
+<img src="https://s7.gifyu.com/images/SJs53.jpg" alt="Página incial dos jardins" width="200px"/>
 
-```bash
-# using npm
-npm run ios
+📝 **Notas:**
+- É possível ordenar, filtrar e exibir apenas os jardins favoritados
+- O ícone de timer (📅) indica o tempo restante para a próxima rega
+- O ícone de gota (💧) indica a quantidade de água aproximada em geral do jardim
+- O ícone do sol (🌞) indica a quantidade de exposição solar *DIÁRIA* aproximada em geral do jardim.
+- O botão de adicionar (+) abre o modal de adicionar jardim.
+  
+2. **Criação de jardim**
 
-# OR using Yarn
-yarn ios
-```
+<img src="https://s7.gifyu.com/images/SJs5q.jpg" alt="Modal para criação de um jardim" width="200px"/>
 
-If everything is set up _correctly_, you should see your new app running in your _Android Emulator_ or _iOS Simulator_ shortly provided you have set up your emulator/simulator correctly.
+📝 **Notas:**
+- É possível alternar o ícone do jardim por meio das setas (**<** e **>**)
 
-This is one way to run your app — you can also run it directly from within Android Studio and Xcode respectively.
+3. **Visualização das plantas no jardim**
 
-## Step 4: Modifying your App
+<img src="https://s13.gifyu.com/images/SJs5d.jpg" alt="Modal para criação de um jardim" width="200px"/>
 
-Now that you have successfully run the app, let's modify it.
+📝 **Notas:**
+- O timer para regar cada planta é representado pelo ícone 📅
 
-1. Open `App.tsx` in your text editor of choice and edit some lines.
-2. For **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Developer Menu** (<kbd>Ctrl</kbd> + <kbd>M</kbd> (on Window and Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (on macOS)) to see your changes!
+4. EXTRAS: Modal de menu (☰)
 
-## Next Steps
+══════════════════════════════════════
 
-Check out our [documentation](https://viro-community.readme.io/) for guides, examples, and more!
+### 🌿 Visualização em AR  
+*Veja como algumas plantas ficarão em seu ambiente usando Realidade Aumentada.*  
+![Funcionalidade 2](https://via.placeholder.com/600x300 "Visualização em AR")  
 
-## Need help?
+---
 
-[Reach us in Discord.](https://discord.gg/YfxDBGTxvG) or submit an issue!
+## 📝 Como Usar  
+
+1. **Clone o Repositório**:  
+   ```bash  
+   git clone https://github.com/NeytanBelisario/Gardenfy.git  
+   cd Gardenfy  
+   ```  
+
+2. **Instale as Dependências**:  
+   ```bash  
+   npm install  
+   ```  
+
+3. **Inicie o Projeto**:  
+   ```bash  
+   npm start  
+   ```  
+
+4. **Testes em Dispositivos**:  
+   - Android: Use o emulador do Android Studio.  
+   - iOS: Sem compatibilidade no momento.  
+
+---
+
+## 🌟 Contribuições  
+
+Contribuições são bem-vindas! Para contribuir:  
+
+1. Faça um fork do projeto.  
+2. Crie uma nova branch: `git checkout -b minha-nova-feature`.  
+3. Faça commit das alterações: `git commit -m 'Adiciona uma nova feature'`.  
+4. Envie para o repositório original: `git push origin minha-nova-feature`.  
+5. Crie uma Pull Request.  
+
+---
+
+## 📧 Contato  
+
+Se tiver dúvidas ou sugestões, entre em contato:  
+**Email:** dionyrinker40@gmail.com ou neytanbelisario@gmail.com  
+**LinkedIn:** [Diony](https://linkedin.com/in/dionyrinker) e [Neytan](https://www.linkedin.com/in/neytan-belisario-2705b0336/)
+
+---
+
