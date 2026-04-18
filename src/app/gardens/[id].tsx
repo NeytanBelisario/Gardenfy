@@ -12,17 +12,14 @@ import {
   Feather,
   Ionicons,
   MaterialCommunityIcons,
-  MaterialIcons,
 } from '@expo/vector-icons';
 
-import { getMockGardenById } from '../../features/gardens/mocks';
 import {
   GardenDetails,
   GardenMetric,
-  GardenPlant,
-  PlantHealthTone,
 } from '../../features/gardens/types';
 import { AppHeader } from '../../components/shell/AppHeader';
+import { useGardenDetails } from '../../features/gardens/store';
 
 const COLORS = {
   background: '#fbf9f5',
@@ -80,65 +77,6 @@ function GardenMetricIcon({
   );
 }
 
-function HealthPill({ tone, label }: { tone: PlantHealthTone; label: string }) {
-  const toneStyles =
-    tone === 'dry'
-      ? { backgroundColor: COLORS.dangerBg, color: COLORS.dangerText }
-      : tone === 'stable'
-        ? { backgroundColor: COLORS.stableBg, color: COLORS.stableText }
-        : { backgroundColor: COLORS.vitalBg, color: COLORS.vitalText };
-
-  return (
-    <View style={[styles.statusPill, { backgroundColor: toneStyles.backgroundColor }]}>
-      <Text style={[styles.statusPillText, { color: toneStyles.color }]}>{label}</Text>
-    </View>
-  );
-}
-
-function PlantCard({ plant }: { plant: GardenPlant }) {
-  return (
-    <View style={styles.plantCard}>
-      <Image source={{ uri: plant.imageUrl }} style={styles.plantImage} />
-
-      <View style={styles.plantBody}>
-        <View style={styles.plantHeader}>
-          <View style={styles.plantHeaderCopy}>
-            <Text style={styles.plantName}>{plant.name}</Text>
-            <Text style={styles.plantSubtitle}>{plant.subtitle}</Text>
-          </View>
-
-          <HealthPill tone={plant.status.tone} label={plant.status.label} />
-        </View>
-
-        <View style={styles.plantMetricsRow}>
-          {plant.metrics.map((metric) => {
-            const isDryWater = metric.kind === 'water' && plant.status.tone === 'dry';
-
-            return (
-              <View key={metric.label} style={styles.plantMetric}>
-                <View style={styles.plantMetricIconWrap}>
-                  <GardenMetricIcon
-                    metric={metric}
-                    colorOverride={isDryWater ? COLORS.dangerText : undefined}
-                  />
-                </View>
-                <Text
-                  style={[
-                    styles.plantMetricValue,
-                    isDryWater && styles.plantMetricValueDanger,
-                  ]}
-                >
-                  {metric.value}%
-                </Text>
-              </View>
-            );
-          })}
-        </View>
-      </View>
-    </View>
-  );
-}
-
 function StatsCard({
   icon,
   value,
@@ -172,7 +110,78 @@ function EmptyState() {
   );
 }
 
-function GardenDetailsView({ garden }: { garden: GardenDetails }) {
+function statusColors(tone: GardenDetails['plants'][number]['status']['tone']) {
+  if (tone === 'dry') {
+    return {
+      backgroundColor: COLORS.dangerBg,
+      color: COLORS.dangerText,
+    };
+  }
+
+  if (tone === 'vital') {
+    return {
+      backgroundColor: COLORS.vitalBg,
+      color: COLORS.vitalText,
+    };
+  }
+
+  return {
+    backgroundColor: COLORS.stableBg,
+    color: COLORS.stableText,
+  };
+}
+
+function PlantCard({ plant }: { plant: GardenDetails['plants'][number] }) {
+  const lightMetric = plant.metrics.find((metric) => metric.kind === 'light');
+  const waterMetric = plant.metrics.find((metric) => metric.kind === 'water');
+  const badge = statusColors(plant.status.tone);
+
+  return (
+    <View style={styles.plantCard}>
+      <View style={styles.plantImageWrap}>
+        <Image source={{ uri: plant.imageUrl }} style={styles.plantImage} />
+      </View>
+
+      <View style={styles.plantBody}>
+        <View style={styles.plantHeader}>
+          <View style={styles.plantTitleWrap}>
+            <Text style={styles.plantName}>{plant.name}</Text>
+            <Text style={styles.plantSubtitle}>{plant.subtitle}</Text>
+          </View>
+          <View style={[styles.statusBadge, { backgroundColor: badge.backgroundColor }]}>
+            <Text style={[styles.statusBadgeText, { color: badge.color }]}>
+              {plant.status.label}
+            </Text>
+          </View>
+        </View>
+
+        <View style={styles.plantMetricsRow}>
+          <View style={styles.inlineMetric}>
+            <View style={styles.inlineMetricIcon}>
+              <GardenMetricIcon metric={{ kind: 'light', label: 'Light', value: 0 }} />
+            </View>
+            <Text style={styles.inlineMetricText}>{lightMetric?.value ?? 0}%</Text>
+          </View>
+
+          <View style={styles.inlineMetric}>
+            <View style={styles.inlineMetricIcon}>
+              <GardenMetricIcon metric={{ kind: 'water', label: 'Water', value: 0 }} />
+            </View>
+            <Text style={styles.inlineMetricText}>{waterMetric?.value ?? 0}%</Text>
+          </View>
+        </View>
+      </View>
+    </View>
+  );
+}
+
+function GardenDetailsView({
+  garden,
+  onAddPlant,
+}: {
+  garden: GardenDetails;
+  onAddPlant: () => void;
+}) {
   return (
     <>
       <View style={styles.heroSection}>
@@ -215,14 +224,33 @@ function GardenDetailsView({ garden }: { garden: GardenDetails }) {
 
       <View style={styles.collectionHeader}>
         <Text style={styles.collectionTitle}>Current Collection</Text>
-        <Text style={styles.collectionSort}>Vitality Sort</Text>
+        <Pressable
+          style={styles.inlineAddPlantButton}
+          onPress={onAddPlant}
+        >
+          <Ionicons name="add" size={16} color={COLORS.white} />
+          <Text style={styles.inlineAddPlantText}>Adicionar Planta</Text>
+        </Pressable>
       </View>
 
-      <View style={styles.plantsList}>
-        {garden.plants.map((plant) => (
-          <PlantCard key={plant.id} plant={plant} />
-        ))}
-      </View>
+      {garden.plants.length > 0 ? (
+        <View style={styles.plantList}>
+          {garden.plants.map((plant) => (
+            <PlantCard key={plant.id} plant={plant} />
+          ))}
+        </View>
+      ) : (
+        <View style={styles.emptyCollectionCard}>
+          <View style={styles.emptyCollectionIconWrap}>
+            <MaterialCommunityIcons name="sprout" size={28} color={COLORS.secondary} />
+          </View>
+          <Text style={styles.emptyCollectionTitle}>Nenhuma planta adicionada ainda</Text>
+          <Text style={styles.emptyCollectionText}>
+            Comece adicionando a primeira especie deste jardim via catalogo ou
+            escaneando uma planta.
+          </Text>
+        </View>
+      )}
     </>
   );
 }
@@ -231,7 +259,7 @@ export default function GardenDetailsScreen() {
   const router = useRouter();
   const params = useLocalSearchParams<{ id?: string | string[] }>();
   const id = Array.isArray(params.id) ? params.id[0] : params.id;
-  const garden = id ? getMockGardenById(id) : undefined;
+  const garden = useGardenDetails(id);
 
   return (
     <View style={styles.screen}>
@@ -241,15 +269,20 @@ export default function GardenDetailsScreen() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
-        {garden ? <GardenDetailsView garden={garden} /> : <EmptyState />}
+        {garden ? (
+          <GardenDetailsView
+            garden={garden}
+            onAddPlant={() =>
+              router.push({
+                pathname: '/gardens/[id]/plants/add',
+                params: { id: garden.id },
+              })
+            }
+          />
+        ) : (
+          <EmptyState />
+        )}
       </ScrollView>
-
-      {garden ? (
-        <Pressable style={styles.addPlantButton}>
-          <Ionicons name="add" size={24} color={COLORS.white} />
-          <Text style={styles.addPlantText}>Adicionar Planta</Text>
-        </Pressable>
-      ) : null}
     </View>
   );
 }
@@ -260,12 +293,12 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.background,
   },
   scrollContent: {
-    paddingTop: 86,
+    paddingTop: 8,
     paddingBottom: 112,
   },
   heroSection: {
     paddingHorizontal: 24,
-    paddingTop: 8,
+    paddingTop: 4,
   },
   heroCard: {
     height: 260,
@@ -374,52 +407,66 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
   },
   collectionHeader: {
-    marginTop: 30,
+    marginTop: 22,
     marginBottom: 18,
     paddingHorizontal: 24,
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
+    alignItems: 'flex-start',
+    gap: 12,
   },
   collectionTitle: {
     color: COLORS.primary,
-    fontSize: 22,
+    fontSize: 19,
     fontWeight: '900',
     letterSpacing: -1,
+    flex: 1,
   },
-  collectionSort: {
-    color: COLORS.secondary,
-    fontSize: 11,
+  inlineAddPlantButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    backgroundColor: COLORS.primary,
+    paddingHorizontal: 10,
+    paddingVertical: 7,
+    borderRadius: 14,
+    justifyContent: 'center',
+    alignSelf: 'flex-start',
+  },
+  inlineAddPlantText: {
+    color: COLORS.white,
+    fontSize: 10,
     fontWeight: '800',
     textTransform: 'uppercase',
-    letterSpacing: 1.4,
+    letterSpacing: 0.2,
   },
-  plantsList: {
+  plantList: {
     paddingHorizontal: 24,
     gap: 14,
   },
   plantCard: {
-    backgroundColor: COLORS.surfaceLowest,
-    borderRadius: 28,
-    padding: 14,
     flexDirection: 'row',
     gap: 14,
-    alignItems: 'center',
+    padding: 16,
+    borderRadius: 24,
+    backgroundColor: COLORS.surfaceLowest,
     borderWidth: 1,
-    borderColor: 'rgba(194, 200, 191, 0.3)',
-    shadowColor: '#17361d',
-    shadowOpacity: 0.08,
-    shadowRadius: 10,
-    shadowOffset: { width: 0, height: 6 },
-    elevation: 3,
+    borderColor: 'rgba(194, 200, 191, 0.45)',
+  },
+  plantImageWrap: {
+    width: 78,
+    height: 78,
+    borderRadius: 20,
+    overflow: 'hidden',
+    backgroundColor: COLORS.surfaceHigh,
   },
   plantImage: {
-    width: 84,
-    height: 84,
-    borderRadius: 22,
+    width: '100%',
+    height: '100%',
   },
   plantBody: {
     flex: 1,
+    justifyContent: 'center',
     gap: 10,
   },
   plantHeader: {
@@ -428,8 +475,9 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     gap: 10,
   },
-  plantHeaderCopy: {
+  plantTitleWrap: {
     flex: 1,
+    gap: 3,
   },
   plantName: {
     color: COLORS.primary,
@@ -437,71 +485,70 @@ const styles = StyleSheet.create({
     fontWeight: '800',
   },
   plantSubtitle: {
-    marginTop: 3,
     color: COLORS.textMuted,
     fontSize: 13,
     fontStyle: 'italic',
-    fontWeight: '500',
   },
-  statusPill: {
-    paddingHorizontal: 12,
-    paddingVertical: 5,
+  statusBadge: {
     borderRadius: 999,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
   },
-  statusPillText: {
+  statusBadgeText: {
     fontSize: 10,
-    fontWeight: '900',
+    fontWeight: '800',
     textTransform: 'uppercase',
   },
   plantMetricsRow: {
     flexDirection: 'row',
     gap: 14,
-    flexWrap: 'wrap',
   },
-  plantMetric: {
+  inlineMetric: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
   },
-  plantMetricIconWrap: {
-    width: 18,
-    height: 18,
+  inlineMetricIcon: {
+    width: 22,
+    height: 22,
     borderRadius: 8,
     backgroundColor: COLORS.surfaceLow,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  plantMetricValue: {
+  inlineMetricText: {
     color: COLORS.textMuted,
     fontSize: 12,
-    fontWeight: '800',
+    fontWeight: '700',
   },
-  plantMetricValueDanger: {
-    color: COLORS.dangerText,
-  },
-  addPlantButton: {
-    position: 'absolute',
-    right: 24,
-    bottom: 22,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-    backgroundColor: COLORS.primary,
-    paddingHorizontal: 24,
-    paddingVertical: 16,
+  emptyCollectionCard: {
+    marginHorizontal: 24,
     borderRadius: 24,
-    shadowColor: '#17361d',
-    shadowOpacity: 0.2,
-    shadowRadius: 16,
-    shadowOffset: { width: 0, height: 10 },
-    elevation: 8,
+    backgroundColor: COLORS.surfaceLow,
+    padding: 24,
+    alignItems: 'center',
   },
-  addPlantText: {
-    color: COLORS.white,
-    fontSize: 13,
-    fontWeight: '900',
-    textTransform: 'uppercase',
-    letterSpacing: 0.8,
+  emptyCollectionIconWrap: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: 'rgba(71, 102, 68, 0.08)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 16,
+  },
+  emptyCollectionTitle: {
+    color: COLORS.primary,
+    fontSize: 18,
+    fontWeight: '800',
+    textAlign: 'center',
+  },
+  emptyCollectionText: {
+    marginTop: 8,
+    color: COLORS.textMuted,
+    fontSize: 14,
+    lineHeight: 22,
+    textAlign: 'center',
   },
   emptyState: {
     marginHorizontal: 24,

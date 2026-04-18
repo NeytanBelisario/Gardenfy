@@ -20,6 +20,25 @@ export type GardenPlant = {
   metrics: GardenMetric[];
 };
 
+export type PlantCatalogCategory =
+  | 'all'
+  | 'ferns'
+  | 'succulents'
+  | 'foliage'
+  | 'small-trees'
+  | 'resilient';
+
+export type PlantCatalogItem = {
+  id: string;
+  name: string;
+  subtitle: string;
+  categoryLabel: string;
+  category: PlantCatalogCategory;
+  imageUrl: string;
+  featured?: boolean;
+  compact?: boolean;
+};
+
 export type GardenAlert = {
   label: string;
   tone: 'danger' | 'warning';

@@ -16,6 +16,7 @@ import {
 } from '@expo/vector-icons';
 
 import { CreateGardenDraft, GardenEnvironment } from '../../features/gardens/types';
+import { createMockGarden } from '../../features/gardens/store';
 
 const COLORS = {
   background: '#fbf9f5',
@@ -87,6 +88,19 @@ export default function NewGardenScreen() {
     setDraft((current) => ({ ...current, icon }));
   };
 
+  const handleCreateGarden = () => {
+    const nextGarden = createMockGarden({
+      ...draft,
+      imageUrl:
+        'https://lh3.googleusercontent.com/aida-public/AB6AXuAg44WsM3e20lqM56FtwGUQO9hTzhapVd-1AdCb0nhBUveRHsPr-KOqieEBAk1S0jbN5an_AIu_tbT2apqvGSwyqR9AjlUOXg9hM0FEhYXkVtzpHyKDqChu4bAn2_RaO0XWgbbYl4_ZRoaQeRJ52WQuWRg5tIiIBU94cKbu0R57gSBXPnx2io0_vCXRuHMphsEmuUS1l_Bbtzt1Bt92QCpiCIG3exqaU8XHwJLXG5KF7h43oof_SS5CZBCZiwW-9xfv9mVnZkjxfOk',
+    });
+
+    router.replace({
+      pathname: '/gardens/[id]/plants/add',
+      params: { id: nextGarden.id },
+    });
+  };
+
   return (
     <View style={styles.screen}>
       <ScrollView
@@ -102,7 +116,7 @@ export default function NewGardenScreen() {
           />
           <View style={styles.heroOverlay} />
           <View style={styles.heroCopy}>
-            <Text style={styles.heroStep}>Step 1 of 3</Text>
+            <Text style={styles.heroStep}>Step 1 of 2</Text>
             <Text style={styles.heroTitle}>Curate Your Space</Text>
           </View>
         </View>
@@ -193,7 +207,7 @@ export default function NewGardenScreen() {
         </View>
 
         <View style={styles.actions}>
-          <Pressable style={styles.primaryButton}>
+          <Pressable style={styles.primaryButton} onPress={handleCreateGarden}>
             <Text style={styles.primaryButtonText}>Create Garden</Text>
           </Pressable>
 

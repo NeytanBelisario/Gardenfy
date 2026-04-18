@@ -12,8 +12,8 @@ import { Feather, Ionicons } from '@expo/vector-icons';
 
 import { AppHeader } from '../components/shell/AppHeader';
 import { AppNavbar } from '../components/shell/AppNavbar';
-import { mockGardens } from '../features/gardens/mocks';
 import { GardenMetric, GardenSummary } from '../features/gardens/types';
+import { useGardenSummaries } from '../features/gardens/store';
 import { useNavbarVisibilityOnScroll } from '../hooks/useNavbarVisibilityOnScroll';
 
 const COLORS = {
@@ -132,6 +132,7 @@ function GardenCard({ garden }: { garden: GardenSummary }) {
 export default function HomeScreen() {
   const router = useRouter();
   const { navbarHidden, handleNavbarScroll } = useNavbarVisibilityOnScroll();
+  const gardens = useGardenSummaries();
 
   return (
     <View style={styles.screen}>
@@ -151,9 +152,20 @@ export default function HomeScreen() {
           </Text>
         </View>
 
-        {mockGardens.map((garden) => (
-          <GardenCard key={garden.id} garden={garden} />
-        ))}
+        {gardens.length > 0 ? (
+          gardens.map((garden) => <GardenCard key={garden.id} garden={garden} />)
+        ) : (
+          <View style={styles.emptyState}>
+            <View style={styles.emptyStateIcon}>
+              <Feather name="sun" size={22} color={COLORS.secondary} />
+            </View>
+            <Text style={styles.emptyStateTitle}>Nenhum jardim criado ainda</Text>
+            <Text style={styles.emptyStateText}>
+              Toque no botao verde para criar seu primeiro espaco e comecar a
+              montar a colecao.
+            </Text>
+          </View>
+        )}
       </ScrollView>
 
       <Pressable style={styles.fab} onPress={() => router.push('/gardens/new')}>
@@ -172,13 +184,14 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingHorizontal: 24,
-    paddingTop: 92,
+    paddingTop: 10,
     paddingBottom: 110,
     gap: 18,
   },
   heroCopy: {
     gap: 10,
-    marginBottom: 10,
+    marginTop: 0,
+    marginBottom: 6,
   },
   heading: {
     color: COLORS.primary,
@@ -311,6 +324,34 @@ const styles = StyleSheet.create({
     color: COLORS.primary,
     fontSize: 18,
     fontWeight: '800',
+  },
+  emptyState: {
+    backgroundColor: COLORS.surface,
+    borderRadius: 28,
+    padding: 24,
+    alignItems: 'center',
+    gap: 10,
+  },
+  emptyStateIcon: {
+    width: 54,
+    height: 54,
+    borderRadius: 27,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: COLORS.surfaceHigh,
+  },
+  emptyStateTitle: {
+    color: COLORS.primary,
+    fontSize: 20,
+    fontWeight: '800',
+    textAlign: 'center',
+  },
+  emptyStateText: {
+    color: COLORS.textMuted,
+    fontSize: 14,
+    lineHeight: 22,
+    textAlign: 'center',
+    maxWidth: 260,
   },
   fab: {
     position: 'absolute',
