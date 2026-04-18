@@ -1,72 +1,43 @@
-# OSX
-#
-.DS_Store
-Thumbs.db
-# Xcode
-#
-build/
-*.pbxuser
-!default.pbxuser
-*.mode1v3
-!default.mode1v3
-*.mode2v3
-!default.mode2v3
-*.perspectivev3
-!default.perspectivev3
-xcuserdata
-*.xccheckout
-*.moved-aside
-DerivedData
-*.hmap
-*.ipa
-*.xcuserstate
-ios/.xcode.env.local
+# Learn more https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files
 
-# Android/IntelliJ
-#
-build/
-.gradle
-local.properties
-*.iml
-*.hprof
-.cxx/
-*.keystore
-!debug.keystore
-.vscode/
-.idea/
-*.swp
-
-# node.js
-#
+# dependencies
 node_modules/
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-__tests__/coverage/
 
-**/fastlane/report.xml
-**/fastlane/Preview.html
-**/fastlane/screenshots
-**/fastlane/test_output
+# Expo
+.expo/
+dist/
+web-build/
+expo-env.d.ts
 
-# Bundle artifact
-*.jsbundle
+# Native
+.kotlin/
+*.orig.*
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
 
-# Ruby / CocoaPods
-/vendor/bundle/
-
-# Temporary files created by Metro to check the health of the file watcher
+# Metro
 .metro-health-check*
 
-.expo/
-.bundle/
-android/.gradle/
-android/app/build/
-ios/Pods/
-ios/build/
+# debug
+npm-debug.*
+yarn-debug.*
+yarn-error.*
 
-*.tmp
-*.bak
-*.lock
-*.keystore
+# macOS
+.DS_Store
+*.pem
+
+# local env files
+.env*.local
+
+# typescript
+*.tsbuildinfo
+
+app-example
+
+# generated native folders
+/ios
+/android

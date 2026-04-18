@@ -1,125 +1,56 @@
-# 🌱 Gardenfy - Cultive com Tecnologia  
+# Welcome to your Expo app 👋
 
-<img src="https://s7.gifyu.com/images/SGUWw.jpg" alt="Descrição da Imagem" width="200px" />
+This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
 
-Bem-vindo ao **Gardenfy**, um aplicativo inovador para ajudar pessoas a cultivarem e gerenciarem seus jardins com o poder da **Realidade Aumentada** e da **Inteligência Artificial**. Transforme o cuidado com plantas em uma experiência simples, interativa e tecnológica!  
+## Get started
 
----
+1. Install dependencies
 
-## 🚀 Funcionalidades  
+   ```bash
+   npm install
+   ```
 
-- 📱 **Interface Interativa:** Layout de fácil interpretação e uso.  
-- 🌿 **Análise de Plantas:** Identifique espécies e receba informações.  
-- 💧 | 🌞 **Gestão de Rega:** Receba informações sobre o nível de água e a quantidade de tempo de exposição solar necessário para cada planta.  
-- 🌎 **Sustentabilidade:** Incentive o cultivo doméstico com uma abordagem ecológica.  
+2. Start the app
 
----
+   ```bash
+   npx expo start
+   ```
 
-## 🛠️ Tecnologias Utilizadas  
+In the output, you'll find options to open the app in a
 
-- **React Native**
-- **TypeScript**  
-- **@viro-community/react-viro**  
-- **Inteligência Artificial**: [Plant.id API](https://plant.id)  
-- **Modelos 3D**: OBJ, PNG, JPG  
+- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
+- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
+- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
+- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
 
----
+You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
 
-## 📸 Galeria de Funcionalidades  
+## Get a fresh project
 
-### 🔍 Identificação de Plantas  
-*Captura uma foto e receba informações detalhadas sobre a planta.*  
+When you're ready, run:
 
-1. **Usuário tem opções entre tirar uma foto ou selecionar uma imagem.**
+```bash
+npm run reset-project
+```
 
-<img src="https://s13.gifyu.com/images/SJste.jpg" alt="Tela para o usuário selecionar uma imagem" width="200px" />
+This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
 
-2. **Informações da planta**
+### Other setup steps
 
-<img src="https://s7.gifyu.com/images/SJs5p.jpg" alt="Imagem com as devidas informações das plantas" width="200px"/>   
+- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
+- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
+- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
 
-══════════════════════════════════════
+## Learn more
 
-### 🌼 Gerenciamento de Jardins
-*Organize, monitore e personalize o cuidado com cada planta do seu jardim de forma eficiente e intuitiva.*
+To learn more about developing your project with Expo, look at the following resources:
 
-1. **Visualização dos jardins**
+- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
+- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
 
+## Join the community
 
-<img src="https://s7.gifyu.com/images/SJs53.jpg" alt="Página incial dos jardins" width="200px"/>
+Join our community of developers creating universal apps.
 
-📝 **Notas:**
-- É possível ordenar, filtrar e exibir apenas os jardins favoritados
-- O ícone de timer (📅) indica o tempo restante para a próxima rega
-- O ícone de gota (💧) indica a quantidade de água aproximada em geral do jardim
-- O ícone do sol (🌞) indica a quantidade de exposição solar *DIÁRIA* aproximada em geral do jardim.
-- O botão de adicionar (+) abre o modal de adicionar jardim.
-  
-2. **Criação de jardim**
-
-<img src="https://s7.gifyu.com/images/SJs5q.jpg" alt="Modal para criação de um jardim" width="200px"/>
-
-📝 **Notas:**
-- É possível alternar o ícone do jardim por meio das setas (**<** e **>**)
-
-3. **Visualização das plantas no jardim**
-
-<img src="https://s13.gifyu.com/images/SJs5d.jpg" alt="Modal para criação de um jardim" width="200px"/>
-
-📝 **Notas:**
-- O timer para regar cada planta é representado pelo ícone 📅
-
-4. EXTRAS: Modal de menu (☰)
-
-══════════════════════════════════════
-
-### 🌿 Visualização em AR  
-*Veja como algumas plantas ficarão em seu ambiente usando Realidade Aumentada.*  
-![Funcionalidade 2](https://via.placeholder.com/600x300 "Visualização em AR")  
-
----
-
-## 📝 Como Usar  
-
-1. **Clone o Repositório**:  
-   ```bash  
-   git clone https://github.com/NeytanBelisario/Gardenfy.git  
-   cd Gardenfy  
-   ```  
-
-2. **Instale as Dependências**:  
-   ```bash  
-   npm install  
-   ```  
-
-3. **Inicie o Projeto**:  
-   ```bash  
-   npm start  
-   ```  
-
-4. **Testes em Dispositivos**:  
-   - Android: Use o emulador do Android Studio.  
-   - iOS: Sem compatibilidade no momento.  
-
----
-
-## 🌟 Contribuições  
-
-Contribuições são bem-vindas! Para contribuir:  
-
-1. Faça um fork do projeto.  
-2. Crie uma nova branch: `git checkout -b minha-nova-feature`.  
-3. Faça commit das alterações: `git commit -m 'Adiciona uma nova feature'`.  
-4. Envie para o repositório original: `git push origin minha-nova-feature`.  
-5. Crie uma Pull Request.  
-
----
-
-## 📧 Contato  
-
-Se tiver dúvidas ou sugestões, entre em contato:  
-**Email:** dionyrinker40@gmail.com ou neytanbelisario@gmail.com  
-**LinkedIn:** [Diony](https://linkedin.com/in/dionyrinker) e [Neytan](https://www.linkedin.com/in/neytan-belisario-2705b0336/)
-
----
-
+- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
+- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
