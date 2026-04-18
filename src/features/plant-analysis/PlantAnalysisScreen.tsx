@@ -10,7 +10,10 @@ import {
 import * as ImagePicker from 'expo-image-picker';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
+import { AppHeader } from '../../components/shell/AppHeader';
+import { AppNavbar } from '../../components/shell/AppNavbar';
 import { ENV } from '../../constants/env';
+import { useNavbarVisibilityOnScroll } from '../../hooks/useNavbarVisibilityOnScroll';
 
 type PlantaDetectada = {
   tipo: string;
@@ -77,6 +80,7 @@ async function analisarPlantasDoJardim(
 }
 
 export function PlantAnalysisScreen() {
+  const { navbarHidden, handleNavbarScroll } = useNavbarVisibilityOnScroll();
   const [plantasList, setPlantasList] = useState<PlantaDetectada[]>([]);
   const [loading, setLoading] = useState(false);
   const [uploadedPhotoUri, setUploadedPhotoUri] = useState<string | null>(null);
@@ -132,105 +136,121 @@ export function PlantAnalysisScreen() {
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <View style={styles.hero}>
-        <View style={styles.heroBadge}>
-          <Text style={styles.heroBadgeText}>Diagnostico rapido</Text>
-        </View>
-        <Text style={styles.title}>Gardenfy</Text>
-        <Text style={styles.subtitle}>
-          Envie uma foto do jardim para identificar as plantas e ver os cuidados
-          recomendados em uma tela so.
-        </Text>
+    <View style={styles.screen}>
+      <AppHeader mode="back" />
 
-        <Pressable
-          style={({ pressed }) => [
-            styles.uploadButton,
-            pressed && styles.uploadButtonPressed,
-            loading && styles.uploadButtonDisabled,
-          ]}
-          onPress={handlePickImage}
-          disabled={loading}
-        >
-          <Text style={styles.uploadButtonText}>
-            {loading ? 'Analisando foto...' : 'Adicionar foto'}
-          </Text>
-        </Pressable>
-      </View>
-
-      <View style={styles.contentGrid}>
-        <View style={styles.previewCard}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Foto enviada</Text>
-            <Text style={styles.sectionMeta}>
-              {uploadedPhotoUri ? 'Pronta para analise' : 'Aguardando upload'}
-            </Text>
+      <ScrollView
+        contentContainerStyle={styles.container}
+        scrollEventThrottle={16}
+        onScroll={(event) => handleNavbarScroll(event.nativeEvent.contentOffset.y)}
+      >
+        <View style={styles.hero}>
+          <View style={styles.heroBadge}>
+            <Text style={styles.heroBadgeText}>Diagnostico rapido</Text>
           </View>
+          <Text style={styles.title}>Gardenfy</Text>
+          <Text style={styles.subtitle}>
+            Envie uma foto do jardim para identificar as plantas e ver os cuidados
+            recomendados em uma tela so.
+          </Text>
 
-          {uploadedPhotoUri ? (
-            <Image source={{ uri: uploadedPhotoUri }} style={styles.previewImage} />
-          ) : (
-            <View style={styles.previewPlaceholder}>
-              <Text style={styles.previewPlaceholderTitle}>Nenhuma imagem ainda</Text>
-              <Text style={styles.previewPlaceholderText}>
-                Escolha uma foto da galeria para visualizar aqui e gerar a
-                analise.
+          <Pressable
+            style={({ pressed }) => [
+              styles.uploadButton,
+              pressed && styles.uploadButtonPressed,
+              loading && styles.uploadButtonDisabled,
+            ]}
+            onPress={handlePickImage}
+            disabled={loading}
+          >
+            <Text style={styles.uploadButtonText}>
+              {loading ? 'Analisando foto...' : 'Adicionar foto'}
+            </Text>
+          </Pressable>
+        </View>
+
+        <View style={styles.contentGrid}>
+          <View style={styles.previewCard}>
+            <View style={styles.sectionHeader}>
+              <Text style={styles.sectionTitle}>Foto enviada</Text>
+              <Text style={styles.sectionMeta}>
+                {uploadedPhotoUri ? 'Pronta para analise' : 'Aguardando upload'}
               </Text>
             </View>
-          )}
-        </View>
 
-        <View style={styles.resultsCard}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Resultado</Text>
-            <Text style={styles.sectionMeta}>
-              {plantasList.length} planta{plantasList.length === 1 ? '' : 's'}
-            </Text>
+            {uploadedPhotoUri ? (
+              <Image source={{ uri: uploadedPhotoUri }} style={styles.previewImage} />
+            ) : (
+              <View style={styles.previewPlaceholder}>
+                <Text style={styles.previewPlaceholderTitle}>Nenhuma imagem ainda</Text>
+                <Text style={styles.previewPlaceholderText}>
+                  Escolha uma foto da galeria para visualizar aqui e gerar a
+                  analise.
+                </Text>
+              </View>
+            )}
           </View>
 
-          {plantasList.length === 0 ? (
-            <Text style={styles.emptyText}>Nenhuma planta analisada ainda.</Text>
-          ) : (
-            plantasList.map((planta, index) => (
-              <View key={`${planta.tipo}-${index}`} style={styles.card}>
-                <Text style={styles.cardTitle}>{planta.tipo}</Text>
+          <View style={styles.resultsCard}>
+            <View style={styles.sectionHeader}>
+              <Text style={styles.sectionTitle}>Resultado</Text>
+              <Text style={styles.sectionMeta}>
+                {plantasList.length} planta{plantasList.length === 1 ? '' : 's'}
+              </Text>
+            </View>
 
-                <View style={styles.infoRow}>
-                  <Text style={styles.cardLabel}>Agua</Text>
-                  <Text style={styles.cardText}>{planta.agua}</Text>
-                </View>
+            {plantasList.length === 0 ? (
+              <Text style={styles.emptyText}>Nenhuma planta analisada ainda.</Text>
+            ) : (
+              plantasList.map((planta, index) => (
+                <View key={`${planta.tipo}-${index}`} style={styles.card}>
+                  <Text style={styles.cardTitle}>{planta.tipo}</Text>
 
-                <View style={styles.infoRow}>
-                  <Text style={styles.cardLabel}>Iluminacao</Text>
-                  <Text style={styles.cardText}>{planta.iluminacao}</Text>
-                </View>
-
-                <View style={styles.infoRow}>
-                  <Text style={styles.cardLabel}>Saude</Text>
-                  <Text style={styles.cardText}>
-                    {planta.saude ?? planta.saude_atual ?? '-'}
-                  </Text>
-                </View>
-
-                {planta.dicas ? (
-                  <View style={styles.tipBox}>
-                    <Text style={styles.tipLabel}>Dica rapida</Text>
-                    <Text style={styles.tipText}>{planta.dicas}</Text>
+                  <View style={styles.infoRow}>
+                    <Text style={styles.cardLabel}>Agua</Text>
+                    <Text style={styles.cardText}>{planta.agua}</Text>
                   </View>
-                ) : null}
-              </View>
-            ))
-          )}
+
+                  <View style={styles.infoRow}>
+                    <Text style={styles.cardLabel}>Iluminacao</Text>
+                    <Text style={styles.cardText}>{planta.iluminacao}</Text>
+                  </View>
+
+                  <View style={styles.infoRow}>
+                    <Text style={styles.cardLabel}>Saude</Text>
+                    <Text style={styles.cardText}>
+                      {planta.saude ?? planta.saude_atual ?? '-'}
+                    </Text>
+                  </View>
+
+                  {planta.dicas ? (
+                    <View style={styles.tipBox}>
+                      <Text style={styles.tipLabel}>Dica rapida</Text>
+                      <Text style={styles.tipText}>{planta.dicas}</Text>
+                    </View>
+                  ) : null}
+                </View>
+              ))
+            )}
+          </View>
         </View>
-      </View>
-    </ScrollView>
+      </ScrollView>
+
+      <AppNavbar hidden={navbarHidden} />
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  screen: {
+    flex: 1,
+    backgroundColor: '#eef3ea',
+  },
   container: {
     flexGrow: 1,
     padding: 24,
+    paddingTop: 92,
+    paddingBottom: 112,
     gap: 20,
     backgroundColor: '#eef3ea',
   },

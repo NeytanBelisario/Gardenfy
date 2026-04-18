@@ -89,15 +89,6 @@ export default function NewGardenScreen() {
 
   return (
     <View style={styles.screen}>
-      <View style={styles.topBar}>
-        <Pressable style={styles.topButton} onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={28} color={COLORS.primary} />
-        </Pressable>
-
-        <Text style={styles.topTitle}>New Garden</Text>
-        <View style={styles.topSpacer} />
-      </View>
-
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
@@ -220,35 +211,9 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: COLORS.background,
   },
-  topBar: {
-    paddingTop: 16,
-    paddingHorizontal: 24,
-    paddingBottom: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: COLORS.background,
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0,0,0,0.05)',
-  },
-  topButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  topTitle: {
-    color: COLORS.primary,
-    fontSize: 18,
-    fontWeight: '800',
-  },
-  topSpacer: {
-    width: 40,
-  },
   scrollContent: {
     paddingHorizontal: 24,
-    paddingTop: 20,
+    paddingTop: 12,
     paddingBottom: 40,
     gap: 30,
   },
