@@ -24,11 +24,14 @@ const COLORS = {
   surfaceHigh: '#eae8e4',
   surfaceVariant: '#e4e2de',
   textMuted: '#424841',
+  textSoft: '#8ea086',
   tertiaryDark: '#6a3200',
   alertBg: '#ffdad6',
   alertText: '#93000a',
   white: '#ffffff',
 } as const;
+
+const EMPTY_GARDENS_ART = require('../public/nogardenicon.png');
 
 function ProgressBar({
   value,
@@ -133,6 +136,7 @@ export default function HomeScreen() {
   const router = useRouter();
   const { navbarHidden, handleNavbarScroll } = useNavbarVisibilityOnScroll();
   const gardens = useGardenSummaries();
+  const hasGardens = gardens.length > 0;
 
   return (
     <View style={styles.screen}>
@@ -146,31 +150,48 @@ export default function HomeScreen() {
       >
         <View style={styles.heroCopy}>
           <Text style={styles.heading}>Meus Jardins</Text>
-          <Text style={styles.subheading}>
-            Curadoria botanica de seus espacos vivos. Gerencie a vitalidade e
-            nutricao de cada ambiente.
-          </Text>
         </View>
 
-        {gardens.length > 0 ? (
+        {hasGardens ? (
           gardens.map((garden) => <GardenCard key={garden.id} garden={garden} />)
         ) : (
           <View style={styles.emptyState}>
-            <View style={styles.emptyStateIcon}>
-              <Feather name="sun" size={22} color={COLORS.secondary} />
+            <View style={styles.emptyStateIllustrationWrap}>
+              <Image
+                source={EMPTY_GARDENS_ART}
+                style={styles.emptyStateIllustration}
+                resizeMode="contain"
+              />
             </View>
-            <Text style={styles.emptyStateTitle}>Nenhum jardim criado ainda</Text>
-            <Text style={styles.emptyStateText}>
-              Toque no botao verde para criar seu primeiro espaco e comecar a
-              montar a colecao.
-            </Text>
+
+            <View style={styles.emptyStateCopy}>
+              <Text style={styles.emptyStateTitle}>Ainda não há jardins cadastrados</Text>
+              <Text style={styles.emptyStateText}>
+                Crie seu primeiro jardim e comece a cuidar dos seus espacos vivos.
+              </Text>
+            </View>
+
+            <Pressable
+              style={styles.emptyStateButton}
+              onPress={() => router.push('/gardens/new')}
+            >
+              <Ionicons name="add" size={26} color={COLORS.white} />
+              <Text style={styles.emptyStateButtonText}>Criar meu jardim</Text>
+            </Pressable>
+
+            <View style={styles.emptyStateSecondaryButton}>
+              <Ionicons name="leaf-outline" size={18} color={COLORS.textSoft} />
+              <Text style={styles.emptyStateSecondaryText}>Saiba como funciona</Text>
+            </View>
           </View>
         )}
       </ScrollView>
 
-      <Pressable style={styles.fab} onPress={() => router.push('/gardens/new')}>
-        <Ionicons name="add" size={34} color={COLORS.white} />
-      </Pressable>
+      {hasGardens ? (
+        <Pressable style={styles.fab} onPress={() => router.push('/gardens/new')}>
+          <Ionicons name="add" size={34} color={COLORS.white} />
+        </Pressable>
+      ) : null}
 
       <AppNavbar hidden={navbarHidden} />
     </View>
@@ -184,27 +205,21 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingHorizontal: 24,
-    paddingTop: 10,
+    paddingTop: 8,
     paddingBottom: 110,
-    gap: 18,
+    gap: 12,
   },
   heroCopy: {
-    gap: 10,
-    marginTop: 0,
+    width: '100%',
+    marginTop: 2,
     marginBottom: 6,
   },
   heading: {
     color: COLORS.primary,
-    fontSize: 40,
-    lineHeight: 44,
+    fontSize: 28,
+    lineHeight: 32,
     fontWeight: '900',
-    letterSpacing: -1.4,
-  },
-  subheading: {
-    color: COLORS.textMuted,
-    fontSize: 15,
-    lineHeight: 24,
-    maxWidth: '88%',
+    letterSpacing: -0.6,
   },
   lightCard: {
     backgroundColor: COLORS.surface,
@@ -326,32 +341,86 @@ const styles = StyleSheet.create({
     fontWeight: '800',
   },
   emptyState: {
-    backgroundColor: COLORS.surface,
-    borderRadius: 28,
-    padding: 24,
+    backgroundColor: COLORS.white,
+    borderRadius: 26,
+    paddingHorizontal: 18,
+    paddingTop: 20,
+    paddingBottom: 22,
+    minHeight: 500,
     alignItems: 'center',
-    gap: 10,
+    gap: 12,
+    shadowColor: '#17361d',
+    shadowOpacity: 0.05,
+    shadowRadius: 18,
+    shadowOffset: { width: 0, height: 8 },
+    elevation: 4,
   },
-  emptyStateIcon: {
-    width: 54,
-    height: 54,
-    borderRadius: 27,
+  emptyStateIllustrationWrap: {
+    width: '100%',
+    minHeight: 150,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: COLORS.surfaceHigh,
+    backgroundColor: COLORS.white,
+  },
+  emptyStateIllustration: {
+    width: '100%',
+    maxWidth: 230,
+    height: 138,
+  },
+  emptyStateCopy: {
+    alignItems: 'center',
+    gap: 6,
   },
   emptyStateTitle: {
     color: COLORS.primary,
-    fontSize: 20,
-    fontWeight: '800',
+    fontSize: 18,
+    lineHeight: 22,
+    fontWeight: '900',
     textAlign: 'center',
+    maxWidth: 190,
   },
   emptyStateText: {
     color: COLORS.textMuted,
-    fontSize: 14,
-    lineHeight: 22,
+    fontSize: 13,
+    lineHeight: 18,
     textAlign: 'center',
-    maxWidth: 260,
+    maxWidth: 210,
+  },
+  emptyStateButton: {
+    minHeight: 44,
+    paddingHorizontal: 16,
+    borderRadius: 14,
+    backgroundColor: COLORS.primary,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 10,
+    alignSelf: 'center',
+    marginTop: 14,
+    shadowColor: '#17361d',
+    shadowOpacity: 0.18,
+    shadowRadius: 18,
+    shadowOffset: { width: 0, height: 10 },
+    elevation: 8,
+  },
+  emptyStateButtonText: {
+    color: COLORS.white,
+    fontSize: 14,
+    fontWeight: '900',
+    textTransform: 'uppercase',
+  },
+  emptyStateSecondaryButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    marginTop: 10,
+    paddingVertical: 0,
+  },
+  emptyStateSecondaryText: {
+    color: COLORS.textSoft,
+    fontSize: 13,
+    fontWeight: '600',
   },
   fab: {
     position: 'absolute',
