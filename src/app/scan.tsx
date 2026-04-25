@@ -1,7 +1,7 @@
 import React from 'react';
 
-import { PlantArScreen } from '../features/ar/PlantArScreen';
+import { PlantAnalysisScreen } from '../features/plant-analysis/PlantAnalysisScreen';
 
 export default function ScanRoute() {
-  return <PlantArScreen />;
+  return <PlantAnalysisScreen />;
 }

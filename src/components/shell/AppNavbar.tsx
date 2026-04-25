@@ -97,7 +97,7 @@ export function AppNavbar({ hidden = false }: AppNavbarProps) {
           );
         })}
 
-        <Pressable style={styles.centerAction} onPress={() => router.push('/scan')}>
+        <Pressable style={styles.centerAction} onPress={() => router.push('/preview')}>
           <Ionicons name="scan" size={22} color={COLORS.white} />
         </Pressable>
 

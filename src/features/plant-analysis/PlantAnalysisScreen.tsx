@@ -15,13 +15,14 @@ import { AppNavbar } from '../../components/shell/AppNavbar';
 import { ENV } from '../../constants/env';
 import { useNavbarVisibilityOnScroll } from '../../hooks/useNavbarVisibilityOnScroll';
 
+type NivelSaude = 'Excelente' | 'Boa' | 'Regular' | 'Ruim' | 'Crítica';
+
 type PlantaDetectada = {
-  tipo: string;
-  agua: string;
-  iluminacao: string;
-  saude?: string;
-  saude_atual?: string;
-  dicas?: string;
+  saude: NivelSaude;
+  vitalidade: number;
+  rega: number;
+  luz: number;
+  crescimento: number;
 };
 
 const genAI = ENV.geminiApiKey ? new GoogleGenerativeAI(ENV.geminiApiKey) : null;
@@ -32,6 +33,36 @@ const GEMINI_MODELS = [
   'gemini-1.5-flash-latest',
 ] as const;
 
+function parseGeminiAnalysisResponse(responseText: string): PlantaDetectada {
+  const saudeMatch = responseText.match(
+    /Sa[úu]de:\s*(Excelente|Boa|Regular|Ruim|Cr[íi]tica)/i
+  );
+  const vitalidadeMatch = responseText.match(/Vitalidade:\s*(\d{1,3})\s*%/i);
+  const regaMatch = responseText.match(/Rega:\s*(\d{1,2})/i);
+  const luzMatch = responseText.match(/Luz:\s*(\d{1,2})/i);
+  const crescimentoMatch = responseText.match(/Crescimento:\s*(\d+)/i);
+
+  if (
+    !saudeMatch ||
+    !vitalidadeMatch ||
+    !regaMatch ||
+    !luzMatch ||
+    !crescimentoMatch
+  ) {
+    throw new Error(`Resposta do Gemini fora do padrão esperado: ${responseText}`);
+  }
+
+  const saude = saudeMatch[1].toLowerCase() === 'critica' ? 'Crítica' : saudeMatch[1];
+
+  return {
+    saude: saude as NivelSaude,
+    vitalidade: Number(vitalidadeMatch[1]),
+    rega: Number(regaMatch[1]),
+    luz: Number(luzMatch[1]),
+    crescimento: Number(crescimentoMatch[1]),
+  };
+}
+
 async function analisarPlantasDoJardim(
   base64String: string,
   mimeType = 'image/jpeg'
@@ -41,12 +72,29 @@ async function analisarPlantasDoJardim(
     return [];
   }
 
-  const generationConfig = {
-    responseMimeType: 'application/json',
-  };
+  const prompt = `Atue como um especialista em botânica e análise de imagem. Ao receber uma imagem ou descrição de uma planta, você deve retornar estritamente os dados seguindo o padrão abaixo, sem textos introdutórios ou conclusivos.
 
-  const prompt = `Analise a imagem e identifique as plantas.
-  Retorne um array JSON: [{"tipo": string, "agua": string, "iluminacao": string, "saude": string}]`;
+Padrão de Resposta:
+
+Saúde: [Escolha apenas um: Excelente, Boa, Regular, Ruim ou Crítica]
+
+Vitalidade: [Número de 0 a 100]%
+
+Rega: [Escala de 1 a 10]
+
+Luz: [Escala de 1 a 10]
+
+Crescimento: [Número médio de dias]
+
+Regras Adicionais:
+
+Se a planta estiver com manchas ou seca, reduza a Vitalidade e ajuste o nível de Saúde.
+
+A escala de Rega 1 significa 'quase nada de água' e 10 'solo sempre encharcado'.
+
+A escala de Luz 1 significa 'sombra total' e 10 'sol pleno direto'
+
+Retorne exatamente 5 linhas, usando os mesmos rótulos do padrão.`;
 
   const imageParts = [
     {
@@ -65,12 +113,12 @@ async function analisarPlantasDoJardim(
 
       const result = await model.generateContent({
         contents: [{ role: 'user', parts: [{ text: prompt }, ...imageParts] }],
-        generationConfig,
       });
 
       const response = result.response;
       console.log('Modelo Gemini utilizado:', modelName);
-      return JSON.parse(response.text()) as PlantaDetectada[];
+      const analysis = parseGeminiAnalysisResponse(response.text());
+      return [analysis];
     } catch (error) {
       console.error(`Erro na Chamada com ${modelName}:`, error);
     }
@@ -203,32 +251,33 @@ export function PlantAnalysisScreen() {
               <Text style={styles.emptyText}>Nenhuma planta analisada ainda.</Text>
             ) : (
               plantasList.map((planta, index) => (
-                <View key={`${planta.tipo}-${index}`} style={styles.card}>
-                  <Text style={styles.cardTitle}>{planta.tipo}</Text>
-
-                  <View style={styles.infoRow}>
-                    <Text style={styles.cardLabel}>Agua</Text>
-                    <Text style={styles.cardText}>{planta.agua}</Text>
-                  </View>
-
-                  <View style={styles.infoRow}>
-                    <Text style={styles.cardLabel}>Iluminacao</Text>
-                    <Text style={styles.cardText}>{planta.iluminacao}</Text>
-                  </View>
+                <View key={`planta-${index}`} style={styles.card}>
+                  <Text style={styles.cardTitle}>Analise da planta</Text>
 
                   <View style={styles.infoRow}>
                     <Text style={styles.cardLabel}>Saude</Text>
-                    <Text style={styles.cardText}>
-                      {planta.saude ?? planta.saude_atual ?? '-'}
-                    </Text>
+                    <Text style={styles.cardText}>{planta.saude}</Text>
                   </View>
 
-                  {planta.dicas ? (
-                    <View style={styles.tipBox}>
-                      <Text style={styles.tipLabel}>Dica rapida</Text>
-                      <Text style={styles.tipText}>{planta.dicas}</Text>
-                    </View>
-                  ) : null}
+                  <View style={styles.infoRow}>
+                    <Text style={styles.cardLabel}>Vitalidade</Text>
+                    <Text style={styles.cardText}>{planta.vitalidade}%</Text>
+                  </View>
+
+                  <View style={styles.infoRow}>
+                    <Text style={styles.cardLabel}>Rega</Text>
+                    <Text style={styles.cardText}>{planta.rega}/10</Text>
+                  </View>
+
+                  <View style={styles.infoRow}>
+                    <Text style={styles.cardLabel}>Luz</Text>
+                    <Text style={styles.cardText}>{planta.luz}/10</Text>
+                  </View>
+
+                  <View style={styles.infoRow}>
+                    <Text style={styles.cardLabel}>Crescimento</Text>
+                    <Text style={styles.cardText}>{planta.crescimento} dias</Text>
+                  </View>
                 </View>
               ))
             )}
