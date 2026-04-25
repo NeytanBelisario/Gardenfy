@@ -5,16 +5,18 @@
   "scripts": {
     "start": "expo start",
     "reset-project": "node ./scripts/reset-project.js",
-    "android": "expo start --android",
-    "ios": "expo start --ios",
+    "android": "expo run:android",
+    "ios": "expo run:ios",
     "web": "expo start --web",
     "lint": "expo lint"
   },
   "dependencies": {
+    "@expo/config-plugins": "~55.0.5",
     "@google/generative-ai": "^0.24.1",
     "@react-navigation/bottom-tabs": "^7.15.5",
     "@react-navigation/elements": "^2.9.10",
     "@react-navigation/native": "^7.1.33",
+    "@reactvision/react-viro": "^2.54.0",
     "expo": "~55.0.15",
     "expo-constants": "~55.0.14",
     "expo-device": "~55.0.15",
@@ -42,6 +44,9 @@
   "devDependencies": {
     "@types/react": "~19.2.2",
     "typescript": "~5.9.2"
+  },
+  "overrides": {
+    "react": "$react"
   },
   "private": true
 }
