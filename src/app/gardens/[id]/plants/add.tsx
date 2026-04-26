@@ -140,7 +140,19 @@ export default function AddPlantsScreen() {
             instantaneamente.
           </Text>
 
-          <Pressable style={styles.scanButton}>
+          <Pressable
+            style={styles.scanButton}
+            onPress={() => {
+              if (!id) {
+                return;
+              }
+
+              router.push({
+                pathname: '/gardens/[id]/plants/scan',
+                params: { id },
+              });
+            }}
+          >
             <Ionicons name="camera" size={22} color={COLORS.tertiaryText} />
             <Text style={styles.scanButtonText}>Escanear Planta</Text>
           </Pressable>

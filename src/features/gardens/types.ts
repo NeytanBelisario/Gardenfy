@@ -13,11 +13,25 @@ export type GardenPlant = {
   name: string;
   subtitle: string;
   imageUrl: string;
+  identifiedName?: string;
+  vitality?: number;
+  growthDays?: number;
+  lastAnalyzedPhotoUri?: string;
+  lastAnalyzedAt?: string;
   status: {
     label: string;
     tone: PlantHealthTone;
   };
   metrics: GardenMetric[];
+};
+
+export type PlantAnalysisResult = {
+  plantName: string;
+  health: 'Excelente' | 'Boa' | 'Regular' | 'Ruim' | 'Critica';
+  vitality: number;
+  water: number;
+  light: number;
+  growthDays: number;
 };
 
 export type PlantCatalogCategory =

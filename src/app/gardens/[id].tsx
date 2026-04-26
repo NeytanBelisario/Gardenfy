@@ -131,15 +131,73 @@ function statusColors(tone: GardenDetails['plants'][number]['status']['tone']) {
   };
 }
 
-function PlantCard({ plant }: { plant: GardenDetails['plants'][number] }) {
+function recommendedScanDays(vitality?: number) {
+  if (typeof vitality !== 'number') {
+    return null;
+  }
+
+  if (vitality <= 30) {
+    return 1;
+  }
+
+  if (vitality <= 70) {
+    return 2;
+  }
+
+  return 3;
+}
+
+function formatLastScan(value?: string) {
+  if (!value) {
+    return 'Sem scan';
+  }
+
+  const scanDate = new Date(value);
+  const now = new Date();
+  const diffDays = Math.floor(
+    (now.getTime() - scanDate.getTime()) / (1000 * 60 * 60 * 24)
+  );
+
+  if (diffDays <= 0) {
+    return 'Hoje';
+  }
+
+  if (diffDays === 1) {
+    return '1 dia';
+  }
+
+  return `${diffDays} dias`;
+}
+
+function PlantCard({
+  plant,
+  onAnalyze,
+}: {
+  plant: GardenDetails['plants'][number];
+  onAnalyze: () => void;
+}) {
   const lightMetric = plant.metrics.find((metric) => metric.kind === 'light');
   const waterMetric = plant.metrics.find((metric) => metric.kind === 'water');
   const badge = statusColors(plant.status.tone);
+  const nextScanDays = recommendedScanDays(plant.vitality);
 
   return (
     <View style={styles.plantCard}>
       <View style={styles.plantImageWrap}>
         <Image source={{ uri: plant.imageUrl }} style={styles.plantImage} />
+        <View style={styles.scanBadgesColumn}>
+          <View style={styles.scanBadge}>
+            <Feather name="clock" size={11} color={COLORS.secondary} />
+            <Text style={styles.scanBadgeText}>{formatLastScan(plant.lastAnalyzedAt)}</Text>
+          </View>
+
+          <View style={styles.scanBadge}>
+            <MaterialCommunityIcons name="radar" size={12} color={COLORS.secondary} />
+            <Text style={styles.scanBadgeText}>
+              {nextScanDays ? `${nextScanDays}d` : 'Scan'}
+            </Text>
+          </View>
+        </View>
       </View>
 
       <View style={styles.plantBody}>
@@ -148,14 +206,24 @@ function PlantCard({ plant }: { plant: GardenDetails['plants'][number] }) {
             <Text style={styles.plantName}>{plant.name}</Text>
             <Text style={styles.plantSubtitle}>{plant.subtitle}</Text>
           </View>
-          <View style={[styles.statusBadge, { backgroundColor: badge.backgroundColor }]}>
-            <Text style={[styles.statusBadgeText, { color: badge.color }]}>
-              {plant.status.label}
-            </Text>
-          </View>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={`Analisar ${plant.name} com camera`}
+            style={[styles.statusBadge, { backgroundColor: badge.backgroundColor }]}
+            onPress={onAnalyze}
+          >
+            <Ionicons name="camera" size={16} color={badge.color} />
+          </Pressable>
         </View>
 
         <View style={styles.plantMetricsRow}>
+          <View style={styles.inlineMetric}>
+            <View style={styles.inlineMetricIcon}>
+              <Ionicons name="pulse-outline" size={14} color={COLORS.primary} />
+            </View>
+            <Text style={styles.inlineMetricText}>{plant.vitality ?? 0}%</Text>
+          </View>
+
           <View style={styles.inlineMetric}>
             <View style={styles.inlineMetricIcon}>
               <GardenMetricIcon metric={{ kind: 'light', label: 'Light', value: 0 }} />
@@ -169,6 +237,15 @@ function PlantCard({ plant }: { plant: GardenDetails['plants'][number] }) {
             </View>
             <Text style={styles.inlineMetricText}>{waterMetric?.value ?? 0}%</Text>
           </View>
+
+          <View style={styles.inlineMetric}>
+            <View style={styles.inlineMetricIcon}>
+              <MaterialCommunityIcons name="sprout" size={14} color={COLORS.secondary} />
+            </View>
+            <Text style={styles.inlineMetricText}>
+              {plant.growthDays ? `${plant.growthDays}d` : '--'}
+            </Text>
+          </View>
         </View>
       </View>
     </View>
@@ -178,9 +255,11 @@ function PlantCard({ plant }: { plant: GardenDetails['plants'][number] }) {
 function GardenDetailsView({
   garden,
   onAddPlant,
+  onAnalyzePlant,
 }: {
   garden: GardenDetails;
   onAddPlant: () => void;
+  onAnalyzePlant: (plantId: string) => void;
 }) {
   return (
     <>
@@ -236,7 +315,11 @@ function GardenDetailsView({
       {garden.plants.length > 0 ? (
         <View style={styles.plantList}>
           {garden.plants.map((plant) => (
-            <PlantCard key={plant.id} plant={plant} />
+            <PlantCard
+              key={plant.id}
+              plant={plant}
+              onAnalyze={() => onAnalyzePlant(plant.id)}
+            />
           ))}
         </View>
       ) : (
@@ -276,6 +359,12 @@ export default function GardenDetailsScreen() {
               router.push({
                 pathname: '/gardens/[id]/plants/add',
                 params: { id: garden.id },
+              })
+            }
+            onAnalyzePlant={(plantId) =>
+              router.push({
+                pathname: '/gardens/[id]/plants/[plantId]/scan',
+                params: { id: garden.id, plantId },
               })
             }
           />
@@ -455,19 +544,18 @@ const styles = StyleSheet.create({
   },
   plantImageWrap: {
     width: 78,
-    height: 78,
-    borderRadius: 20,
-    overflow: 'hidden',
-    backgroundColor: COLORS.surfaceHigh,
+    gap: 7,
   },
   plantImage: {
     width: '100%',
-    height: '100%',
+    height: 78,
+    borderRadius: 20,
+    backgroundColor: COLORS.surfaceHigh,
   },
   plantBody: {
     flex: 1,
     justifyContent: 'center',
-    gap: 10,
+    gap: 9,
   },
   plantHeader: {
     flexDirection: 'row',
@@ -481,7 +569,8 @@ const styles = StyleSheet.create({
   },
   plantName: {
     color: COLORS.primary,
-    fontSize: 18,
+    fontSize: 16,
+    lineHeight: 20,
     fontWeight: '800',
   },
   plantSubtitle: {
@@ -501,7 +590,8 @@ const styles = StyleSheet.create({
   },
   plantMetricsRow: {
     flexDirection: 'row',
-    gap: 14,
+    flexWrap: 'wrap',
+    gap: 12,
   },
   inlineMetric: {
     flexDirection: 'row',
@@ -520,6 +610,26 @@ const styles = StyleSheet.create({
     color: COLORS.textMuted,
     fontSize: 12,
     fontWeight: '700',
+  },
+  scanBadgesColumn: {
+    gap: 5,
+  },
+  scanBadge: {
+    minHeight: 22,
+    borderRadius: 999,
+    backgroundColor: COLORS.surfaceLow,
+    borderWidth: 1,
+    borderColor: 'rgba(194, 200, 191, 0.45)',
+    paddingHorizontal: 7,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 4,
+  },
+  scanBadgeText: {
+    color: COLORS.textMuted,
+    fontSize: 10,
+    fontWeight: '800',
   },
   emptyCollectionCard: {
     marginHorizontal: 24,
