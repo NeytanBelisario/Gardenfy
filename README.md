@@ -1,8 +1,23 @@
-18/04 commit de dados mockados:
+Próximos passos:
 
-ISSUES 
+- MOEDAS 🔥
 
-- Icones do jardim (estão inúteis)
-- Header não aparecendo na hora de criar jardim
-- Unknown na hora de escanear a planta para obter os dados
-- Filtro para adicionar plantas está muito ruim, melhorar
+### Ranks -
+Iniciante 🌱
+Cuidador 🌿
+Jardineiro 🌳
+Especialista 🌴
+
+### Tela da planta
+
+Adicionar:
+
+Cards:
+Hidratação
+Luz
+
+Botões rápidos:
+Regar
+Adubar
+
+Histórico

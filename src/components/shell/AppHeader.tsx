@@ -206,6 +206,10 @@ export function AppHeader({
     animateClose(() => router.push(route as never));
   };
 
+  const handleProfilePress = () => {
+    router.push('/profile');
+  };
+
   return (
     <>
       {mode === 'menu' ? (
@@ -291,9 +295,9 @@ export function AppHeader({
           <Text style={styles.headerBrand}>{title}</Text>
         </View>
 
-        <View style={styles.avatarWrap}>
+        <Pressable style={styles.avatarWrap} onPress={handleProfilePress}>
           <Text style={styles.avatarText}>{userInitial}</Text>
-        </View>
+        </Pressable>
       </View>
     </>
   );

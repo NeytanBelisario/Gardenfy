@@ -111,7 +111,11 @@ export function AppNavbar({ hidden = false }: AppNavbarProps) {
           const active = item.activeOn.includes(pathname as never);
 
           return (
-            <Pressable key={item.label} style={styles.navItem}>
+            <Pressable
+              key={item.label}
+              style={styles.navItem}
+              onPress={() => router.push(item.route as never)}
+            >
               <View style={[styles.navChip, active && styles.navChipActive]}>
                 <NavIcon item={item} active={active} />
               </View>
