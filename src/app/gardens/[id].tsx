@@ -19,6 +19,7 @@ import {
   GardenMetric,
 } from '../../features/gardens/types';
 import { AppHeader } from '../../components/shell/AppHeader';
+import { GardenIdentityIcon } from '../../features/gardens/icons';
 import { useGardenDetails } from '../../features/gardens/store';
 
 const COLORS = {
@@ -265,8 +266,11 @@ function GardenDetailsView({
     <>
       <View style={styles.heroSection}>
         <View style={styles.heroCard}>
-          <Image source={{ uri: garden.imageUrl }} style={styles.heroImage} />
-          <View style={styles.heroOverlay} />
+          <View style={styles.heroIdentity}>
+            <View style={styles.heroIdentityBadge}>
+              <GardenIdentityIcon icon={garden.icon} size={74} color={COLORS.white} />
+            </View>
+          </View>
           <View style={styles.heroCopy}>
             <Text style={styles.heroEyebrow}>{garden.label}</Text>
             <Text style={styles.heroTitle}>{garden.name}</Text>
@@ -393,19 +397,28 @@ const styles = StyleSheet.create({
     height: 260,
     borderRadius: 28,
     overflow: 'hidden',
+    backgroundColor: '#315338',
     shadowColor: '#17361d',
     shadowOpacity: 0.16,
     shadowRadius: 18,
     shadowOffset: { width: 0, height: 10 },
     elevation: 8,
   },
-  heroImage: {
-    width: '100%',
-    height: '100%',
-  },
-  heroOverlay: {
+  heroIdentity: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(23, 54, 29, 0.34)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(23, 54, 29, 0.18)',
+  },
+  heroIdentityBadge: {
+    width: 140,
+    height: 140,
+    borderRadius: 40,
+    backgroundColor: 'rgba(255,255,255,0.12)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.18)',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   heroCopy: {
     position: 'absolute',

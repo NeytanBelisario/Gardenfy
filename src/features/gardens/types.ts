@@ -1,3 +1,5 @@
+import type { GardenIconName } from './icons';
+
 export type GardenMetricKind = 'light' | 'water';
 
 export type GardenMetric = {
@@ -60,6 +62,8 @@ export type GardenAlert = {
 
 export type GardenEnvironment = 'indoor' | 'outdoor';
 
+export type GardenIcon = GardenIconName;
+
 export type GardenSummary = {
   id: string;
   name: string;
@@ -67,6 +71,7 @@ export type GardenSummary = {
   plantCount: number;
   vitality: number;
   imageUrl: string;
+  icon: GardenIcon;
   environment: GardenEnvironment;
   alert?: GardenAlert;
   metrics: GardenMetric[];
@@ -80,5 +85,5 @@ export type GardenDetails = GardenSummary & {
 export type CreateGardenDraft = {
   name: string;
   environment: GardenEnvironment;
-  icon: string;
+  icon: GardenIcon;
 };

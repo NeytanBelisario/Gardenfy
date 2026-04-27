@@ -11,12 +11,15 @@ import {
 import { useRouter } from 'expo-router';
 import {
   Ionicons,
-  MaterialCommunityIcons,
-  MaterialIcons,
 } from '@expo/vector-icons';
 
 import { CreateGardenDraft, GardenEnvironment } from '../../features/gardens/types';
 import { createMockGarden } from '../../features/gardens/store';
+import {
+  GardenIconName,
+  GardenIdentityIcon,
+  gardenIconOptions,
+} from '../../features/gardens/icons';
 
 const COLORS = {
   background: '#fbf9f5',
@@ -30,19 +33,6 @@ const COLORS = {
   white: '#ffffff',
 } as const;
 
-const iconOptions = [
-  'potted-plant',
-  'psychology',
-  'eco',
-  'wb-sunny',
-  'water-drop',
-  'energy-savings-leaf',
-  'spa',
-  'filter-vintage',
-] as const;
-
-type GardenIconName = (typeof iconOptions)[number];
-
 function IdentityIcon({
   icon,
   active,
@@ -51,25 +41,7 @@ function IdentityIcon({
   active: boolean;
 }) {
   const color = active ? COLORS.tertiaryText : COLORS.secondary;
-
-  switch (icon) {
-    case 'potted-plant':
-      return <MaterialCommunityIcons name="sprout" size={30} color={color} />;
-    case 'psychology':
-      return <MaterialIcons name="psychology" size={30} color={color} />;
-    case 'eco':
-      return <MaterialIcons name="eco" size={30} color={color} />;
-    case 'wb-sunny':
-      return <Ionicons name="sunny-outline" size={30} color={color} />;
-    case 'water-drop':
-      return <Ionicons name="water-outline" size={30} color={color} />;
-    case 'energy-savings-leaf':
-      return <MaterialIcons name="energy-savings-leaf" size={30} color={color} />;
-    case 'spa':
-      return <MaterialIcons name="spa" size={30} color={color} />;
-    case 'filter-vintage':
-      return <MaterialIcons name="filter-vintage" size={30} color={color} />;
-  }
+  return <GardenIdentityIcon icon={icon} size={30} color={color} />;
 }
 
 export default function NewGardenScreen() {
@@ -91,8 +63,7 @@ export default function NewGardenScreen() {
   const handleCreateGarden = () => {
     const nextGarden = createMockGarden({
       ...draft,
-      imageUrl:
-        'https://lh3.googleusercontent.com/aida-public/AB6AXuAg44WsM3e20lqM56FtwGUQO9hTzhapVd-1AdCb0nhBUveRHsPr-KOqieEBAk1S0jbN5an_AIu_tbT2apqvGSwyqR9AjlUOXg9hM0FEhYXkVtzpHyKDqChu4bAn2_RaO0XWgbbYl4_ZRoaQeRJ52WQuWRg5tIiIBU94cKbu0R57gSBXPnx2io0_vCXRuHMphsEmuUS1l_Bbtzt1Bt92QCpiCIG3exqaU8XHwJLXG5KF7h43oof_SS5CZBCZiwW-9xfv9mVnZkjxfOk',
+      imageUrl: '',
     });
 
     router.replace({
@@ -188,7 +159,7 @@ export default function NewGardenScreen() {
           </View>
 
           <View style={styles.iconGrid}>
-            {iconOptions.map((icon) => {
+            {gardenIconOptions.map((icon) => {
               const isActive = draft.icon === icon;
 
               return (

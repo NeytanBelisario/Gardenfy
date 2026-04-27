@@ -12,6 +12,7 @@ import { Feather, Ionicons } from '@expo/vector-icons';
 
 import { AppHeader } from '../components/shell/AppHeader';
 import { AppNavbar } from '../components/shell/AppNavbar';
+import { GardenIdentityIcon } from '../features/gardens/icons';
 import { GardenMetric, GardenSummary } from '../features/gardens/types';
 import { useGardenSummaries } from '../features/gardens/store';
 import { useNavbarVisibilityOnScroll } from '../hooks/useNavbarVisibilityOnScroll';
@@ -86,7 +87,7 @@ function GardenCard({ garden }: { garden: GardenSummary }) {
     >
       <View style={styles.cardTopRow}>
         <View style={styles.thumbImageWrap}>
-          <Image source={{ uri: garden.imageUrl }} style={styles.thumbImage} />
+          <GardenIdentityIcon icon={garden.icon} size={42} color={COLORS.primary} />
         </View>
 
         <View style={styles.lightCardContent}>
@@ -236,13 +237,10 @@ const styles = StyleSheet.create({
     width: 106,
     height: 106,
     borderRadius: 24,
-    overflow: 'hidden',
     flexShrink: 0,
     backgroundColor: COLORS.surfaceHigh,
-  },
-  thumbImage: {
-    width: '100%',
-    height: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   lightCardContent: {
     flex: 1,

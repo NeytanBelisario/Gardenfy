@@ -185,7 +185,7 @@ export function PlantAnalysisScreen() {
 
   return (
     <View style={styles.screen}>
-      <AppHeader mode="back" />
+      <AppHeader mode="menu" />
 
       <ScrollView
         contentContainerStyle={styles.container}
@@ -293,7 +293,7 @@ export function PlantAnalysisScreen() {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: '#eef3ea',
+    backgroundColor: '#fbf9f5',
   },
   container: {
     flexGrow: 1,
@@ -301,7 +301,7 @@ const styles = StyleSheet.create({
     paddingTop: 92,
     paddingBottom: 112,
     gap: 20,
-    backgroundColor: '#eef3ea',
+    backgroundColor: '#fbf9f5',
   },
   hero: {
     backgroundColor: '#24452f',

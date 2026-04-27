@@ -1,8 +1,9 @@
 import React, { useEffect, useRef } from 'react';
-import { Animated, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Animated, Easing, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { usePathname, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useShellUi } from './shellUiStore';
 
 const COLORS = {
   background: '#fbf9f5',
@@ -42,26 +43,31 @@ export function AppNavbar({ hidden = false }: AppNavbarProps) {
   const pathname = usePathname();
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const { menuOpen } = useShellUi();
+  const shouldHide = hidden || menuOpen;
   const translateY = useRef(new Animated.Value(0)).current;
   const opacity = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
     Animated.parallel([
-      Animated.spring(translateY, {
-        toValue: hidden ? 120 : 0,
+      Animated.timing(translateY, {
+        toValue: shouldHide ? 96 : 0,
+        duration: shouldHide ? 240 : 280,
+        easing: shouldHide ? Easing.in(Easing.cubic) : Easing.out(Easing.cubic),
         useNativeDriver: true,
-        bounciness: 4,
       }),
       Animated.timing(opacity, {
-        toValue: hidden ? 0 : 1,
-        duration: 180,
+        toValue: shouldHide ? 0 : 1,
+        duration: shouldHide ? 180 : 220,
+        easing: shouldHide ? Easing.in(Easing.quad) : Easing.out(Easing.quad),
         useNativeDriver: true,
       }),
     ]).start();
-  }, [hidden, opacity, translateY]);
+  }, [opacity, shouldHide, translateY]);
 
   return (
     <Animated.View
+      pointerEvents={shouldHide ? 'none' : 'auto'}
       style={[
         styles.navShell,
         {

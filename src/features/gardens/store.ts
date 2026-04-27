@@ -175,6 +175,7 @@ export function createMockGarden(input: GardenCreateInput) {
     averageHydration: 0,
     environment: input.environment,
     imageUrl: input.imageUrl,
+    icon: input.icon,
     metrics: [
       {
         kind: 'light',
