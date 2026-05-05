@@ -47,7 +47,8 @@
           }
         }
       ],
-      "@reactvision/react-viro"
+      "@reactvision/react-viro",
+      "./plugins/with-viro-new-arch-marker"
     ],
     "experiments": {
       "typedRoutes": true,

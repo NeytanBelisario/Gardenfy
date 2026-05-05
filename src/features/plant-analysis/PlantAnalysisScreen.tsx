@@ -29,8 +29,7 @@ const genAI = ENV.geminiApiKey ? new GoogleGenerativeAI(ENV.geminiApiKey) : null
 
 const GEMINI_MODELS = [
   'gemini-2.5-flash',
-  'gemini-2.0-flash',
-  'gemini-1.5-flash-latest',
+  'gemini-2.5-pro',
 ] as const;
 
 function parseGeminiAnalysisResponse(responseText: string): PlantaDetectada {

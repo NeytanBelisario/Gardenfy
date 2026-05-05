@@ -4,13 +4,20 @@ import Constants from 'expo-constants';
 import {
   ViroAmbientLight,
   Viro3DObject,
-  ViroARPlaneSelector,
+  ViroAnimations,
+  ViroARPlane,
   ViroARScene,
   ViroARSceneNavigator,
+  ViroAnchor,
+  ViroCameraTransform,
+  ViroClickStateTypes,
   ViroDirectionalLight,
+  ViroMaterials,
   ViroNode,
   ViroPinchStateTypes,
+  ViroQuad,
   ViroRotateStateTypes,
+  ViroTrackingReason,
   ViroTrackingStateConstants,
   isARSupportedOnDevice,
 } from '@reactvision/react-viro';
@@ -18,14 +25,140 @@ import {
 import { AppHeader } from '../../components/shell/AppHeader';
 
 const PLANT_MODEL = require('../../public/fiddle-leaf-plant.glb');
+const GROUND_GRID_TEXTURE = require('../../../assets/expo.icon/Assets/grid.png');
 const INITIAL_SCALE = 0.12;
 const MIN_SCALE = 0.05;
 const MAX_SCALE = 0.35;
+const GROUND_GRID_MATERIAL = 'PlantArGroundGrid';
+const GROUND_SURFACE_MATERIAL = 'PlantArGroundSurface';
+const GROUND_GRID_PULSE_ANIMATION = 'PlantArGroundGridPulse';
+const MIN_GROUND_PLANE_SIZE = 0.42;
+const PLANE_STABLE_UPDATE_COUNT = 3;
+const PLANE_STABLE_POSITION_DELTA = 0.04;
+const PLANE_STABLE_SIZE_DELTA = 0.08;
+const MIN_PLANE_DISTANCE_BELOW_CAMERA = 0.06;
 
 type SupportStatus = 'checking' | 'ready' | 'unsupported' | 'native-misaligned';
+type ArOverlayMessage = 'Mapeando ambiente...' | 'Mova devagar' | 'Pronto para posicionar';
+
+type PlantArSceneProps = {
+  onTrackingStateChange?: (state: number, reason?: ViroTrackingReason) => void;
+  onPlaneStateChange?: (isPlaneDetected: boolean) => void;
+  onPlacementChange?: (isPlaced: boolean) => void;
+  resetSignal?: number;
+};
+
+type GroundPlaneSelectorProps = {
+  cameraPosition: [number, number, number] | null;
+  isPlaced: boolean;
+  minHeight: number;
+  minWidth: number;
+  onFirstPlaneDetected: () => void;
+  onPlaneCountChange: (planeCount: number) => void;
+  onPlaneSelected: (position: [number, number, number]) => void;
+};
+
+type PlaneCandidate = {
+  anchor: ViroAnchor;
+  stableUpdates: number;
+};
+
+ViroMaterials.createMaterials({
+  [GROUND_GRID_MATERIAL]: {
+    lightingModel: 'Constant',
+    diffuseTexture: GROUND_GRID_TEXTURE,
+    diffuseColor: 'rgba(228, 255, 210, 1)',
+    blendMode: 'Alpha',
+    cullMode: 'None',
+    wrapS: 'Repeat',
+    wrapT: 'Repeat',
+    writesToDepthBuffer: false,
+  },
+  [GROUND_SURFACE_MATERIAL]: {
+    lightingModel: 'Constant',
+    diffuseColor: 'rgba(113, 214, 83, 0.24)',
+    blendMode: 'Alpha',
+    cullMode: 'None',
+    writesToDepthBuffer: false,
+  },
+});
+
+if (NativeModules.VRTAnimationManager) {
+  ViroAnimations.registerAnimations({
+    [GROUND_GRID_PULSE_ANIMATION]: [
+      {
+        duration: 420,
+        easing: 'EaseOut',
+        properties: {
+          opacity: 1,
+          scaleX: 1.18,
+          scaleY: 1.18,
+        },
+      },
+      {
+        duration: 520,
+        easing: 'EaseInEaseOut',
+        properties: {
+          opacity: 1,
+          scaleX: 1,
+          scaleY: 1,
+        },
+      },
+    ],
+  });
+}
 
 function clamp(value: number, min: number, max: number) {
   return Math.min(Math.max(value, min), max);
+}
+
+function isUsableGroundPlane(
+  anchor: ViroAnchor,
+  cameraPosition: [number, number, number] | null,
+  minWidth: number,
+  minHeight: number
+) {
+  if (anchor.type !== 'plane') {
+    return false;
+  }
+
+  if (!anchor.alignment?.includes('Horizontal') || anchor.alignment === 'HorizontalDownward') {
+    return false;
+  }
+
+  if ((anchor.width ?? 0) < minWidth || (anchor.height ?? 0) < minHeight) {
+    return false;
+  }
+
+  if (['Ceiling', 'Wall', 'Door', 'Window', 'Seat'].includes(anchor.classification ?? '')) {
+    return false;
+  }
+
+  if (!cameraPosition) {
+    return false;
+  }
+
+  if (anchor.position[1] > cameraPosition[1] - MIN_PLANE_DISTANCE_BELOW_CAMERA) {
+    return false;
+  }
+
+  return true;
+}
+
+function isPlaneStable(previous: ViroAnchor, next: ViroAnchor) {
+  const positionDelta = Math.max(
+    Math.abs(previous.position[0] - next.position[0]),
+    Math.abs(previous.position[1] - next.position[1]),
+    Math.abs(previous.position[2] - next.position[2])
+  );
+  const widthDelta = Math.abs((previous.width ?? 0) - (next.width ?? 0));
+  const heightDelta = Math.abs((previous.height ?? 0) - (next.height ?? 0));
+
+  return (
+    positionDelta <= PLANE_STABLE_POSITION_DELTA &&
+    widthDelta <= PLANE_STABLE_SIZE_DELTA &&
+    heightDelta <= PLANE_STABLE_SIZE_DELTA
+  );
 }
 
 function hasFabricRuntime() {
@@ -47,21 +180,224 @@ function hasViroNativeBindings() {
   return hasNavigatorModule && Boolean(viewManagerConfig);
 }
 
-function PlantArScene() {
+const GroundPlaneSelector = React.forwardRef<
+  { handleAnchorFound: (anchor: ViroAnchor) => void; handleAnchorUpdated: (anchor: ViroAnchor) => void; handleAnchorRemoved: (anchor?: ViroAnchor) => void; reset: () => void },
+  GroundPlaneSelectorProps
+>(function GroundPlaneSelector(
+  {
+    cameraPosition,
+    isPlaced,
+    minHeight,
+    minWidth,
+    onFirstPlaneDetected,
+    onPlaneCountChange,
+    onPlaneSelected,
+  },
+  ref
+) {
+  const [planes, setPlanes] = useState<Map<string, ViroAnchor>>(() => new Map());
+  const [selectedPlaneId, setSelectedPlaneId] = useState<string | null>(null);
+  const [pulsePlaneId, setPulsePlaneId] = useState<string | null>(null);
+  const planeCandidatesRef = useRef<Map<string, PlaneCandidate>>(new Map());
+  const hasDetectedPlaneRef = useRef(false);
+  const pulseTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const removePlane = useCallback((anchorId: string) => {
+    planeCandidatesRef.current.delete(anchorId);
+    setPlanes((current) => {
+      if (!current.has(anchorId)) {
+        return current;
+      }
+
+      const next = new Map(current);
+      next.delete(anchorId);
+      return next;
+    });
+  }, []);
+
+  const evaluatePlaneCandidate = useCallback((anchor: ViroAnchor) => {
+    if (!isUsableGroundPlane(anchor, cameraPosition, minWidth, minHeight)) {
+      removePlane(anchor.anchorId);
+      return;
+    }
+
+    const previousCandidate = planeCandidatesRef.current.get(anchor.anchorId);
+    const stableUpdates =
+      previousCandidate && isPlaneStable(previousCandidate.anchor, anchor)
+        ? previousCandidate.stableUpdates + 1
+        : 1;
+
+    planeCandidatesRef.current.set(anchor.anchorId, {
+      anchor,
+      stableUpdates,
+    });
+
+    if (stableUpdates < PLANE_STABLE_UPDATE_COUNT) {
+      return;
+    }
+
+    setPlanes((current) => {
+      const currentAnchor = current.get(anchor.anchorId);
+      if (currentAnchor && isPlaneStable(currentAnchor, anchor)) {
+        return current;
+      }
+
+      const next = new Map(current);
+      next.set(anchor.anchorId, anchor);
+      return next;
+    });
+  }, [cameraPosition, minHeight, minWidth, removePlane]);
+
+  const handleAnchorFound = useCallback((anchor: ViroAnchor) => {
+    evaluatePlaneCandidate(anchor);
+  }, [evaluatePlaneCandidate]);
+
+  const handleAnchorUpdated = useCallback((anchor: ViroAnchor) => {
+    evaluatePlaneCandidate(anchor);
+  }, [evaluatePlaneCandidate]);
+
+  const handleAnchorRemoved = useCallback((anchor?: ViroAnchor) => {
+    if (!anchor?.anchorId) {
+      return;
+    }
+
+    removePlane(anchor.anchorId);
+    setSelectedPlaneId((current) => (current === anchor.anchorId ? null : current));
+  }, [removePlane]);
+
+  const reset = useCallback(() => {
+    planeCandidatesRef.current.clear();
+    setPlanes(new Map());
+    setSelectedPlaneId(null);
+    setPulsePlaneId(null);
+    hasDetectedPlaneRef.current = false;
+  }, []);
+
+  React.useImperativeHandle(ref, () => ({
+    handleAnchorFound,
+    handleAnchorUpdated,
+    handleAnchorRemoved,
+    reset,
+  }), [handleAnchorFound, handleAnchorRemoved, handleAnchorUpdated, reset]);
+
+  React.useEffect(() => () => {
+    if (pulseTimeoutRef.current) {
+      clearTimeout(pulseTimeoutRef.current);
+    }
+  }, []);
+
+  React.useEffect(() => {
+    onPlaneCountChange(planes.size);
+  }, [onPlaneCountChange, planes.size]);
+
+  React.useEffect(() => {
+    if (planes.size === 0 || hasDetectedPlaneRef.current) {
+      return;
+    }
+
+    const firstPlaneId = planes.keys().next().value;
+    if (!firstPlaneId) {
+      return;
+    }
+
+    hasDetectedPlaneRef.current = true;
+    setPulsePlaneId(firstPlaneId);
+    onFirstPlaneDetected();
+
+    if (pulseTimeoutRef.current) {
+      clearTimeout(pulseTimeoutRef.current);
+    }
+
+    pulseTimeoutRef.current = setTimeout(() => setPulsePlaneId(null), 1100);
+  }, [onFirstPlaneDetected, planes]);
+
+  return (
+    <ViroNode>
+      {Array.from(planes.entries()).map(([anchorId, anchor]) => {
+        const isSelected = selectedPlaneId === anchorId;
+        const shouldShowGrid = !isPlaced && (selectedPlaneId === null || isSelected);
+        const width = Math.max(anchor.width ?? 0.5, minWidth);
+        const height = Math.max(anchor.height ?? 0.5, minHeight);
+
+        return (
+          <ViroARPlane
+            key={anchorId}
+            anchorId={anchorId}
+            minHeight={minHeight}
+            minWidth={minWidth}
+            onAnchorUpdated={(updatedAnchor) => handleAnchorUpdated(updatedAnchor as ViroAnchor)}
+          >
+            <ViroQuad
+              height={height}
+              materials={[GROUND_SURFACE_MATERIAL]}
+              opacity={shouldShowGrid ? 1 : 0}
+              position={[0, -0.001, 0]}
+              rotation={[-90, 0, 0]}
+              width={width}
+            />
+
+            <ViroQuad
+              animation={{
+                name: GROUND_GRID_PULSE_ANIMATION,
+                run: pulsePlaneId === anchorId,
+                loop: false,
+                interruptible: true,
+              }}
+              height={height}
+              materials={[GROUND_GRID_MATERIAL]}
+              opacity={shouldShowGrid ? 1 : 0}
+              position={[0, 0.001, 0]}
+              rotation={[-90, 0, 0]}
+              width={width}
+              onClickState={(clickState, tapWorld) => {
+                if (clickState !== ViroClickStateTypes.CLICKED) {
+                  return;
+                }
+
+                setSelectedPlaneId(anchorId);
+                onPlaneSelected(tapWorld);
+              }}
+            />
+          </ViroARPlane>
+        );
+      })}
+    </ViroNode>
+  );
+});
+
+function PlantArScene({
+  onPlacementChange,
+  onPlaneStateChange,
+  onTrackingStateChange,
+  resetSignal,
+}: PlantArSceneProps = {}) {
   const [isPlaced, setIsPlaced] = useState(false);
   const [trackingReady, setTrackingReady] = useState(false);
+  const [placedPosition, setPlacedPosition] = useState<[number, number, number] | null>(null);
+  const [cameraPosition, setCameraPosition] = useState<[number, number, number] | null>(null);
   const [scale, setScale] = useState(INITIAL_SCALE);
   const [rotationY, setRotationY] = useState(0);
   const [pinchStartScale, setPinchStartScale] = useState(INITIAL_SCALE);
   const [rotateStartY, setRotateStartY] = useState(0);
-  const planeSelectorRef = useRef<ViroARPlaneSelector | null>(null);
+  const planeSelectorRef = useRef<React.ElementRef<typeof GroundPlaneSelector> | null>(null);
 
-  const handleTrackingUpdated = useCallback((state: number) => {
+  const handleTrackingUpdated = useCallback((state: number, reason?: ViroTrackingReason) => {
     setTrackingReady(state === ViroTrackingStateConstants.TRACKING_NORMAL);
-  }, []);
+    onTrackingStateChange?.(state, reason);
+  }, [onTrackingStateChange]);
 
-  const handlePlaneSelected = useCallback(() => {
+  const handlePlaneCountChange = useCallback((planeCount: number) => {
+    onPlaneStateChange?.(planeCount > 0);
+  }, [onPlaneStateChange]);
+
+  const handlePlaneSelected = useCallback((position: [number, number, number]) => {
+    setPlacedPosition(position);
     setIsPlaced(true);
+    onPlacementChange?.(true);
+  }, [onPlacementChange]);
+
+  const handleCameraTransformUpdate = useCallback((cameraTransform: ViroCameraTransform) => {
+    setCameraPosition(cameraTransform.position);
   }, []);
 
   const handlePinch = useCallback((pinchState: number, scaleFactor: number) => {
@@ -83,10 +419,28 @@ function PlantArScene() {
     setRotationY(rotateStartY + rotationFactor);
   }, [rotateStartY, rotationY]);
 
+  React.useEffect(() => {
+    onPlacementChange?.(false);
+    onPlaneStateChange?.(false);
+  }, [onPlacementChange, onPlaneStateChange]);
+
+  React.useEffect(() => {
+    if (resetSignal === undefined) {
+      return;
+    }
+
+    setIsPlaced(false);
+    setPlacedPosition(null);
+    planeSelectorRef.current?.reset();
+    onPlacementChange?.(false);
+    onPlaneStateChange?.(false);
+  }, [onPlacementChange, onPlaneStateChange, resetSignal]);
+
   return (
     <ViroARScene
       anchorDetectionTypes={['PlanesHorizontal']}
       onTrackingUpdated={handleTrackingUpdated}
+      onCameraTransformUpdate={handleCameraTransformUpdate}
       onAnchorFound={(anchor) => planeSelectorRef.current?.handleAnchorFound(anchor)}
       onAnchorUpdated={(anchor) => planeSelectorRef.current?.handleAnchorUpdated(anchor)}
       onAnchorRemoved={(anchor) => {
@@ -103,19 +457,23 @@ function PlantArScene() {
         castsShadow
       />
 
-      <ViroARPlaneSelector
+      <GroundPlaneSelector
         ref={planeSelectorRef}
-        key={trackingReady ? 'ready' : 'searching'}
-        alignment="Horizontal"
-        minHeight={0.15}
-        minWidth={0.15}
+        cameraPosition={cameraPosition}
+        minHeight={MIN_GROUND_PLANE_SIZE}
+        minWidth={MIN_GROUND_PLANE_SIZE}
+        isPlaced={isPlaced}
+        onFirstPlaneDetected={() => onPlaneStateChange?.(true)}
+        onPlaneCountChange={handlePlaneCountChange}
         onPlaneSelected={handlePlaneSelected}
-      >
-        <ViroNode position={[0, 0.02, 0]}>
+      />
+
+      {placedPosition && (
+        <ViroNode position={placedPosition}>
           <Viro3DObject
             source={PLANT_MODEL}
             type="GLB"
-            position={[0, 0, 0]}
+            position={[0, 0.02, 0]}
             rotation={[0, rotationY, 0]}
             scale={[scale, scale, scale]}
             onPinch={handlePinch}
@@ -123,7 +481,7 @@ function PlantArScene() {
             visible={isPlaced && trackingReady}
           />
         </ViroNode>
-      </ViroARPlaneSelector>
+      )}
     </ViroARScene>
   );
 }
@@ -133,6 +491,10 @@ export function PlantArScreen() {
     Platform.OS === 'web' ? 'unsupported' : 'checking'
   );
   const [isGuideVisible, setIsGuideVisible] = useState(true);
+  const [trackingState, setTrackingState] = useState<number | null>(null);
+  const [isPlaneDetected, setIsPlaneDetected] = useState(false);
+  const [isPlantPlaced, setIsPlantPlaced] = useState(false);
+  const [arResetSignal, setArResetSignal] = useState(0);
   const arNavigatorRef = useRef<ViroARSceneNavigator | null>(null);
 
   React.useEffect(() => {
@@ -188,7 +550,45 @@ export function PlantArScreen() {
 
   const canRenderAr = Platform.OS !== 'web' && !isExpoGo && supportStatus === 'ready';
 
+  const arOverlayMessage: ArOverlayMessage = useMemo(() => {
+    if (trackingState !== ViroTrackingStateConstants.TRACKING_NORMAL) {
+      return 'Mapeando ambiente...';
+    }
+
+    if (!isPlaneDetected) {
+      return 'Mova devagar';
+    }
+
+    return 'Pronto para posicionar';
+  }, [isPlaneDetected, trackingState]);
+
+  const handleTrackingStateChange = useCallback((state: number) => {
+    setTrackingState(state);
+  }, []);
+
+  const handlePlaneStateChange = useCallback((nextIsPlaneDetected: boolean) => {
+    setIsPlaneDetected(nextIsPlaneDetected);
+  }, []);
+
+  const handlePlacementChange = useCallback((nextIsPlantPlaced: boolean) => {
+    setIsPlantPlaced(nextIsPlantPlaced);
+  }, []);
+
+  const initialArScene = useMemo(() => ({
+    scene: PlantArScene,
+    passProps: {
+      onPlacementChange: handlePlacementChange,
+      onPlaneStateChange: handlePlaneStateChange,
+      onTrackingStateChange: handleTrackingStateChange,
+      resetSignal: arResetSignal,
+    },
+  }), [arResetSignal, handlePlacementChange, handlePlaneStateChange, handleTrackingStateChange]);
+
   const handleReposition = useCallback(() => {
+    setIsPlantPlaced(false);
+    setIsPlaneDetected(false);
+    setTrackingState(null);
+    setArResetSignal((current) => current + 1);
     arNavigatorRef.current?._resetARSession?.(true, true);
   }, []);
 
@@ -196,12 +596,13 @@ export function PlantArScreen() {
     <View style={styles.screen}>
       {canRenderAr ? (
         <ViroARSceneNavigator
+          key={`plant-ar-${arResetSignal}`}
           ref={arNavigatorRef}
           autofocus
           hdrEnabled
           pbrEnabled
           shadowsEnabled
-          initialScene={{ scene: PlantArScene }}
+          initialScene={initialArScene}
           style={StyleSheet.absoluteFill}
         />
       ) : (
@@ -215,8 +616,27 @@ export function PlantArScreen() {
         <View pointerEvents="box-none">
           <AppHeader mode="back" />
 
+          {canRenderAr && (
+            <View style={styles.trackingStatusWrap} pointerEvents="none">
+              <View
+                style={[
+                  styles.trackingStatus,
+                  arOverlayMessage === 'Pronto para posicionar' && styles.trackingStatusReady,
+                ]}
+              >
+                <View
+                  style={[
+                    styles.trackingDot,
+                    arOverlayMessage === 'Pronto para posicionar' && styles.trackingDotReady,
+                  ]}
+                />
+                <Text style={styles.trackingStatusText}>{arOverlayMessage}</Text>
+              </View>
+            </View>
+          )}
+
           {isGuideVisible ? (
-            <View style={styles.topCard}>
+            <View style={[styles.topCard, canRenderAr && styles.topCardAfterStatus]}>
               <View style={styles.topCardHeader}>
                 <View style={styles.topCardCopy}>
                   <Text style={styles.eyebrow}>Plant Preview AR</Text>
@@ -233,9 +653,15 @@ export function PlantArScreen() {
               </View>
 
               <Text style={styles.description}>{helperCopy}</Text>
+              {canRenderAr && isPlantPlaced ? (
+                <Text style={styles.placementHint}>Planta posicionada. Use dois dedos para ajustar.</Text>
+              ) : null}
             </View>
           ) : (
-            <View style={styles.guideHintWrap} pointerEvents="box-none">
+            <View
+              style={[styles.guideHintWrap, canRenderAr && styles.guideHintWrapAfterStatus]}
+              pointerEvents="box-none"
+            >
               <Pressable
                 onPress={() => setIsGuideVisible(true)}
                 style={({ pressed }) => [styles.guideHint, pressed && styles.buttonPressed]}
@@ -299,6 +725,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'rgba(195, 220, 184, 0.2)',
   },
+  topCardAfterStatus: {
+    marginTop: 12,
+  },
   topCardHeader: {
     flexDirection: 'row',
     alignItems: 'flex-start',
@@ -327,6 +756,47 @@ const styles = StyleSheet.create({
     fontSize: 13,
     lineHeight: 18,
   },
+  placementHint: {
+    marginTop: 10,
+    color: '#b6d7a4',
+    fontSize: 12,
+    fontWeight: '700',
+  },
+  trackingStatusWrap: {
+    marginTop: 88,
+    marginHorizontal: 20,
+    alignItems: 'flex-start',
+  },
+  trackingStatus: {
+    minHeight: 38,
+    borderRadius: 999,
+    paddingHorizontal: 12,
+    paddingVertical: 9,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(14, 24, 18, 0.72)',
+    borderWidth: 1,
+    borderColor: 'rgba(244, 248, 238, 0.18)',
+  },
+  trackingStatusReady: {
+    backgroundColor: 'rgba(22, 54, 29, 0.78)',
+    borderColor: 'rgba(182, 215, 164, 0.36)',
+  },
+  trackingDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    marginRight: 8,
+    backgroundColor: '#f0d16b',
+  },
+  trackingDotReady: {
+    backgroundColor: '#9be27c',
+  },
+  trackingStatusText: {
+    color: '#f5faef',
+    fontSize: 13,
+    fontWeight: '800',
+  },
   closeButton: {
     width: 34,
     height: 34,
@@ -347,6 +817,9 @@ const styles = StyleSheet.create({
     marginTop: 88,
     marginHorizontal: 20,
     alignItems: 'flex-start',
+  },
+  guideHintWrapAfterStatus: {
+    marginTop: 12,
   },
   guideHint: {
     borderRadius: 999,
