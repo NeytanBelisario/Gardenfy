@@ -58,10 +58,18 @@ type CameraPose = {
 };
 
 type PlantArSceneProps = {
+  arSceneNavigator?: {
+    viroAppProps?: PlantArSceneAppProps;
+  };
   onTrackingStateChange?: (state: number, reason?: ViroTrackingReason) => void;
   onFeatureStateChange?: (hasFeatures: boolean) => void;
   onScanStatsChange?: (stats: ScanStats) => void;
   resetSignal?: number;
+  skipSurfaceSignal?: number;
+};
+
+type PlantArSceneAppProps = {
+  skipSurfaceSignal?: number;
 };
 
 type ScanStats = {
@@ -441,10 +449,12 @@ function hasViroNativeBindings() {
 }
 
 function PlantArScene({
+  arSceneNavigator,
   onFeatureStateChange,
   onScanStatsChange,
   onTrackingStateChange,
   resetSignal,
+  skipSurfaceSignal,
 }: PlantArSceneProps = {}) {
   const [trackingReady, setTrackingReady] = useState(false);
   const [cameraPosition, setCameraPosition] = useState<Point3D | null>(null);
@@ -453,8 +463,10 @@ function PlantArScene({
   const lastCameraPoseRef = useRef<CameraPose | null>(null);
   const cameraPoseRef = useRef<CameraPose | null>(null);
   const surfacesRef = useRef<Map<string, SelectableSurface>>(new Map());
+  const rejectedSurfaceIdsRef = useRef<Set<string>>(new Set());
   const lastPointCloudUpdateRef = useRef(0);
   const lastRawPointCountRef = useRef(0);
+  const effectiveSkipSurfaceSignal = arSceneNavigator?.viroAppProps?.skipSurfaceSignal ?? skipSurfaceSignal;
 
   const updateSurfaceCount = useCallback((nextSurfaces: Map<string, SelectableSurface>, rawPointCount = 0) => {
     const markerCount = Array.from(nextSurfaces.values()).reduce((total, surface) => {
@@ -483,7 +495,9 @@ function PlantArScene({
 
     if (!currentActiveSurface || currentActiveSurface.locked) {
       activeSurfaceIdRef.current =
-        Array.from(nextSurfaces.entries()).find(([, surface]) => !surface.locked)?.[0] ?? null;
+        Array.from(nextSurfaces.entries()).find(([, surface]) => !surface.locked)?.[0] ??
+        Array.from(nextSurfaces.entries()).sort(([, first], [, second]) => second.lastInViewAt - first.lastInViewAt)[0]?.[0] ??
+        null;
     }
 
     surfacesRef.current = nextSurfaces;
@@ -514,22 +528,45 @@ function PlantArScene({
     return true;
   }, [commitSurfaces]);
 
+  const skipCurrentSurface = useCallback(() => {
+    const currentActiveSurfaceId = activeSurfaceIdRef.current;
+    const surfaceIdToSkip =
+      currentActiveSurfaceId && surfacesRef.current.has(currentActiveSurfaceId)
+        ? currentActiveSurfaceId
+        : Array.from(surfacesRef.current.entries()).sort(([, first], [, second]) => {
+            if (first.locked !== second.locked) {
+              return first.locked ? 1 : -1;
+            }
+
+            return second.lastInViewAt - first.lastInViewAt;
+          })[0]?.[0];
+
+    if (!surfaceIdToSkip) {
+      return false;
+    }
+
+    rejectedSurfaceIdsRef.current.add(surfaceIdToSkip);
+    const nextSurfaces = new Map(surfacesRef.current);
+    nextSurfaces.delete(surfaceIdToSkip);
+    activeSurfaceIdRef.current = null;
+    commitSurfaces(nextSurfaces);
+    return true;
+  }, [commitSurfaces]);
+
   const dropOutOfViewCandidates = useCallback((cameraPose: CameraPose) => {
     const now = Date.now();
     let changed = false;
     const nextSurfaces = new Map<string, SelectableSurface>();
 
     surfacesRef.current.forEach((surface, anchorId) => {
-      if (surface.locked) {
-        nextSurfaces.set(anchorId, surface);
-        return;
-      }
-
       const isInView = isSurfaceInCameraView(surface.anchor, cameraPose);
       const lastInViewAt = isInView ? now : surface.lastInViewAt;
 
       if (!isInView && now - lastInViewAt > SURFACE_OUT_OF_VIEW_GRACE_MS) {
         changed = true;
+        if (activeSurfaceIdRef.current === anchorId) {
+          activeSurfaceIdRef.current = null;
+        }
         return;
       }
 
@@ -569,13 +606,27 @@ function PlantArScene({
   const handleAnchorFoundOrUpdated = useCallback((anchor: ViroAnchor) => {
     const nextSurfaces = new Map(surfacesRef.current);
     const previous = nextSurfaces.get(anchor.anchorId);
-    const activeSurfaceId = activeSurfaceIdRef.current;
 
-    if (previous?.locked) {
+    if (rejectedSurfaceIdsRef.current.has(anchor.anchorId)) {
+      if (previous) {
+        nextSurfaces.delete(anchor.anchorId);
+        commitSurfaces(nextSurfaces);
+      }
+
       return;
     }
 
-    if (activeSurfaceId && activeSurfaceId !== anchor.anchorId) {
+    if (previous?.locked) {
+      const now = Date.now();
+      const isStillInView = isSelectableSurfaceAnchor(anchor) && isSurfaceInCameraView(anchor, cameraPoseRef.current);
+      nextSurfaces.set(anchor.anchorId, {
+        ...previous,
+        anchor,
+        bestAnchor: anchor,
+        lastInViewAt: isStillInView ? now : previous.lastInViewAt,
+        safeRadius: surfaceSafeRadius(anchor),
+      });
+      commitSurfaces(nextSurfaces);
       return;
     }
 
@@ -638,17 +689,14 @@ function PlantArScene({
       stableSampleCount,
       stableUpdates,
     });
-    activeSurfaceIdRef.current = shouldLock ? null : anchor.anchorId;
+    if (!shouldLock) {
+      activeSurfaceIdRef.current = anchor.anchorId;
+    }
     commitSurfaces(nextSurfaces);
   }, [commitSurfaces]);
 
   const handleAnchorRemoved = useCallback((anchor?: ViroAnchor) => {
     if (!anchor?.anchorId) {
-      return;
-    }
-
-    const existing = surfacesRef.current.get(anchor.anchorId);
-    if (existing?.locked) {
       return;
     }
 
@@ -697,7 +745,16 @@ function PlantArScene({
     lastCameraPoseRef.current = null;
     lastPointCloudUpdateRef.current = 0;
     lastRawPointCountRef.current = 0;
+    rejectedSurfaceIdsRef.current.clear();
   }, [commitSurfaces, resetSignal]);
+
+  React.useEffect(() => {
+    if (effectiveSkipSurfaceSignal === undefined) {
+      return;
+    }
+
+    skipCurrentSurface();
+  }, [effectiveSkipSurfaceSignal, skipCurrentSurface]);
 
   return (
     <ViroARScene
@@ -818,6 +875,7 @@ export function PlantArScreen() {
     lockedSurfaceCount: 0,
   });
   const [arResetSignal, setArResetSignal] = useState(0);
+  const [surfaceSkipSignal, setSurfaceSkipSignal] = useState(0);
   const arNavigatorRef = useRef<ViroARSceneNavigator | null>(null);
 
   React.useEffect(() => {
@@ -868,7 +926,7 @@ export function PlantArScreen() {
       return 'O build nativo instalado nao esta alinhado com a configuracao atual do Viro. Reinstale o app de development build para sincronizar o Android nativo.';
     }
 
-    return 'Foque uma superficie por vez. Se sair da visao ou mover rapido antes de 10 segundos estaveis, ela e descartada; quando ficar amarela, travou e o app parte para a proxima.';
+    return 'Use Trocar superficie quando o app marcar o lugar errado. A superficie atual e esquecida nesta sessao, sem precisar girar a camera; Resetar scan limpa tudo.';
   }, [isExpoGo, supportStatus]);
 
   const canRenderAr = Platform.OS !== 'web' && !isExpoGo && supportStatus === 'ready';
@@ -915,6 +973,10 @@ export function PlantArScreen() {
     arNavigatorRef.current?._resetARSession?.(true, true);
   }, []);
 
+  const handleSkipSurface = useCallback(() => {
+    setSurfaceSkipSignal((current) => current + 1);
+  }, []);
+
   return (
     <View style={styles.screen}>
       {canRenderAr ? (
@@ -926,6 +988,7 @@ export function PlantArScreen() {
           pbrEnabled
           shadowsEnabled
           initialScene={initialArScene}
+          viroAppProps={{ skipSurfaceSignal: surfaceSkipSignal }}
           style={StyleSheet.absoluteFill}
         />
       ) : (
@@ -1001,7 +1064,20 @@ export function PlantArScreen() {
 
         <View pointerEvents="box-none" style={styles.bottomDock}>
           <Pressable
-            style={({ pressed }) => [styles.secondaryButton, pressed && styles.buttonPressed]}
+            disabled={!canRenderAr || scanStats.surfaceCount === 0}
+            style={({ pressed }) => [
+              styles.bottomButton,
+              styles.primaryButton,
+              (!canRenderAr || scanStats.surfaceCount === 0) && styles.buttonDisabled,
+              pressed && styles.buttonPressed,
+            ]}
+            onPress={handleSkipSurface}
+          >
+            <Text style={styles.primaryButtonText}>Trocar superficie</Text>
+          </Pressable>
+
+          <Pressable
+            style={({ pressed }) => [styles.bottomButton, styles.secondaryButton, pressed && styles.buttonPressed]}
             onPress={handleResetScan}
           >
             <Text style={styles.secondaryButtonText}>Resetar scan</Text>
@@ -1162,20 +1238,39 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   bottomDock: {
+    flexDirection: 'row',
+    gap: 10,
+    paddingHorizontal: 20,
+  },
+  bottomButton: {
+    flex: 1,
+    minHeight: 48,
+    borderRadius: 999,
+    paddingHorizontal: 14,
+    paddingVertical: 13,
     alignItems: 'center',
+    justifyContent: 'center',
+  },
+  primaryButton: {
+    backgroundColor: 'rgba(255, 220, 122, 0.94)',
   },
   secondaryButton: {
-    minWidth: 156,
-    borderRadius: 999,
-    paddingHorizontal: 22,
-    paddingVertical: 14,
     backgroundColor: 'rgba(251, 249, 245, 0.92)',
+  },
+  primaryButtonText: {
+    color: '#10171c',
+    fontSize: 14,
+    fontWeight: '800',
+    textAlign: 'center',
   },
   secondaryButtonText: {
     color: '#10171c',
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: '700',
     textAlign: 'center',
+  },
+  buttonDisabled: {
+    opacity: 0.45,
   },
   buttonPressed: {
     opacity: 0.85,
