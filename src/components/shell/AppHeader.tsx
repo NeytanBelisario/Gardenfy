@@ -34,8 +34,9 @@ type AppHeaderProps = {
 };
 
 const menuItems = [
-  { label: 'Meus jardins', icon: 'leaf-outline', route: '/' },
-  { label: 'Escanear planta', icon: 'scan-outline', route: '/scan' },
+  { label: 'Home', icon: 'home-outline', route: '/' },
+  { label: 'Jardins', icon: 'leaf-outline', route: '/gardens' },
+  { label: 'Scan', icon: 'scan-outline', route: '/scan' },
   { label: 'Preview AR', icon: 'cube-outline', route: '/preview' },
   { label: 'Criar jardim', icon: 'add-circle-outline', route: '/gardens/new' },
 ] as const;

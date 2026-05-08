@@ -13,8 +13,8 @@ const COLORS = {
 } as const;
 
 const navItems = [
-  { label: 'Jardins', icon: 'sprout', route: '/', activeOn: ['/'] },
-  { label: 'Scan', icon: 'camera-outline', route: '/scan', activeOn: ['/scan'] },
+  { label: 'Home', icon: 'home-outline', route: '/', activeOn: ['/'] },
+  { label: 'Jardins', icon: 'sprout', route: '/gardens', activeOn: ['/gardens'] },
   { label: 'Tarefas', icon: 'list-outline', route: '/tasks', activeOn: ['/tasks'] },
   { label: 'Perfil', icon: 'person-outline', route: '/profile', activeOn: ['/profile'] },
 ] as const;
@@ -103,7 +103,7 @@ export function AppNavbar({ hidden = false }: AppNavbarProps) {
           );
         })}
 
-        <Pressable style={styles.centerAction} onPress={() => router.push('/preview')}>
+        <Pressable style={styles.centerAction} onPress={() => router.push('/scan')}>
           <Ionicons name="scan" size={22} color={COLORS.white} />
         </Pressable>
 
