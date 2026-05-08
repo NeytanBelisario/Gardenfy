@@ -16,7 +16,7 @@ export default function ScanRoute() {
       <View style={styles.content}>
         <Pressable
           style={({ pressed }) => [styles.actionButton, pressed && styles.actionButtonPressed]}
-          onPress={() => router.push('/gardens' as never)}
+          onPress={() => router.push('/plant-analysis' as never)}
         >
           <View style={styles.iconWrap}>
             <Ionicons name="image-outline" size={34} color="#17361d" />
