@@ -8,20 +8,29 @@ import {
   View,
 } from 'react-native';
 import Animated, {
+  createAnimatedComponent,
   Easing,
+  interpolate,
+  SharedValue,
+  useAnimatedProps,
   useAnimatedStyle,
   useSharedValue,
+  withDelay,
   withRepeat,
   withSequence,
   withTiming,
 } from 'react-native-reanimated';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import Svg, { Circle } from 'react-native-svg';
 
 import { AppHeader } from '../components/shell/AppHeader';
 import { AppNavbar } from '../components/shell/AppNavbar';
 import { useGardenSummaries } from '../features/gardens/store';
 import { currentUser } from '../features/user/profile';
+
+const AnimatedImage = createAnimatedComponent(Image);
+const AnimatedCircle = createAnimatedComponent(Circle);
 
 const C = {
   bg: '#f5f3ed',
@@ -70,36 +79,88 @@ function healthFromVitality(v: number): string {
   return 'Crítica';
 }
 
-function FloatingPlant() {
+function ProgressArc({ vitality, triggerAnimation }: { vitality: number; triggerAnimation: boolean }) {
+  const radius = 135;
+  const strokeWidth = 5;
+  const circumference = 2 * Math.PI * radius;
+
+  const animatedProgress = useSharedValue(0);
+
+  useEffect(() => {
+    if (triggerAnimation) {
+      animatedProgress.value = withDelay(
+        500,
+        withTiming(vitality / 100, { duration: 1500, easing: Easing.out(Easing.cubic) })
+      );
+    }
+  }, [triggerAnimation, vitality, animatedProgress]);
+
+  // useAnimatedProps is correct for non-style SVG props like strokeDashoffset
+  const animatedProps = useAnimatedProps(() => {
+    const arcLength = circumference * 0.65;
+    const dashoffset = arcLength - (animatedProgress.value * arcLength);
+    return {
+      strokeDashoffset: dashoffset,
+    };
+  });
+
+  return (
+    <View style={styles.arcContainer}>
+      <Svg width={300} height={300} viewBox="0 0 300 300">
+        <Circle
+          cx="150"
+          cy="150"
+          r={radius}
+          stroke="#dce6da"
+          strokeWidth={strokeWidth}
+          fill="none"
+          strokeDasharray={`${circumference * 0.65} ${circumference}`}
+          strokeDashoffset={0}
+          strokeLinecap="round"
+          transform="rotate(135 150 150)"
+        />
+        <AnimatedCircle
+          cx="150"
+          cy="150"
+          r={radius}
+          stroke={C.dot}
+          strokeWidth={strokeWidth}
+          fill="none"
+          strokeDasharray={`${circumference * 0.65} ${circumference}`}
+          animatedProps={animatedProps}
+          strokeLinecap="round"
+          transform="rotate(135 150 150)"
+        />
+      </Svg>
+    </View>
+  );
+}
+
+function FloatingPlant({ scaleVal, opacityVal }: { scaleVal: SharedValue<number>; opacityVal: SharedValue<number> }) {
   const translateY = useSharedValue(0);
-  const scale = useSharedValue(1);
 
   useEffect(() => {
     translateY.value = withRepeat(
       withSequence(
-        withTiming(-10, { duration: 2200, easing: Easing.inOut(Easing.sin) }),
-        withTiming(0, { duration: 2200, easing: Easing.inOut(Easing.sin) }),
+        withTiming(-8, { duration: 2500, easing: Easing.inOut(Easing.sin) }),
+        withTiming(0, { duration: 2500, easing: Easing.inOut(Easing.sin) }),
       ),
       -1,
       false,
     );
-    scale.value = withRepeat(
-      withSequence(
-        withTiming(1.04, { duration: 2200, easing: Easing.inOut(Easing.sin) }),
-        withTiming(1, { duration: 2200, easing: Easing.inOut(Easing.sin) }),
-      ),
-      -1,
-      false,
-    );
-  }, [translateY, scale]);
+  }, [translateY]);
 
   const animStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: translateY.value }, { scale: scale.value }],
+    transform: [
+      { scale: scaleVal.value },
+      { translateY: translateY.value },
+    ],
+    opacity: opacityVal.value,
   }));
 
   return (
-    <Animated.Image
-      source={{ uri: MONSTERA_URI }}
+    <AnimatedImage
+      source={require('../public/homephoto.png')}
       style={[styles.plantImage, animStyle]}
       resizeMode="contain"
     />
@@ -118,6 +179,37 @@ export default function HomeScreen() {
   const waterLabel = waterMetric ? metricLabel(waterMetric.value, 'water') : 'Ideal';
   const lightLabel = lightMetric ? metricLabel(lightMetric.value, 'light') : 'Perfeita';
   const firstName = currentUser.name.split(' ')[0];
+
+  const entranceAnim = useSharedValue(0);
+  // SharedValues for FloatingPlant — driven from entranceAnim separately
+  const plantScaleVal = useSharedValue(0.85);
+  const plantOpacityVal = useSharedValue(0);
+
+  useEffect(() => {
+    entranceAnim.value = withTiming(1, { duration: 800, easing: Easing.out(Easing.cubic) });
+    plantScaleVal.value = withTiming(1, { duration: 900, easing: Easing.out(Easing.cubic) });
+    plantOpacityVal.value = withTiming(1, { duration: 700, easing: Easing.out(Easing.cubic) });
+  }, [entranceAnim, plantScaleVal, plantOpacityVal]);
+
+  const heroTextStyle = useAnimatedStyle(() => ({
+    opacity: entranceAnim.value,
+    transform: [{ translateY: interpolate(entranceAnim.value, [0, 1], [15, 0]) }],
+  }));
+
+  const leftElementsStyle = useAnimatedStyle(() => ({
+    opacity: entranceAnim.value,
+    transform: [{ translateX: interpolate(entranceAnim.value, [0, 1], [-30, 0]) }],
+  }));
+
+  const rightElementsStyle = useAnimatedStyle(() => ({
+    opacity: entranceAnim.value,
+    transform: [{ translateX: interpolate(entranceAnim.value, [0, 1], [30, 0]) }],
+  }));
+
+  const rightElementsStyleDelayed = useAnimatedStyle(() => ({
+    opacity: interpolate(entranceAnim.value, [0.4, 1], [0, 1], 'clamp'),
+    transform: [{ translateX: interpolate(entranceAnim.value, [0.4, 1], [30, 0], 'clamp') }],
+  }));
 
   const handleGardenPress = () => {
     if (garden) {
@@ -138,82 +230,87 @@ export default function HomeScreen() {
       >
         {/* ── Hero ── */}
         <View style={styles.hero}>
-          {/* Greeting text (normal flow, left column) */}
-          <View style={styles.heroTextArea}>
-            <Text style={styles.heroGreeting}>Bom dia, {firstName}!</Text>
-            <Text style={styles.heroTitle}>
-              {'Seu jardim\nestá florescendo 🌿'}
-            </Text>
-            <Text style={styles.heroSub}>
-              {'Acompanhe, cuide e veja suas\nplantas prosperarem.'}
-            </Text>
-          </View>
+          {/* Top row: greeting + weather inline */}
+          <View style={styles.heroTop}>
+            <Animated.View style={[styles.heroTextArea, heroTextStyle]}>
+              <Text style={styles.heroGreeting}>Bom dia, {firstName}!</Text>
+              <Text style={styles.heroTitle}>
+                {'Seu jardim\nestá florescendo 🌿'}
+              </Text>
+              <Text style={styles.heroSub}>
+                {'Acompanhe, cuide e veja suas\nplantas prosperarem.'}
+              </Text>
+            </Animated.View>
 
-          {/* Weather card — absolute top-right */}
-          <View style={styles.weatherCard}>
-            <View style={styles.weatherTop}>
-              <Ionicons name="partly-sunny-outline" size={22} color="#e08c3a" />
-              <View style={styles.weatherInfo}>
-                <Text style={styles.weatherEnv}>ESTUFA</Text>
-                <Text style={styles.weatherTemp}>24°C</Text>
+            <Animated.View style={[styles.weatherCard, rightElementsStyle]}>
+              <View style={styles.weatherTop}>
+                <Ionicons name="partly-sunny-outline" size={22} color="#e08c3a" />
+                <View style={styles.weatherInfo}>
+                  <Text style={styles.weatherEnv}>ESTUFA</Text>
+                  <Text style={styles.weatherTemp}>24°C</Text>
+                </View>
               </View>
-            </View>
-            <Text style={styles.weatherHumidity}>Umidade: 68%</Text>
+              <Text style={styles.weatherHumidity}>Umidade: 68%</Text>
+            </Animated.View>
           </View>
 
-          {/* Plant pedestal circle */}
-          <View style={styles.plantCircleWrap}>
-            <View style={styles.plantCircle} />
+          {/* Central Animation Stage */}
+          <View style={styles.centerStage}>
+            <ProgressArc vitality={vitality} triggerAnimation={true} />
+            <FloatingPlant scaleVal={plantScaleVal} opacityVal={plantOpacityVal} />
           </View>
 
-          {/* Animated plant */}
-          <View style={styles.plantWrap}>
-            <FloatingPlant />
-          </View>
-
-          {/* Vitality block — absolute bottom-left */}
-          <View style={styles.vitalityBlock}>
+          {/* Vitality block — middle-left */}
+          <Animated.View style={[styles.vitalityBlock, leftElementsStyle]}>
             <Text style={styles.vitalityPct}>{vitality}%</Text>
             <Text style={styles.vitalityLabel}>Vitalidade</Text>
             <View style={styles.healthRow}>
               <View style={styles.healthDot} />
               <Text style={styles.healthText}>{health}</Text>
             </View>
-          </View>
+          </Animated.View>
 
-          {/* Metrics column — absolute right */}
-          <View style={styles.metricsCol}>
+          {/* CTA button */}
+          <Animated.View style={[styles.gardenBtnWrap, leftElementsStyle]}>
+            <Pressable
+              style={({ pressed }) => [styles.gardenBtn, pressed && { opacity: 0.82 }]}
+              onPress={handleGardenPress}
+            >
+              <Text style={styles.gardenBtnText}>JARDIM PRINCIPAL</Text>
+              <Ionicons name="arrow-forward" size={14} color={C.white} />
+            </Pressable>
+          </Animated.View>
+
+          {/* Metrics column — middle-right */}
+          <Animated.View style={[styles.metricsCol, rightElementsStyleDelayed]}>
             <View style={styles.metricChip}>
-              <Ionicons name="water-outline" size={16} color={C.primary} />
+              <View style={styles.metricIconWrap}>
+                <Ionicons name="water-outline" size={16} color={C.primary} />
+              </View>
               <View>
                 <Text style={styles.metricKind}>Rega</Text>
                 <Text style={styles.metricVal}>{waterLabel}</Text>
               </View>
             </View>
             <View style={styles.metricChip}>
-              <Ionicons name="sunny-outline" size={16} color={C.primary} />
+              <View style={styles.metricIconWrap}>
+                <Ionicons name="sunny-outline" size={16} color={C.primary} />
+              </View>
               <View>
                 <Text style={styles.metricKind}>Luz</Text>
                 <Text style={styles.metricVal}>{lightLabel}</Text>
               </View>
             </View>
             <View style={styles.metricChip}>
-              <Ionicons name="leaf-outline" size={16} color={C.primary} />
+              <View style={styles.metricIconWrap}>
+                <Ionicons name="leaf-outline" size={16} color={C.primary} />
+              </View>
               <View>
                 <Text style={styles.metricKind}>Ar</Text>
                 <Text style={styles.metricVal}>Ótimo</Text>
               </View>
             </View>
-          </View>
-
-          {/* CTA button */}
-          <Pressable
-            style={({ pressed }) => [styles.gardenBtn, pressed && { opacity: 0.82 }]}
-            onPress={handleGardenPress}
-          >
-            <Text style={styles.gardenBtnText}>JARDIM PRINCIPAL</Text>
-            <Ionicons name="arrow-forward" size={14} color={C.white} />
-          </Pressable>
+          </Animated.View>
         </View>
 
         {/* ── Visão Inteligente banner ── */}
@@ -305,7 +402,6 @@ export default function HomeScreen() {
             </View>
             <Text style={styles.progressValue}>+15%</Text>
             <Text style={styles.progressSub}>de vitalidade geral</Text>
-            {/* Squiggle line decoration */}
             <View style={styles.squiggle}>
               <View style={styles.squiggleLine} />
             </View>
@@ -370,14 +466,21 @@ const styles = StyleSheet.create({
 
   /* Hero */
   hero: {
-    height: 400,
+    height: 530,
     marginBottom: 16,
     position: 'relative',
   },
-  heroTextArea: {
+  heroTop: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
     paddingTop: 4,
-    width: '60%',
-    zIndex: 2,
+    zIndex: 4,
+  },
+  heroTextArea: {
+    flex: 1,
+    paddingRight: 12,
+    zIndex: 4,
   },
   heroGreeting: {
     color: C.primary,
@@ -401,19 +504,15 @@ const styles = StyleSheet.create({
 
   /* Weather card */
   weatherCard: {
-    position: 'absolute',
-    top: 0,
-    right: 0,
     backgroundColor: C.white,
-    borderRadius: 18,
-    padding: 12,
-    minWidth: 122,
+    borderRadius: 20,
+    padding: 14,
+    minWidth: 118,
     shadowColor: C.primary,
     shadowOpacity: 0.08,
-    shadowRadius: 12,
-    shadowOffset: { width: 0, height: 4 },
+    shadowRadius: 16,
+    shadowOffset: { width: 0, height: 6 },
     elevation: 4,
-    zIndex: 3,
   },
   weatherTop: {
     flexDirection: 'row',
@@ -442,120 +541,129 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
 
-  /* Plant */
-  plantCircleWrap: {
+  /* Center Stage */
+  centerStage: {
     position: 'absolute',
-    top: 90,
+    top: 130,
     left: 0,
     right: 0,
     alignItems: 'center',
-    zIndex: 0,
-  },
-  plantCircle: {
-    width: 200,
-    height: 200,
-    borderRadius: 100,
-    backgroundColor: 'rgba(220,230,218,0.38)',
-  },
-  plantWrap: {
-    position: 'absolute',
-    top: 40,
-    left: 0,
-    right: 0,
-    alignItems: 'center',
+    justifyContent: 'center',
     zIndex: 1,
   },
+  arcContainer: {
+    position: 'absolute',
+    top: -10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   plantImage: {
-    width: 210,
-    height: 270,
+    width: 230,
+    height: 290,
+    marginTop: 10,
   },
 
   /* Vitality */
   vitalityBlock: {
     position: 'absolute',
-    bottom: 70,
-    left: 0,
-    zIndex: 2,
+    top: 308,
+    left: 10,
+    zIndex: 4,
   },
   vitalityPct: {
     color: C.primary,
     fontSize: 52,
     fontWeight: '900',
-    lineHeight: 56,
+    lineHeight: 54,
     letterSpacing: -2,
   },
   vitalityLabel: {
     color: C.textMuted,
     fontSize: 13,
-    fontWeight: '500',
+    fontWeight: '600',
     marginTop: 2,
   },
   healthRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 5,
+    gap: 6,
     marginTop: 4,
   },
   healthDot: {
-    width: 7,
-    height: 7,
+    width: 8,
+    height: 8,
     borderRadius: 4,
     backgroundColor: C.dot,
   },
   healthText: {
     color: C.primary,
-    fontSize: 12,
-    fontWeight: '700',
+    fontSize: 13,
+    fontWeight: '800',
   },
 
   /* Metrics */
   metricsCol: {
     position: 'absolute',
-    right: 0,
-    top: 130,
-    gap: 8,
-    zIndex: 2,
+    right: 10,
+    top: 270,
+    gap: 10,
+    zIndex: 4,
   },
   metricChip: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
-    backgroundColor: C.white,
-    borderRadius: 14,
+    gap: 10,
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    borderRadius: 28,
     paddingHorizontal: 10,
-    paddingVertical: 8,
-    minWidth: 110,
+    paddingVertical: 9,
+    minWidth: 112,
     shadowColor: C.primary,
     shadowOpacity: 0.06,
     shadowRadius: 8,
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: { width: 0, height: 3 },
     elevation: 2,
+  },
+  metricIconWrap: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: C.white,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   metricKind: {
     color: C.textMuted,
     fontSize: 10,
-    fontWeight: '500',
-    lineHeight: 12,
+    fontWeight: '600',
+    lineHeight: 13,
   },
   metricVal: {
     color: C.primary,
     fontSize: 13,
     fontWeight: '800',
-    lineHeight: 16,
+    lineHeight: 17,
   },
 
   /* Garden CTA */
-  gardenBtn: {
+  gardenBtnWrap: {
     position: 'absolute',
-    bottom: 0,
-    left: 0,
+    top: 435,
+    left: 10,
+    zIndex: 5,
+  },
+  gardenBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
     backgroundColor: C.primary,
     borderRadius: 999,
     paddingHorizontal: 20,
-    paddingVertical: 13,
+    paddingVertical: 14,
+    shadowColor: C.primary,
+    shadowOpacity: 0.15,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 4 },
   },
   gardenBtnText: {
     color: C.white,
@@ -909,6 +1017,6 @@ const styles = StyleSheet.create({
   },
 
   bottomPad: {
-    height: 20,
+    height: 110,
   },
 });
