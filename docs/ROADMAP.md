@@ -19,7 +19,7 @@ Proposta inicial: um MVP de uso individual, com persistência local e Android co
 | Métricas | Vitalidade e indicadores de água/luz, com agregação no jardim. | São estimativas/valores do modelo, não sensores; plantas sem análise usam placeholders. |
 | AR | Modelo GLB, posicionamento em plano, rotação, escala e reposicionamento. | Precisa de build nativo e aparelho compatível; execução não validada nesta revisão. |
 | Perfil | Tela, contagens derivadas de jardins/plantas e conquistas visuais. | Usuário fixo; configurações e sair sem handlers; rank/conquistas estáticos. |
-| Qualidade | TypeScript estrito e script de lint. | Sem suíte de testes, CI ou configuração ESLint versionada. |
+| Qualidade | TypeScript estrito, lint reproduzível e CI para checks/export Android nesta entrega. | Sem suíte de testes de domínio; build e jornada em dispositivo ainda pendentes. |
 
 Fontes principais: `src/features/gardens/store.ts`, `types.ts` e `mocks.ts`; `src/features/plant-analysis`; `src/features/ar/PlantArScreen.tsx`; `src/app/profile.tsx`; `package.json`.
 
@@ -29,12 +29,12 @@ Cada item abaixo pode gerar uma ou mais branches/PRs pequenos. Dentro de cada fe
 
 ### M0 — Base para desenvolvimento reproduzível
 
-- [ ] Validar instalação limpa com `npm ci` e registrar ambiente Android necessário.
+- [x] Validar instalação limpa com `npm ci` e registrar ambiente Android necessário. Evidência: sessão M0 em `docs/HANDOFF.md`.
 - [ ] Confirmar/ajustar a versão de Node de `.nvmrc` após instalação e build.
-- [ ] Configurar lint reproduzível, comando de typecheck e CI com checks adequados.
-- [ ] Documentar um roteiro de teste manual da jornada atual e registrar problemas encontrados.
+- [x] Configurar lint reproduzível, comando de typecheck e CI com checks adequados. Workflow versionado; execução remota registrada no PR.
+- [x] Documentar um roteiro de teste manual da jornada atual e registrar problemas encontrados. Ver `docs/TESTING.md`; execução em dispositivo ainda pendente.
 
-Aceite: outro PC consegue preparar o projeto seguindo o guia; checks executam sem configuração manual não documentada; limitações nativas ficam registradas.
+Aceite: outro PC consegue preparar o projeto seguindo o guia; checks executam sem configuração manual não documentada; limitações nativas ficam registradas. Instalação e export Android validados em Linux/WSL2; a etapa permanece parcialmente concluída até compilar e testar em dispositivo.
 
 ### M1 — Jardins e plantas que sobrevivem ao reinício
 

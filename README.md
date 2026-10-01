@@ -9,6 +9,7 @@ O projeto está em desenvolvimento: jardins ficam em memória, o perfil usa dado
 - [Roadmap do MVP](docs/ROADMAP.md): estado atual, prioridades propostas e critérios de aceite.
 - [Guia de desenvolvimento](docs/DEVELOPMENT.md): instalação, ambiente, branches, PRs e troca de PC.
 - [Instruções para agentes](AGENTS.md): regras obrigatórias de trabalho e commits.
+- [Validação e testes](docs/TESTING.md): checks automatizados e roteiro manual.
 - [Continuidade entre sessões](docs/HANDOFF.md): estado do trabalho e próximo passo.
 
 ## Começar
