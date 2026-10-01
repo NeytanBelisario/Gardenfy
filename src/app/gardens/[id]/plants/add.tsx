@@ -30,7 +30,7 @@ const COLORS = {
   white: '#ffffff',
 } as const;
 
-const categoryOptions: Array<{ label: string; value: PlantCatalogCategory }> = [
+const categoryOptions: { label: string; value: PlantCatalogCategory }[] = [
   { label: 'Todas', value: 'all' },
   { label: 'Samambaias', value: 'ferns' },
   { label: 'Suculentas', value: 'succulents' },

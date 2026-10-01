@@ -17,6 +17,8 @@ import {
 
 import { AppHeader } from '../../components/shell/AppHeader';
 
+// Metro resolves the native GLB asset from a static require.
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 const PLANT_MODEL = require('../../public/fiddle-leaf-plant.glb');
 const INITIAL_SCALE = 0.12;
 const MIN_SCALE = 0.05;
