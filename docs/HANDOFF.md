@@ -30,11 +30,13 @@ Atualize este arquivo ao encerrar sessões que mudem o estado do projeto. Não a
 ## Sessão de 02/10/2026 — M1: persistência local
 
 - **Branch:** `feat/persistent-gardens`, criada a partir de `develop` atualizado após o merge do PR #3 (`a91f8df`).
+- **PR:** [#4 — persistência local](https://github.com/NeytanBelisario/Gardenfy/pull/4), aberto para `develop`; ainda não integrado.
+- **CI remoto:** workflow disparado pelo PR, incluindo os 24 testes; consultar o resultado no GitHub.
 - **Entrega:** AsyncStorage com schema v1 validado, hidratação inicial com retry, fila de gravação e memória atualizada somente após confirmação. Criação, inclusão pelo catálogo e resultados de análise/reanálise persistem.
 - **Fotos:** cópia nativa para o diretório de documentos do app, referências relativas resolvidas no sandbox atual e limpeza em falhas/reanálise. Implementação web converte object URLs em data URI; não houve validação do app web nesta sessão.
 - **Interface:** estados de carregamento/salvamento, feedback de falhas e bloqueio de toques repetidos. Navegação e resultado salvo aguardam gravação. O catálogo não inicializa mais o store por efeito colateral; nome de jardim é obrigatório.
 - **Commits por etapas:** armazenamento/fotos/testes; integração às telas; documentação e continuidade. Publicados em `origin/feat/persistent-gardens`.
-- **Checks locais aprovados:** instalação limpa com `npm ci --no-audit --no-fund`, `npm run check` (typecheck, lint e 24 testes), `npx expo install --check`, export Android, prebuild Android sem instalação, links locais e `git diff --check`.
+- **Checks locais aprovados:** instalação limpa com `npm ci --no-audit --no-fund`, `npm run check` (typecheck, lint e 24 testes), `npx expo install --check`, export Android, prebuild Android sem instalação, instalação dry-run após alinhar `@types/node` ao Node 22, links locais e `git diff --check`.
 - **Cobertura:** novo store recupera dados salvos; falhas de leitura/escrita/cópia preservam estado anterior; operações simultâneas são serializadas; fotos sobrevivem à remoção do cache e à realocação de diretório em teste com arquivos reais. Os adapters nativos são separados do domínio e não foram executados em dispositivo.
 - **Limites:** JDK/adb/dispositivo não disponíveis; nenhum APK foi compilado ou instalado, nenhuma câmera/AR ou chamada real ao Gemini foi testada. Novas dependências nativas exigem reconstruir o app para teste no aparelho.
 - **Estado de M1:** persistência, hidratação e fotos implementadas/testadas no domínio. Edição/exclusão e representação de métricas desconhecidas continuam pendentes. Não há conta, sincronização nem backend nesta entrega.
