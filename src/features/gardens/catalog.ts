@@ -1,6 +1,6 @@
 import type { PlantCatalogItem } from './types';
 
-export const mockPlantCatalog: PlantCatalogItem[] = [
+export const plantCatalog: PlantCatalogItem[] = [
   {
     id: 'catalog-monstera-001',
     name: 'Monstera Deliciosa',

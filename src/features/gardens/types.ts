@@ -5,7 +5,7 @@ export type GardenMetricKind = 'light' | 'water';
 export type GardenMetric = {
   kind: GardenMetricKind;
   label: string;
-  value: number;
+  value: number | null;
 };
 
 export type PlantHealthTone = 'vital' | 'stable' | 'dry';
@@ -69,7 +69,7 @@ export type GardenSummary = {
   name: string;
   label: string;
   plantCount: number;
-  vitality: number;
+  vitality: number | null;
   imageUrl: string;
   icon: GardenIcon;
   environment: GardenEnvironment;
@@ -78,7 +78,7 @@ export type GardenSummary = {
 };
 
 export type GardenDetails = GardenSummary & {
-  averageHydration: number;
+  averageHydration: number | null;
   plants: GardenPlant[];
 };
 

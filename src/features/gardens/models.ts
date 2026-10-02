@@ -14,13 +14,13 @@ export function buildPlaceholderPlant(item: PlantCatalogItem): GardenPlant {
     metrics: [
       {
         kind: 'light',
-        label: 'Light',
-        value: 0,
+        label: 'Luz',
+        value: null,
       },
       {
         kind: 'water',
-        label: 'Water',
-        value: 0,
+        label: 'Água',
+        value: null,
       },
     ],
   };
@@ -44,12 +44,12 @@ export function buildAnalyzedPlant(analysis: PlantAnalysisResult, photoUri: stri
     metrics: [
       {
         kind: 'light',
-        label: 'Light',
+        label: 'Luz',
         value: clampPercent(analysis.light * 10),
       },
       {
         kind: 'water',
-        label: 'Water',
+        label: 'Água',
         value: clampPercent(analysis.water * 10),
       },
     ],
@@ -62,7 +62,7 @@ function clampPercent(value: number) {
 
 function average(values: number[]) {
   if (values.length === 0) {
-    return 0;
+    return null;
   }
 
   return clampPercent(
@@ -86,10 +86,10 @@ export function recalculateGardenStats(garden: GardenDetails): GardenDetails {
   const analyzedPlants = garden.plants.filter((plant) => typeof plant.vitality === 'number');
   const waterValues = garden.plants
     .map((plant) => plant.metrics.find((metric) => metric.kind === 'water')?.value)
-    .filter((value): value is number => typeof value === 'number' && value > 0);
+    .filter((value): value is number => typeof value === 'number');
   const lightValues = garden.plants
     .map((plant) => plant.metrics.find((metric) => metric.kind === 'light')?.value)
-    .filter((value): value is number => typeof value === 'number' && value > 0);
+    .filter((value): value is number => typeof value === 'number');
 
   const vitality = average(
     analyzedPlants.map((plant) => plant.vitality).filter((value): value is number => typeof value === 'number')

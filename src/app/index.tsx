@@ -13,6 +13,7 @@ import { Feather, Ionicons } from '@expo/vector-icons';
 import { AppHeader } from '../components/shell/AppHeader';
 import { AppNavbar } from '../components/shell/AppNavbar';
 import { GardenIdentityIcon } from '../features/gardens/icons';
+import { formatPercent } from '../features/gardens/metricPresentation';
 import { GardenMetric, GardenSummary } from '../features/gardens/types';
 import { useGardenSummaries } from '../features/gardens/store';
 import { useNavbarVisibilityOnScroll } from '../hooks/useNavbarVisibilityOnScroll';
@@ -39,13 +40,13 @@ function ProgressBar({
   color,
   trackColor,
 }: {
-  value: number;
+  value: number | null;
   color: string;
   trackColor: string;
 }) {
   return (
     <View style={[styles.progressTrack, { backgroundColor: trackColor }]}>
-      <View style={[styles.progressFill, { width: `${value}%`, backgroundColor: color }]} />
+      {value !== null ? <View style={[styles.progressFill, { width: `${value}%`, backgroundColor: color }]} /> : null}
     </View>
   );
 }
@@ -62,7 +63,7 @@ function MetricCard({ metric }: { metric: GardenMetric }) {
       </View>
       <View>
         <Text style={styles.metricLabel}>{metric.label}</Text>
-        <Text style={styles.metricValue}>{metric.value}%</Text>
+        <Text style={[styles.metricValue, metric.value === null && styles.unknownValue]}>{formatPercent(metric.value)}</Text>
       </View>
     </View>
   );
@@ -114,8 +115,8 @@ function GardenCard({ garden }: { garden: GardenSummary }) {
 
       <View style={styles.vitalitySection}>
         <View style={styles.vitalityHeader}>
-          <Text style={styles.vitalityLabel}>Vitality</Text>
-          <Text style={styles.vitalityValue}>{garden.vitality}%</Text>
+          <Text style={styles.vitalityLabel}>Vitalidade</Text>
+          <Text style={[styles.vitalityValue, garden.vitality === null && styles.unknownValue]}>{formatPercent(garden.vitality)}</Text>
         </View>
         <ProgressBar
           value={garden.vitality}
@@ -124,6 +125,11 @@ function GardenCard({ garden }: { garden: GardenSummary }) {
         />
       </View>
 
+      <Text style={styles.estimateText}>
+        {garden.vitality === null
+          ? 'Adicione uma planta e analise uma foto para obter estimativas.'
+          : 'Estimativas da IA · médias das plantas analisadas'}
+      </Text>
       <View style={styles.metricsRow}>
         {garden.metrics.map((metric) => (
           <MetricCard key={metric.label} metric={metric} />
@@ -200,6 +206,12 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
+  unknownValue: { fontSize: 16 },
+  estimateText: {
+    color: COLORS.textMuted,
+    fontSize: 12,
+    marginVertical: 8,
+  },
   screen: {
     flex: 1,
     backgroundColor: COLORS.background,

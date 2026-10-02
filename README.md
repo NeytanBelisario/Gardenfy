@@ -2,7 +2,7 @@
 
 Aplicativo de jardins e cuidados com plantas feito com Expo, React Native e TypeScript. Já inclui criação, edição e exclusão de jardins e plantas, catálogo de plantas, análise por foto com Gemini e visualização em realidade aumentada.
 
-O projeto está em desenvolvimento: jardins, plantas e análises têm persistência local; o perfil usa dados fixos e algumas ações ainda são apenas visuais. A persistência está coberta por testes automatizados e aguarda validação em dispositivo. A existência das telas não significa que o MVP esteja pronto.
+O projeto está em desenvolvimento: jardins, plantas e análises têm persistência local; métricas sem análise são desconhecidas e os resultados são identificados como estimativas da IA; o perfil usa dados fixos e algumas ações ainda são apenas visuais. A persistência está coberta por testes automatizados e aguarda validação em dispositivo. A existência das telas não significa que o MVP esteja pronto.
 
 ## Documentação
 

@@ -107,11 +107,11 @@ export function createGardensStore(storage: GardensStorage, photos: PlantPhotoSt
           name,
           label: input.environment === 'indoor' ? 'Jardim interno' : 'Jardim externo',
           plantCount: 0,
-          vitality: 0,
-          averageHydration: 0,
+          vitality: null,
+          averageHydration: null,
           metrics: [
-            { kind: 'light', label: 'Light', value: 0 },
-            { kind: 'water', label: 'Water', value: 0 },
+            { kind: 'light', label: 'Luz', value: null },
+            { kind: 'water', label: 'Água', value: null },
           ],
           plants: [],
         };

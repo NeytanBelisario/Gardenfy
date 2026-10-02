@@ -16,12 +16,12 @@ Proposta inicial: um MVP de uso individual, com persistência local e Android co
 | Jardins | Criação, edição, exclusão, listagem e detalhes com persistência local versionada. | Validação em dispositivo pendente, incluindo confirmação de exclusão. |
 | Plantas | Catálogo estático, inclusão e análise persistidas, com fotos guardadas fora do cache no app nativo. | Edição/exclusão implementadas; não há tela dedicada de cuidados ou histórico. Adapters nativos aguardam teste em dispositivo. |
 | Análise | Foto/câmera, integração Gemini, adição e reanálise de plantas nas rotas de jardins. | Chamada no cliente, parser textual e lógica duplicada no scan geral. Disponibilidade dos modelos não foi verificada. |
-| Métricas | Vitalidade e indicadores de água/luz, com agregação no jardim. | São estimativas/valores do modelo, não sensores; plantas sem análise usam placeholders. |
+| Métricas | Vitalidade e indicadores de água/luz, com agregação no jardim. | São estimativas/valores do modelo, não sensores; valores desconhecidos são distintos de zero; validação visual em aparelho pendente. |
 | AR | Modelo GLB, posicionamento em plano, rotação, escala e reposicionamento. | Precisa de build nativo e aparelho compatível; execução não validada nesta revisão. |
 | Perfil | Tela, contagens derivadas de jardins/plantas e conquistas visuais. | Usuário fixo; configurações e sair sem handlers; rank/conquistas estáticos. |
 | Qualidade | TypeScript, lint, testes de persistência e CI com export Android. | Build e jornada em dispositivo ainda pendentes. |
 
-Fontes principais: `src/features/gardens/store.ts`, `types.ts` e `mocks.ts`; `src/features/plant-analysis`; `src/features/ar/PlantArScreen.tsx`; `src/app/profile.tsx`; `package.json`.
+Fontes principais: `src/features/gardens/store.ts`, `types.ts` e `catalog.ts`; `src/features/plant-analysis`; `src/features/ar/PlantArScreen.tsx`; `src/app/profile.tsx`; `package.json`.
 
 ## Entregas propostas
 
@@ -38,13 +38,13 @@ Aceite: outro PC consegue preparar o projeto seguindo o guia; checks executam se
 
 ### M1 — Jardins e plantas que sobrevivem ao reinício
 
-- [x] Escolher armazenamento local e definir schema versionado e hidratação inicial do store. AsyncStorage, schema v1 e bootstrap com retry; ver `docs/PERSISTENCE.md`.
+- [x] Escolher armazenamento local e definir schema versionado e hidratação inicial do store. AsyncStorage, schema v2 com migração de v1 e bootstrap com retry; ver `docs/PERSISTENCE.md`.
 - [x] Persistir criação/inclusão e resultados de análise; tratar falhas de leitura/escrita. Fila de gravação e confirmação após sucesso; testes de reinício e falhas passaram.
 - [x] Preservar fotos em armazenamento durável, sem depender de URIs temporárias do picker. Implementação nativa e teste com arquivos reais; validação do adapter no aparelho ainda pendente.
 - [x] Permitir editar e excluir jardins e plantas com confirmação nas exclusões. Persistência e regressões testadas; interface aguarda validação no aparelho.
-- [ ] Diferenciar ausência de análise de valor zero e remover mensagens de mock do fluxo real.
+- [x] Diferenciar ausência de análise de valor zero e remover referências a mock do fluxo real. Schema v2 com migração de v1; médias incluem zeros conhecidos; testes de regressão passaram. Interface aguarda validação em aparelho.
 
-Estado: a primeira entrega de M1 cobre persistência, hidratação e fotos. A segunda entrega adiciona edição/exclusão com confirmação. Métricas desconhecidas e validação em aparelho continuam pendentes.
+Estado: a primeira entrega de M1 cobre persistência, hidratação e fotos. A segunda entrega adiciona edição/exclusão com confirmação. A terceira diferencia métricas desconhecidas de zero e identifica estimativas da IA. Validação em aparelho continua pendente.
 
 Aceite: criar jardim, adicionar planta, reiniciar e recuperar dados/fotos; editar/excluir persiste; falhas não sobrescrevem silenciosamente dados válidos. Sem rede, o cadastro manual continua utilizável.
 

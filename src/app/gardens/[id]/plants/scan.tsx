@@ -230,6 +230,7 @@ export default function AddPlantByCameraScreen() {
             <Text style={styles.sectionMeta}>{saved ? 'Salva no jardim' : 'Aguardando'}</Text>
           </View>
 
+          {analysis ? <Text style={styles.estimateText}>Estimativas da IA a partir da foto.</Text> : null}
           {analysis ? (
             <View style={styles.resultList}>
               <ResultRow
@@ -270,6 +271,11 @@ export default function AddPlantByCameraScreen() {
 }
 
 const styles = StyleSheet.create({
+  estimateText: {
+    color: '#424841',
+    fontSize: 12,
+    marginBottom: 12,
+  },
   screen: {
     flex: 1,
     backgroundColor: COLORS.background,

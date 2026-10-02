@@ -4,11 +4,11 @@ A entrega de persistência usa [AsyncStorage compatível com Expo 55](https://do
 
 ## Formato e carregamento
 
-A chave `@gardenfy/gardens` contém um JSON com `version: 1` e `gardens`. A validação verifica jardins, plantas, métricas, referências de fotos e IDs duplicados antes de carregar ou gravar.
+A chave `@gardenfy/gardens` contém um JSON com `version: 2` e `gardens`. A validação verifica jardins, plantas, métricas, referências de fotos e IDs duplicados antes de carregar ou gravar.
 
 O store é carregado uma vez na abertura do app. `GardensBootstrap` mostra carregamento e libera as rotas quando a leitura termina. Sem dados salvos, o estado inicial é vazio. Falha de leitura, JSON inválido ou versão desconhecida mostra um erro com opção de tentar novamente; o conteúdo existente não é substituído por um estado vazio.
 
-Não há migração de versões anteriores porque o store anterior existia somente em memória. Mudanças futuras de schema devem ter migração explícita e testes antes de alterar a versão. Dados incompatíveis/corrompidos ainda não têm ferramenta de reparo no app; a tentativa de leitura não apaga esses dados.
+Dados v1 são validados pelo formato original e migrados em memória: água/luz de plantas sem vitalidade (cadastro sem análise) tornam-se `null`; análises, inclusive zeros, fotos, nomes e datas permanecem. Os agregados são recalculados incluindo zeros conhecidos e excluindo valores desconhecidos. A leitura não grava nada: o formato v2 é salvo na próxima operação bem-sucedida. Se essa gravação falhar, o JSON v1 original permanece. Mudanças futuras de schema devem ter migração explícita e testes antes de alterar a versão. Dados incompatíveis/corrompidos ainda não têm ferramenta de reparo no app; a tentativa de leitura não apaga esses dados.
 
 ## Gravação
 
@@ -32,7 +32,7 @@ Novas dependências nativas exigem reconstruir o app com `npm run android` ou `n
 
 `npm test` executa testes com Node/tsx para reinício do store, schema inválido, bloqueio durante carregamento, falhas de leitura/escrita/cópia, fila de operações e substituição de fotos. Um teste usa dados e fotos em arquivos reais e verifica leitura após remover o cache e realocar o diretório. Os adapters nativos ainda precisam de validação em um aparelho; veja [TESTING.md](TESTING.md).
 
-Apresentação de métricas desconhecidas e cuidados/histórico seguem como próximas entregas do roadmap. A persistência não transforma as estimativas da IA em medições de sensores.
+Cuidados/histórico seguem como próximas entregas do roadmap. A persistência não transforma as estimativas da IA em medições de sensores.
 
 ## Edição e exclusão
 
@@ -40,4 +40,10 @@ Na tela de detalhes, as ações Editar/Excluir aparecem para o jardim e cada pla
 
 Excluir exige confirmação explícita, com opção de cancelar. Excluir um jardim remove suas plantas e análises; excluir uma planta recalcula contagens e agregados do jardim. A navegação volta à home após excluir o jardim. Salvamento/exclusão bloqueiam novas ações no diálogo e mostram falhas com opção de repetir.
 
-Os dados são gravados antes de limpar fotos que perderam todas as referências. Fotos compartilhadas, inclusive usadas na capa de outro jardim, são preservadas. Falha de gravação mantém dados e fotos anteriores; falha de limpeza após sucesso pode deixar uma foto órfã e não desfaz a exclusão. A fila rejeita ações para IDs já excluídos, evitando recriar registros por uma operação atrasada. O schema permanece v1, sem novas dependências.
+Os dados são gravados antes de limpar fotos que perderam todas as referências. Fotos compartilhadas, inclusive usadas na capa de outro jardim, são preservadas. Falha de gravação mantém dados e fotos anteriores; falha de limpeza após sucesso pode deixar uma foto órfã e não desfaz a exclusão. A fila rejeita ações para IDs já excluídos, evitando recriar registros por uma operação atrasada. As operações usam o schema v2 descrito acima, sem novas dependências.
+
+## Métricas e ausência de análise
+
+Métricas de água/luz e agregados do jardim usam `null` para desconhecido. Vitalidade e crescimento da planta continuam opcionais quando não há análise. Zero é uma estimativa válida e participa da média; não equivale a ausência de informação. Um jardim vazio ou só com plantas sem análise tem agregados desconhecidos.
+
+Home e detalhes mostram “Sem análise”; os indicadores compactos da planta mostram “—” com texto explicativo e rótulos acessíveis. Crescimento conhecido de zero dias aparece como `0d`. Resultados e médias são identificados como estimativas da IA, e o detalhe informa quantas plantas foram analisadas. Cada média usa apenas os valores conhecidos daquele indicador; o catálogo estático não fabrica métricas.
