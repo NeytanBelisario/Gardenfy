@@ -25,6 +25,7 @@ export type GardenPlant = {
     tone: PlantHealthTone;
   };
   metrics: GardenMetric[];
+  history: PlantHistoryEntry[];
 };
 
 export type PlantAnalysisResult = {
@@ -35,6 +36,31 @@ export type PlantAnalysisResult = {
   light: number;
   growthDays: number;
 };
+
+export type PlantCareType = 'water' | 'fertilize';
+
+export type PlantCareRecord = {
+  id: string;
+  kind: 'care';
+  careType: PlantCareType;
+  occurredAt: string;
+};
+
+export type PlantAnalysisRecord = {
+  id: string;
+  kind: 'analysis';
+  occurredAt: string;
+  snapshot: {
+    plantName: string;
+    health: string;
+    vitality?: number;
+    growthDays?: number;
+    metrics: GardenMetric[];
+  };
+};
+
+export type PlantHistoryEntry = PlantCareRecord | PlantAnalysisRecord;
+export type PlantCareDraft = Pick<PlantCareRecord, 'careType' | 'occurredAt'>;
 
 export type PlantCatalogCategory =
   | 'all'

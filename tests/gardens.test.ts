@@ -5,10 +5,11 @@ import { join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import test from 'node:test';
 
+import { parseCareDateFields, careDateFields, sortPlantHistory } from '../src/features/gardens/plantHistory';
 import { createGardensStore } from '../src/features/gardens/storeCore';
 import { deserializeGardens, GARDENS_STORAGE_KEY, serializeGardens, type GardensStorage } from '../src/features/gardens/persistence';
 import { createManagedPhotoStorage, type PlantPhotoStorage } from '../src/features/gardens/photoStorageCore';
-import type { PlantAnalysisResult, PlantCatalogItem } from '../src/features/gardens/types';
+import type { PlantAnalysisResult, PlantCatalogItem, PlantCareType } from '../src/features/gardens/types';
 
 const draft = { name: '  Varanda  ', environment: 'outdoor' as const, icon: 'potted-plant' as const, imageUrl: '' };
 const catalog: PlantCatalogItem = { id: 'catalog-1', name: 'Jiboia', subtitle: 'Folhagem', category: 'foliage', categoryLabel: 'Folhagem', imageUrl: 'https://example.com/plant.jpg' };
@@ -133,7 +134,7 @@ test('a synchronously failing storage adapter can also retry hydration', async (
 
 for (const [name, raw] of [
   ['broken JSON', '{broken'],
-  ['future version', '{"version":3,"gardens":[]}'],
+  ['future version', '{"version":4,"gardens":[]}'],
   ['missing schema', '{"gardens":[]}'],
   ['invalid garden', '{"version":1,"gardens":[{"id":"x"}]}'],
 ] as const) {
@@ -161,7 +162,7 @@ test('nested invalid values and duplicate ids are rejected before loading', asyn
   ]) {
     const copy = structuredClone(base);
     corrupt(copy);
-    assert.throws(() => deserializeGardens(JSON.stringify({ version: 2, gardens: copy })));
+    assert.throws(() => deserializeGardens(JSON.stringify({ version: 3, gardens: copy })));
   }
 });
 
@@ -566,7 +567,7 @@ test('v1 migration clears placeholders, preserves analyses and photos, and recom
   assert.equal(memory.raw, raw);
   assert.equal(memory.writes, writes);
   await restarted.updateGarden(migrated.id, { ...draft, name: 'Migrado' });
-  assert.equal(JSON.parse(memory.raw!).version, 2);
+  assert.equal(JSON.parse(memory.raw!).version, 3);
   const final = createGardensStore(storage, photos);
   await final.hydrate();
   assert.deepEqual(final.getSnapshot().gardens, restarted.getSnapshot().gardens);
@@ -582,7 +583,7 @@ test('failed save after migration preserves original v1 payload and supports ret
   assert.equal(memory.raw, raw);
   assert.equal(restarted.getSnapshot(), before);
   await restarted.updateGarden(before.gardens[0].id, draft);
-  assert.equal(JSON.parse(memory.raw!).version, 2);
+  assert.equal(JSON.parse(memory.raw!).version, 3);
 });
 
 test('legacy empty gardens migrate to unknown aggregates and corrupted v1 metrics are rejected', async () => {
@@ -597,5 +598,210 @@ test('legacy empty gardens migrate to unknown aggregates and corrupted v1 metric
     const invalid = structuredClone(legacy);
     Object.assign(invalid.metrics[0], { value });
     assert.throws(() => deserializeGardens(JSON.stringify({ version: 1, gardens: [invalid] })));
+  }
+});
+
+test('care records persist without inventing or changing estimates, counts, dates or photos', async () => {
+  const { store, storage, photos } = await fixture();
+  const garden = await store.createGarden(draft);
+  const plant = await store.addPlantToGarden(garden.id, catalog);
+  const before = store.getSnapshot().gardens[0];
+  const water = await store.recordPlantCare(garden.id, plant.id, 'water');
+  const fertilizer = await store.recordPlantCare(garden.id, plant.id, 'fertilize');
+  assert.notEqual(water.id, fertilizer.id);
+  const restarted = createGardensStore(storage, photos);
+  await restarted.hydrate();
+  const saved = restarted.getSnapshot().gardens[0];
+  assert.deepEqual(saved.plants[0].history, [water, fertilizer]);
+  assert.deepEqual({ ...saved, plants: saved.plants.map((item) => ({ ...item, history: [] })) }, before);
+  assert.equal(saved.plants[0].lastAnalyzedAt, undefined);
+});
+
+test('reanalysis appends immutable snapshots, retains care and only stores current photo', async () => {
+  const { store, storage, photos, files } = await fixture();
+  const garden = await store.createGarden(draft);
+  const plant = await store.addAnalyzedPlantToGarden(garden.id, analysis, 'file:///cache/first.jpg');
+  const firstAnalysis = structuredClone(plant.history[0]);
+  const care = await store.recordPlantCare(garden.id, plant.id, 'water');
+  const updated = await store.updatePlantAnalysis(garden.id, plant.id, { ...analysis, vitality: 0, water: 0 }, 'file:///cache/next.jpg');
+  assert.equal(files.size, 1);
+  const restarted = createGardensStore(storage, photos);
+  await restarted.hydrate();
+  const saved = restarted.getSnapshot().gardens[0].plants[0];
+  assert.deepEqual(saved.history.slice(0, 2), [firstAnalysis, care]);
+  const latest = saved.history[2];
+  assert.equal(latest.kind, 'analysis');
+  if (latest.kind !== 'analysis') throw new Error('Missing analysis');
+  assert.equal(latest.snapshot.vitality, 0);
+  assert.equal(latest.snapshot.metrics.find((metric) => metric.kind === 'water')?.value, 0);
+  assert.equal(latest.occurredAt, updated.lastAnalyzedAt);
+  await restarted.updatePlant(garden.id, plant.id, { name: 'Editada', subtitle: 'Nova descrição' });
+  assert.deepEqual(restarted.getSnapshot().gardens[0].plants[0].history, saved.history);
+});
+
+test('editing care type and date and deleting care survive restart and leave analysis intact', async () => {
+  const { store, storage, photos } = await fixture();
+  const garden = await store.createGarden(draft);
+  const plant = await store.addAnalyzedPlantToGarden(garden.id, analysis, 'file:///cache/photo.jpg');
+  const care = await store.recordPlantCare(garden.id, plant.id, 'water');
+  const occurredAt = '2026-10-01T12:30:00.000Z';
+  await store.updatePlantCare(garden.id, plant.id, care.id, { careType: 'fertilize', occurredAt });
+  const restarted = createGardensStore(storage, photos);
+  await restarted.hydrate();
+  assert.deepEqual(restarted.getSnapshot().gardens[0].plants[0].history[1], { ...care, careType: 'fertilize', occurredAt });
+  assert.equal(restarted.getSnapshot().gardens[0].vitality, 80);
+  await restarted.deletePlantCare(garden.id, plant.id, care.id);
+  const final = createGardensStore(storage, photos);
+  await final.hydrate();
+  assert.deepEqual(final.getSnapshot().gardens[0].plants[0].history, plant.history);
+  assert.equal(final.getSnapshot().gardens[0].averageHydration, 40);
+});
+
+for (const operation of ['record', 'update', 'delete'] as const) {
+  test(`care ${operation} failure preserves previous state and storage and can retry`, async () => {
+    const { store, memory, files } = await fixture();
+    const garden = await store.createGarden(draft);
+    const plant = await store.addAnalyzedPlantToGarden(garden.id, analysis, 'file:///cache/photo.jpg');
+    const care = await store.recordPlantCare(garden.id, plant.id, 'water');
+    const perform = () => operation === 'record' ? store.recordPlantCare(garden.id, plant.id, 'fertilize')
+      : operation === 'delete' ? store.deletePlantCare(garden.id, plant.id, care.id)
+      : store.updatePlantCare(garden.id, plant.id, care.id, { careType: 'fertilize', occurredAt: care.occurredAt });
+    const previous = store.getSnapshot();
+    const raw = memory.raw;
+    memory.failWrites = 1;
+    await assert.rejects(perform(), /Nenhuma alteração/);
+    assert.equal(store.getSnapshot(), previous);
+    assert.equal(memory.raw, raw);
+    assert.equal(files.size, 1);
+    await perform();
+    assert.notEqual(memory.raw, raw);
+  });
+}
+
+test('concurrent care and reanalysis retain every event and care does not change latest analysis', async () => {
+  const { store } = await fixture();
+  const garden = await store.createGarden(draft);
+  const plant = await store.addPlantToGarden(garden.id, catalog);
+  await Promise.all([
+    store.recordPlantCare(garden.id, plant.id, 'water'),
+    store.updatePlantAnalysis(garden.id, plant.id, analysis),
+    store.recordPlantCare(garden.id, plant.id, 'fertilize'),
+  ]);
+  const saved = store.getSnapshot().gardens[0].plants[0];
+  assert.deepEqual(saved.history.map((entry) => entry.kind), ['care', 'analysis', 'care']);
+  assert.equal(new Set(saved.history.map((entry) => entry.id)).size, 3);
+  assert.equal(saved.vitality, 80);
+});
+
+test('care is published only after the write confirms and cannot target deleted plants', async () => {
+  const { store, storage } = await fixture();
+  const garden = await store.createGarden(draft);
+  const plant = await store.addPlantToGarden(garden.id, catalog);
+  const entered = deferred();
+  const release = deferred();
+  const write = storage.setItem;
+  storage.setItem = async (key, value) => { entered.resolve(); await release.promise; await write(key, value); };
+  const recording = store.recordPlantCare(garden.id, plant.id, 'water');
+  await entered.promise;
+  assert.deepEqual(store.getSnapshot().gardens[0].plants[0].history, []);
+  release.resolve();
+  await recording;
+  const results = await Promise.allSettled([
+    store.deletePlant(garden.id, plant.id),
+    store.recordPlantCare(garden.id, plant.id, 'water'),
+  ]);
+  assert.deepEqual(results.map((result) => result.status), ['fulfilled', 'rejected']);
+});
+
+test('invalid care and attempts to edit or delete analysis events reject without writing', async () => {
+  const { store, memory } = await fixture();
+  const garden = await store.createGarden(draft);
+  const plant = await store.addAnalyzedPlantToGarden(garden.id, analysis, 'file:///cache/photo.jpg');
+  const care = await store.recordPlantCare(garden.id, plant.id, 'water');
+  const writes = memory.writes;
+  await assert.rejects(store.recordPlantCare(garden.id, plant.id, 'invalid' as PlantCareType), /rega ou adubação/);
+  for (const occurredAt of ['', 'invalid', '2026-02-30T00:00:00.000Z']) {
+    await assert.rejects(store.updatePlantCare(garden.id, plant.id, care.id, { careType: 'water', occurredAt }), /data e hora/);
+  }
+  for (const recordId of ['missing', plant.history[0].id]) {
+    await assert.rejects(store.updatePlantCare(garden.id, plant.id, recordId, { careType: 'water', occurredAt: care.occurredAt }), /não encontrado/);
+    await assert.rejects(store.deletePlantCare(garden.id, plant.id, recordId), /não encontrado/);
+  }
+  await assert.rejects(store.recordPlantCare('missing', plant.id, 'water'), /Jardim não encontrado/);
+  await assert.rejects(store.recordPlantCare(garden.id, 'missing', 'water'), /Planta não encontrada/);
+  assert.equal(memory.writes, writes);
+});
+
+test('v2 migration recovers only the latest known analysis and no invented care, without writing', async () => {
+  const { store, memory, storage, photos } = await fixture();
+  const garden = await store.createGarden(draft);
+  await store.addPlantToGarden(garden.id, catalog);
+  await store.addAnalyzedPlantToGarden(garden.id, analysis, 'file:///cache/photo.jpg');
+  const old = JSON.parse(memory.raw!);
+  old.version = 2;
+  old.gardens[0].plants.forEach((plant: Record<string, unknown>) => { delete plant.history; });
+  memory.raw = JSON.stringify(old);
+  const raw = memory.raw;
+  const writes = memory.writes;
+  const restarted = createGardensStore(storage, photos);
+  await restarted.hydrate();
+  const migrated = restarted.getSnapshot().gardens[0];
+  assert.deepEqual(migrated.plants[0].history, []);
+  assert.equal(migrated.plants[1].history.length, 1);
+  assert.equal(migrated.plants[1].history[0].occurredAt, migrated.plants[1].lastAnalyzedAt);
+  assert.deepEqual(deserializeGardens(raw), restarted.getSnapshot().gardens);
+  assert.equal(memory.raw, raw);
+  assert.equal(memory.writes, writes);
+  memory.failWrites = 1;
+  await assert.rejects(restarted.recordPlantCare(garden.id, migrated.plants[0].id, 'water'));
+  assert.equal(memory.raw, raw);
+  await restarted.recordPlantCare(garden.id, migrated.plants[0].id, 'water');
+  assert.equal(JSON.parse(memory.raw!).version, 3);
+});
+
+test('invalid v3 history blocks hydration and never overwrites saved payload', async () => {
+  const { store } = await fixture();
+  const garden = await store.createGarden(draft);
+  const plant = await store.addPlantToGarden(garden.id, catalog);
+  await store.recordPlantCare(garden.id, plant.id, 'water');
+  const base = store.getSnapshot().gardens;
+  const record = base[0].plants[0].history[0];
+  for (const history of [undefined, null, [null], [{ ...record, careType: 'unknown' }],
+    [{ ...record, occurredAt: 'invalid' }], [record, record],
+    [{ ...record, kind: 'analysis', snapshot: { plantName: 'Jiboia', health: 'Boa', metrics: [{ kind: 'water', label: 'Água', value: 101 }] } }]]) {
+    const copy = structuredClone(base);
+    Object.assign(copy[0].plants[0], { history });
+    const raw = JSON.stringify({ version: 3, gardens: copy });
+    const { storage, memory } = memoryStorage(raw);
+    const restarted = createGardensStore(storage, photoFixture().photos);
+    await assert.rejects(restarted.hydrate());
+    await assert.rejects(restarted.recordPlantCare(garden.id, plant.id, 'water'));
+    assert.equal(memory.raw, raw);
+    assert.equal(memory.writes, 0);
+  }
+});
+
+test('history sorts by corrected event date with latest insertion first on ties, without mutating storage order', async () => {
+  const { store } = await fixture();
+  const garden = await store.createGarden(draft);
+  const plant = await store.addPlantToGarden(garden.id, catalog);
+  const first = await store.recordPlantCare(garden.id, plant.id, 'water');
+  const second = await store.recordPlantCare(garden.id, plant.id, 'fertilize');
+  await store.updatePlantCare(garden.id, plant.id, first.id, { careType: 'water', occurredAt: '2026-01-01T00:00:00.000Z' });
+  await store.updatePlantCare(garden.id, plant.id, second.id, { careType: 'fertilize', occurredAt: '2026-01-01T00:00:00.000Z' });
+  const saved = store.getSnapshot().gardens[0].plants[0].history;
+  assert.deepEqual(sortPlantHistory(saved).map((item) => item.id), [second.id, first.id]);
+  assert.deepEqual(saved.map((item) => item.id), [first.id, second.id]);
+  await store.updatePlantCare(garden.id, plant.id, first.id, { careType: 'water', occurredAt: '2026-01-02T00:00:00.000Z' });
+  assert.equal(sortPlantHistory(store.getSnapshot().gardens[0].plants[0].history)[0].id, first.id);
+});
+
+test('local care date editing round trips and rejects invalid calendar dates and clock values', () => {
+  const iso = parseCareDateFields('02/10/2026', '09:30');
+  assert.deepEqual(careDateFields(iso), { date: '02/10/2026', time: '09:30' });
+  assert.doesNotThrow(() => parseCareDateFields('29/02/2024', '00:00'));
+  for (const [date, time] of [['29/02/2026', '09:30'], ['31/04/2026', '12:00'], ['00/10/2026', '09:00'],
+    ['01/13/2026', '09:00'], ['02/10/2026', '24:00'], ['02/10/2026', '12:60'], ['2026-10-02', '09:30']]) {
+    assert.throws(() => parseCareDateFields(date, time));
   }
 });
