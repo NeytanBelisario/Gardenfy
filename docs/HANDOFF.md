@@ -102,6 +102,7 @@ Atualize este arquivo ao encerrar sessões que mudem o estado do projeto. Não a
 - **Etapa concluída:** CLI Supabase `2.119.0` fixada como dependência de desenvolvimento; projeto local inicializado em `supabase/config.toml`; autenticação salva validada pela listagem de projetos.
 - **Projeto remoto:** `Gardenfy` (`ukqsiclooawiqmttdobu`, região `us-west-2`) localizado com a credencial existente.
 - **Vínculo remoto:** o projeto foi retomado pelo usuário e `npx supabase link --project-ref ukqsiclooawiqmttdobu --yes` concluiu com sucesso. A listagem da CLI confirmou `ACTIVE_HEALTHY` e `linked: true`; a listagem remota de Edge Functions respondeu sem funções cadastradas.
+- **Checks locais:** `npm run check` aprovou TypeScript, lint sem avisos e 87 testes; `git diff --check` também passou. O `npm install` reportou 25 alertas de dependências (1 baixo, 13 moderados e 11 altos), sem correção automática aplicada nesta tarefa.
 - **Segurança:** nenhum token, senha de banco ou segredo foi adicionado ao repositório. Arquivos temporários e ambientes locais do Supabase continuam ignorados.
 - **Próximo passo:** revisar/integrar o PR de configuração. Depois, criar uma branch a partir de `develop` atualizado para implementar a Edge Function da análise, segredo Gemini, autenticação e limites de uso.
 
