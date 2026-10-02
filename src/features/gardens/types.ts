@@ -1,4 +1,4 @@
-import type { GardenIconName } from './icons';
+import type { GardenIconName } from './iconNames';
 
 export type GardenMetricKind = 'light' | 'water';
 
