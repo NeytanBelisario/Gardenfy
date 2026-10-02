@@ -22,14 +22,14 @@ Execute com build nativo Android e registre versão do sistema, modelo do dispos
 | Abrir pela primeira vez | Home vazia e acesso à criação de jardim. | Store começa vazio. |
 | Criar jardim | Nome, ambiente e ícone aparecem após salvar; nome vazio gera feedback. | Persistência implementada; testar no aparelho. |
 | Adicionar pelo catálogo | Busca/filtro funcionam; planta aparece após salvar e contagem aumenta. | Catálogo estático; métricas iniciais desconhecidas aparecem como “—”/“Sem análise”. |
-| Analisar uma foto | Pedir permissão; mostrar carregamento, resultado para revisão e confirmar adicionar/atualizar planta. | Requer rede/chave local; um modelo configurável, com revisão documental e validação real pendente. |
+| Analisar uma foto | Pedir permissão; mostrar carregamento, resultado para revisão e confirmar adicionar/atualizar planta. | Requer rede, configuração pública do Supabase no app e segredo Gemini no servidor; validação real pendente. |
 | Cancelar seleção / negar câmera | Permitir continuar navegando sem travar. | Registrar falhas encontradas para a etapa de análise. |
 | Abrir perfil | Contagens acompanham jardins/plantas. | Usuário e badges fixos; configurações/sair sem ação. |
 | Abrir preview AR | Detectar plano, posicionar, girar, redimensionar e reposicionar. | Requer aparelho AR compatível. |
 | AR indisponível | Mostrar fallback e permitir voltar. | Não equivale a validar toda a experiência web. |
 | Encerrar e reabrir o app | Recuperar jardins, plantas, análises e fotos da sessão anterior. | Implementado e testado no domínio; teste nativo pendente. |
 
-Não use dados pessoais reais nas fotos de teste. Uma execução sem chave valida apenas o tratamento dessa ausência, não o serviço de IA.
+Não use dados pessoais reais nas fotos de teste. Uma execução sem segredo Gemini valida apenas o tratamento dessa ausência, não o serviço de IA.
 
 ## Registro da sessão de 01/10/2026
 
@@ -93,11 +93,11 @@ Execução no aparelho pendente. Registrar dispositivo, sistema, commit e result
 
 Checks desta entrega: `npm run check` (TypeScript, lint sem avisos e 53 testes), os mesmos 53 testes com `TZ=America/Sao_Paulo`, export Android e `git diff --check` aprovados. As 13 novas regressões cobrem cuidados sem fabricar medições, retratos históricos, correção/exclusão, falhas das três operações, concorrência, confirmação de gravação, alvo excluído, v2→v3, schema inválido, ordenação e datas locais. Testes anteriores também continuam cobrindo migração de v1 e falhas de análise. Nenhum APK, chamada real à IA ou execução em dispositivo foi realizado.
 
-## Roteiro adicional — análise compartilhada e falhas (M3 local)
+## Roteiro adicional — análise compartilhada, servidor e falhas (M3)
 
 Execução no aparelho/serviço real pendente. Registrar dispositivo, sistema, modelo configurado, commit e resultados, sem credenciais:
 
-1. Abrir scan geral, inclusão por foto no jardim e reanálise da planta. Conferir explicação do envio ao Google e indicação de estimativas. Sem chave, tocar câmera/galeria e conferir feedback, sem travar a navegação.
+1. Abrir scan geral, inclusão por foto no jardim e reanálise da planta. Conferir explicação do envio ao Google e indicação de estimativas. Sem configuração Supabase no app ou sem segredo Gemini no servidor, tocar câmera/galeria e conferir feedback, sem travar a navegação.
 2. Autorizar/negar câmera e galeria (incluindo acesso limitado às fotos, quando disponível). Conferir alternativas indicadas na negativa; cancelar o seletor e conferir preservação do resultado/dados anteriores. Tocar rapidamente e conferir um seletor por vez.
 3. Analisar com serviço configurado: scan geral mostra identificação e indicadores sem salvar. Inclusão permite revisar/corrigir o nome e exige confirmação. Conferir que a identificação sugerida permanece separada do nome escolhido.
 4. Reanalisar uma planta: conferir dados salvos anteriores enquanto o resultado novo está em revisão. Se identificação divergir, conferir aviso e confirmação explícita. Descartar e reiniciar: dados antigos continuam. Confirmar e reiniciar: estimativas atuais, data/foto e histórico são atualizados, mantendo nome/descrição e cuidados.
@@ -106,4 +106,4 @@ Execução no aparelho/serviço real pendente. Registrar dispositivo, sistema, m
 7. Simular falha de armazenamento ao confirmar em ambiente dedicado: rascunho permite repetir o salvamento sem nova análise e mantém dados/fotos anteriores. Voltar ao jardim e confirmar contagens/estado.
 8. Verificar teclado e nome vazio na revisão, TalkBack, texto ampliado, telas pequenas e IDs indisponíveis. Câmera/galeria reais, permissões e aborto no SDK ainda exigem execução nativa.
 
-Checks desta entrega: `npm run check` (TypeScript, lint sem avisos e 87 testes), export Android, links locais e `git diff --check` aprovados. 34 novas regressões cobrem parser/números inválidos/zeros, normalização de fotos, mensagens seguras, timeout, cancelamento/respostas tardias, seleção/permissões e nome revisado persistido atomicamente. Os adapters de teste simulam transporte/seletor; não executam a UI, o SDK em rede, câmera/galeria ou permissões do sistema. Nenhum APK, chamada real à IA ou teste em aparelho foi realizado.
+Checks acumulados: `npm run check` (TypeScript, lint sem avisos e 92 testes), além das validações remotas descritas em `ANALYSIS.md`. Os adapters simulam transporte/seletor e as regressões novas cobrem a fronteira cliente/servidor; não executam UI, câmera/galeria ou permissões do sistema. Nenhum APK, chamada real ao Gemini ou teste em aparelho foi realizado.
