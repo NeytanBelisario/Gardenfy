@@ -4,7 +4,7 @@
 
 O projeto usa Expo 55, React Native 0.83, React 19 e TypeScript estrito, conforme `package.json`. O gerenciador é npm, com `package-lock.json` versionado.
 
-A versão inicial de Node em `.nvmrc` é `22.22.2`, disponível na máquina em que esta documentação foi criada. A instalação e o build ainda precisam ser validados em uma máquina limpa; alterações nessa base devem atualizar este guia.
+A versão de Node em `.nvmrc` é `22.22.2`, com npm `10.9.7` registrado em `package.json`. A instalação limpa foi verificada em Linux/WSL2. A validação de compilação nativa ainda exige uma máquina com Android SDK/JDK; não confunda export do bundle com geração de APK.
 
 ```bash
 git clone https://github.com/NeytanBelisario/Gardenfy.git
@@ -31,12 +31,34 @@ Comandos existentes:
 | `npm run android` | Gerar/compilar e executar o app Android; requer Android SDK e dispositivo/emulador configurado. |
 | `npm run ios` | Gerar/compilar e executar o app iOS; requer macOS e Xcode. |
 | `npm run web` | Tentar executar a versão web; a compatibilidade completa ainda precisa de validação. |
-| `npx tsc --noEmit` | Verificar os tipos. |
-| `npm run lint` | Invocar `expo lint`; falta configuração de ESLint versionada e reproduzível. |
+| `npm run typecheck` | Verificar os tipos (`tsc --noEmit`). |
+| `npm run lint` | Executar ESLint com configuração Expo versionada; avisos também falham o check. |
+| `npm run check` | Executar typecheck e lint. |
+| `npx expo install --check` | Conferir compatibilidade de versões com o SDK instalado. |
+| `npx expo export --platform android` | Gerar bundle JS/assets em `dist/`; não compila APK. |
 
 A visualização AR usa `@reactvision/react-viro`, um modelo GLB e módulos nativos. O próprio código exige build nativo compatível e dispositivo com suporte; Expo Go não executa esse recurso. A tela tem fallback para indisponibilidade, mas isso não comprova que todo o app funciona na web. As pastas `android/` e `ios/` são geradas e ignoradas pelo Git.
 
 Não use `npm run reset-project` no fluxo habitual: o script é de reset do projeto, não um comando de instalação.
+
+## Preparar Android
+
+Instale JDK 17, Android Studio e os pacotes do SDK Android necessários ao SDK 55 (incluindo Platform 36, Build-Tools e Platform-Tools). Configure `JAVA_HOME` e `ANDROID_HOME` apontando para as instalações locais e inclua `platform-tools` no `PATH`. O [guia oficial de ambiente Android do Expo](https://docs.expo.dev/workflow/android-studio-emulator/) detalha os passos por sistema operacional.
+
+Confira o ambiente antes de compilar:
+
+```bash
+java -version
+adb --version
+adb devices
+npm run android
+```
+
+Use um aparelho físico compatível para validar AR. A compilação gera `android/`, ignorado pelo Git. Mudanças em plugins/dependências nativas exigem novo build; reiniciar Metro sozinho não atualiza os módulos instalados. Use `npm start` para iniciar Metro nas sessões seguintes, com o build nativo instalado.
+
+No WSL2, não presuma acesso automático a SDK, JDK ou USB do Windows. Configure todas as ferramentas no ambiente em que executará a compilação, ou execute o projeto no host já preparado.
+
+Consulte [TESTING.md](TESTING.md) para os checks, roteiro manual e limites do que foi validado.
 
 ## Fluxo de uma tarefa
 
