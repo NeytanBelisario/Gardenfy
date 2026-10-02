@@ -84,7 +84,7 @@ Atualize este arquivo ao encerrar sessões que mudem o estado do projeto. Não a
 ## Sessão de 02/10/2026 — M3: análise compartilhada e falhas locais
 
 - **Branch:** `fix/unified-plant-analysis`, criada de `develop` atualizado após integrar o PR #7 (`3b660ff`).
-- **PR:** [#8 — análise compartilhada, revisão e falhas](https://github.com/NeytanBelisario/Gardenfy/pull/8), aberto para `develop`; aguarda integração.
+- **PR:** [#8 — análise compartilhada, revisão e falhas](https://github.com/NeytanBelisario/Gardenfy/pull/8), integrado em `develop` (`f864678`).
 - **CI remoto:** workflow disparado pelo PR; consultar o resultado dos checks no GitHub.
 - **Etapas publicadas:** `b69e0cc` (serviço/parser, seleção, erros e regressões), `7ff0506` (tela/hook compartilhados e revisão antes de salvar), `354f61d` (documentação e limites locais).
 - **Entrega:** os três caminhos usam o mesmo fluxo; câmera/galeria com feedback e bloqueio de toques repetidos; erro de configuração, conexão, quota, indisponibilidade, timeout (30s), resposta inválida e cancelamento. Rascunho exige confirmação para incluir/reanalisar; nome escolhido é separado da identificação da IA. Divergência de identificação gera aviso para revisão. Scan geral é consulta sem persistência.
@@ -98,13 +98,24 @@ Atualize este arquivo ao encerrar sessões que mudem o estado do projeto. Não a
 ## Sessão de 02/10/2026 — configuração inicial do Supabase
 
 - **Branch:** `chore/setup-supabase`, criada de `develop` atualizado após integrar o PR #8 (`f864678`).
-- **PR:** [#9 — configurar Supabase CLI](https://github.com/NeytanBelisario/Gardenfy/pull/9), aberto para `develop`; aguarda integração.
+- **PR:** [#9 — configurar Supabase CLI](https://github.com/NeytanBelisario/Gardenfy/pull/9), integrado em `develop` (`26cfc11`).
 - **Etapa concluída:** CLI Supabase `2.119.0` fixada como dependência de desenvolvimento; projeto local inicializado em `supabase/config.toml`; autenticação salva validada pela listagem de projetos.
 - **Projeto remoto:** `Gardenfy` (`ukqsiclooawiqmttdobu`, região `us-west-2`) localizado com a credencial existente.
 - **Vínculo remoto:** o projeto foi retomado pelo usuário e `npx supabase link --project-ref ukqsiclooawiqmttdobu --yes` concluiu com sucesso. A listagem da CLI confirmou `ACTIVE_HEALTHY` e `linked: true`; a listagem remota de Edge Functions respondeu sem funções cadastradas.
 - **Checks locais:** `npm run check` aprovou TypeScript, lint sem avisos e 87 testes; `git diff --check` também passou. O `npm install` reportou 25 alertas de dependências (1 baixo, 13 moderados e 11 altos), sem correção automática aplicada nesta tarefa.
 - **Segurança:** nenhum token, senha de banco ou segredo foi adicionado ao repositório. Arquivos temporários e ambientes locais do Supabase continuam ignorados.
 - **Próximo passo:** revisar/integrar o PR de configuração. Depois, criar uma branch a partir de `develop` atualizado para implementar a Edge Function da análise, segredo Gemini, autenticação e limites de uso.
+
+## Sessão de 02/10/2026 — M3: análise pelo servidor
+
+- **Branch:** `feat/server-plant-analysis`, criada de `develop` atualizado após integrar o PR #9 (`26cfc11`).
+- **PR:** [#10 — proteger análise por foto no Supabase](https://github.com/NeytanBelisario/Gardenfy/pull/10), aberto para `develop`; aguarda integração.
+- **Entrega:** cliente envia somente foto/mime para a Edge Function `analyze-plant`; chave Gemini saiu do bundle e o SDK cliente foi removido. A função valida chave publicável, método, formato/tamanho, aplica timeout e chama uma única vez o endpoint REST do modelo.
+- **Controle de uso:** migração cria tabela com RLS e RPC `security invoker`, acessíveis apenas por `service_role`. Limite de 10 análises por hora por origem; somente hash SHA-256 com salt secreto é salvo, com limpeza após dois dias.
+- **Remoto:** migração `20261002174522` aplicada; secrets `ANALYSIS_RATE_LIMIT_SALT` e `GEMINI_MODEL` configurados; função versão 2 ativa. Chamada sem chave publicável retorna 401 e chamada autenticada retorna erro seguro de configuração enquanto falta `GEMINI_API_KEY`.
+- **Checks:** `npm run check` aprovou TypeScript, lint sem avisos e 92 testes. Migração dry-run/aplicação/listagem passaram; teste transacional da cota aceitou 10 e recusou a 11ª chamada; `anon` recebeu permissão negada na RPC; lint remoto sem erro. Advisor encontrou dois avisos preexistentes em `public.rls_auto_enable()`, fora do escopo desta entrega.
+- **Limitações:** nenhuma chave Gemini disponível nesta máquina, chamada real ao modelo, app em dispositivo ou APK. URL/chave publicável do Supabase foram configuradas no `.env` local ignorado; outros ambientes precisam recriar esses valores. Limite por origem é uma proteção provisória enquanto não há autenticação de usuário.
+- **Próximo passo:** cadastrar `GEMINI_API_KEY` diretamente nos secrets do projeto, executar chamada real com foto não sensível e validar o fluxo no aparelho. Depois revisar/integrar o PR desta branch.
 
 ## Modelo para próximas sessões
 

@@ -16,7 +16,6 @@
   "dependencies": {
     "@expo/config-plugins": "~55.0.5",
     "@expo/log-box": "^55.0.13",
-    "@google/generative-ai": "^0.24.1",
     "@react-native-async-storage/async-storage": "2.2.0",
     "@react-navigation/bottom-tabs": "^7.15.5",
     "@react-navigation/elements": "^2.9.10",

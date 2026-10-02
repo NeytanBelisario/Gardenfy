@@ -19,9 +19,9 @@ Se não usar nvm, instale a versão indicada em `.nvmrc` pelo seu gerenciador de
 
 ## Ambiente e execução
 
-A análise local lê `EXPO_PUBLIC_GEMINI_API_KEY`, em `src/constants/env.ts`. Preencha-a no `.env` apenas para experimentar a análise; sem ela, a tela informa a indisponibilidade quando solicitada. `EXPO_PUBLIC_GEMINI_MODEL` é opcional e usa `gemini-3.5-flash-lite` por padrão; confirme acesso ao modelo na conta. Veja [ANALYSIS.md](ANALYSIS.md) para a revisão documental da seleção, timeout, revisão antes de salvar e limites do uso local. A interface e os fluxos sem IA devem ser verificados separadamente.
+A análise no app lê `EXPO_PUBLIC_SUPABASE_URL` e `EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, em `src/constants/env.ts`. Preencha esses valores no `.env`; ambos identificam o backend público e não concedem privilégios administrativos. Sem eles, a tela informa que o serviço está indisponível. Veja [ANALYSIS.md](ANALYSIS.md) para o fluxo, timeout, revisão, cota e limites ainda pendentes.
 
-Essa chave é incorporada ao cliente. Antes de distribuir o MVP, o roadmap prevê mover a chamada para um serviço que mantenha a credencial no servidor. `.env.example` contém somente o nome da variável, nunca uma chave real. Em outro PC, recupere configurações locais pelo seu gerenciador de segredos.
+A credencial Gemini fica apenas nos secrets da Edge Function. Nunca use uma chave secreta em variável `EXPO_PUBLIC_*`. `.env.example` contém somente nomes de variáveis públicas; em outro PC, recupere os valores pelo ambiente de desenvolvimento autorizado.
 
 Comandos existentes:
 
@@ -57,6 +57,17 @@ npx supabase link --project-ref ukqsiclooawiqmttdobu
 ```
 
 O projeto remoto precisa estar ativo para concluir o vínculo. Não versione o token, a senha do banco ou segredos usados por Edge Functions.
+
+A função `analyze-plant` aceita a chave publicável do projeto e limita cada origem a 10 tentativas por janela de uma hora. O IP é transformado em hash com salt antes de ser persistido; clientes públicos ainda podem extrair a chave publicável, portanto essa proteção limita abuso, mas não identifica uma pessoa. Autenticação individual exigirá Supabase Auth numa etapa futura.
+
+Configure os secrets diretamente no projeto remoto, sem prefixo `EXPO_PUBLIC_`:
+
+```bash
+npx supabase secrets set GEMINI_API_KEY=<valor> GEMINI_MODEL=gemini-3.5-flash-lite
+npx supabase functions deploy analyze-plant --use-api
+```
+
+Não passe o valor real por chat, documentação, commit ou histórico do shell compartilhado. A migração de quota fica em `supabase/migrations`; aplique-a com `npx supabase db push --linked` e confira `npx supabase migration list --linked`.
 
 ## Preparar Android
 

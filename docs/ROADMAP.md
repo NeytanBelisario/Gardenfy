@@ -15,7 +15,7 @@ Proposta inicial: um MVP de uso individual, com persistência local e Android co
 | Navegação | Expo Router, home, menu, perfil, scan e preview. | Validar jornada completa e padronizar textos. |
 | Jardins | Criação, edição, exclusão, listagem e detalhes com persistência local versionada. | Validação em dispositivo pendente, incluindo confirmação de exclusão. |
 | Plantas | Catálogo estático, inclusão e análise persistidas, com fotos guardadas fora do cache no app nativo. | Edição/exclusão implementadas; detalhes, cuidados e histórico implementados; validação em dispositivo pendente. Adapters nativos aguardam teste em dispositivo. |
-| Análise | Foto/câmera, integração Gemini, adição e reanálise de plantas nas rotas de jardins. | Serviço/parser e tela compartilhados, revisão antes de salvar e falhas tratadas. Chamada ainda no cliente; modelo revisado por documentação, sem requisição real/validação em aparelho. |
+| Análise | Foto/câmera, integração Gemini, adição e reanálise de plantas nas rotas de jardins. | Serviço/parser e tela compartilhados; Edge Function implantada com credencial protegida e cota. Segredo Gemini, chamada real e validação em aparelho ainda pendentes. |
 | Métricas | Vitalidade e indicadores de água/luz, com agregação no jardim. | São estimativas/valores do modelo, não sensores; valores desconhecidos são distintos de zero; validação visual em aparelho pendente. |
 | AR | Modelo GLB, posicionamento em plano, rotação, escala e reposicionamento. | Precisa de build nativo e aparelho compatível; execução não validada nesta revisão. |
 | Perfil | Tela, contagens derivadas de jardins/plantas e conquistas visuais. | Usuário fixo; configurações e sair sem handlers; rank/conquistas estáticos. |
@@ -67,11 +67,11 @@ Aceite: registrar rega/adubação, consultar histórico e reencontrá-lo após r
 - [x] Unificar serviço/parser usados pelo scan geral e pelas rotas de jardins. Mesma tela/hook, uma chamada por tentativa e testes do parser/serviço.
 - [x] Tratar permissão negada, cancelamento, ausência de chave, falta de rede, timeout e resposta inválida com feedback na interface. Adapters simulados testados; integração nativa/serviço real pendente.
 - [ ] Revisar a seleção de modelos com base no serviço efetivamente disponível. Revisão documental concluída em 02/10/2026: modelo configurável com padrão `gemini-3.5-flash-lite`, sem fallbacks antigos; acesso/quota e requisição real na conta ainda pendentes (ver `ANALYSIS.md`).
-- [ ] Propor e implementar uma chamada pelo servidor antes da distribuição, mantendo a credencial fora do app; definir controle de acesso, limites de uso e configuração de ambiente.
+- [x] Propor e implementar uma chamada pelo servidor antes da distribuição, mantendo a credencial fora do app; definir controle de acesso, limites de uso e configuração de ambiente. Edge Function Supabase exige chave publicável, limita 10 análises/hora por origem com hash salgado e mantém Gemini nos secrets.
 - [x] Explicar envio da foto ao serviço de IA e apresentar resultados como estimativas; permitir revisar a identificação antes de salvar. Confirmação explícita e nome revisável na inclusão; navegação/teclado aguardam aparelho.
 - [x] Preservar dados anteriores quando uma reanálise falhar. Análise produz rascunho; somente confirmação salva. Persistência mantém dados em falhas de escrita; timeout/cancelamento/respostas tardias testados.
 
-Estado: unificação e tratamento local implementados, com 87 testes aprovados. M3 continua parcial: backend/credencial protegida, acesso real ao modelo e validação em aparelho permanecem pendentes.
+Estado: unificação e tratamento local implementados; backend Supabase implantado e protegido, com 92 testes aprovados. M3 continua parcial: cadastrar/testar a chave Gemini, confirmar acesso/qualidade do modelo e validar em aparelho.
 
 Aceite: sucesso salva análise e data; falhas têm feedback e permitem tentar novamente sem perder a planta. Build distribuído não contém chave secreta do provedor.
 

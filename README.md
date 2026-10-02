@@ -24,6 +24,6 @@ cp .env.example .env
 npm start
 ```
 
-Leia o guia para preparar builds nativos. O recurso AR exige módulos nativos e não roda no Expo Go. A análise local lê `EXPO_PUBLIC_GEMINI_API_KEY` e permite configurar o modelo com `EXPO_PUBLIC_GEMINI_MODEL`; essa variável é pública no cliente e sua utilização será revista antes da distribuição.
+Leia o guia para preparar builds nativos. O recurso AR exige módulos nativos e não roda no Expo Go. A análise por foto usa uma Edge Function Supabase: o app recebe apenas URL e chave publicável do projeto, enquanto a credencial Gemini permanece nos secrets do servidor. A função está implantada, mas a chamada real ainda depende de cadastrar `GEMINI_API_KEY` e validar o modelo na conta.
 
 O fluxo de trabalho usa branches a partir de `develop`, commits frequentes por etapas no formato `🌱 | feat: mensagem` e PR para `develop` ao finalizar cada feature. As ideias anteriores de moedas, ranks, cards da planta, regar, adubar e histórico foram preservadas no roadmap.

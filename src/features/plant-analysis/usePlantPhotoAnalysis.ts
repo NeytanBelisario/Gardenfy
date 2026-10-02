@@ -40,7 +40,9 @@ export function usePlantPhotoAnalysis() {
     controller.current = abort;
     setPhase(source ? 'selecting' : 'analyzing');
     try {
-      if (!ENV.geminiApiKey?.trim()) throw new PlantAnalysisError('configuration');
+      if (!ENV.supabaseUrl?.trim() || !ENV.supabasePublishableKey?.trim()) {
+        throw new PlantAnalysisError('configuration');
+      }
       const photo = source ? await selectAnalysisPhoto(picker, source) : retryPhoto;
       if (!mounted.current) return;
       if (!photo) { setNotice('Seleção cancelada. Os dados anteriores foram mantidos.'); return; }

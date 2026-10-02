@@ -1,4 +1,4 @@
 export const ENV = {
-  geminiApiKey: process.env.EXPO_PUBLIC_GEMINI_API_KEY,
-  geminiModel: process.env.EXPO_PUBLIC_GEMINI_MODEL?.trim() || 'gemini-3.5-flash-lite',
+  supabaseUrl: process.env.EXPO_PUBLIC_SUPABASE_URL,
+  supabasePublishableKey: process.env.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY,
 } as const;
