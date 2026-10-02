@@ -12,7 +12,7 @@ Não há migração de versões anteriores porque o store anterior existia somen
 
 ## Gravação
 
-As operações de criação de jardim, inclusão pelo catálogo, inclusão por foto reanálise, edição e exclusão são assíncronas. Uma fila serializa mudanças, e a memória só é atualizada quando a gravação confirma sucesso. Falhas são apresentadas na tela e a operação pode ser repetida. Uma falha não impede as próximas operações da fila.
+As operações de criação de jardim, inclusão pelo catálogo, inclusão por foto, reanálise, edição e exclusão são assíncronas. Uma fila serializa mudanças, e a memória só é atualizada quando a gravação confirma sucesso. Falhas são apresentadas na tela e a operação pode ser repetida. Uma falha não impede as próximas operações da fila.
 
 A criação exige nome preenchido. O antigo `createMockGarden` foi substituído por `createGarden`; o catálogo estático não inicializa mais o store por efeito colateral. As telas aguardam o salvamento antes de navegar ou apresentar resultado salvo.
 

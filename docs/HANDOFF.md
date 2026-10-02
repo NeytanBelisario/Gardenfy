@@ -45,13 +45,13 @@ Atualize este arquivo ao encerrar sessões que mudem o estado do projeto. Não a
 ## Sessão de 02/10/2026 — M1: edição e exclusão
 
 - **Branch:** `feat/edit-delete-gardens-plants`, criada de `develop` atualizado após integrar o PR #4 (`343d44e`).
-- **PR:** será aberto para `develop` após publicar a documentação; registrar o link nesta sessão.
-- **Etapas publicadas:** `3a151bc` (operações persistentes e regressões), `fdc3b00` (formulários e confirmações). Validação/documentação serão publicadas ao encerrar.
+- **PR:** [#5 — edição e exclusão de jardins e plantas](https://github.com/NeytanBelisario/Gardenfy/pull/5), aberto para `develop`; aguarda integração.
+- **Etapas publicadas:** `3a151bc` (operações persistentes e regressões), `fdc3b00` (formulários e confirmações). `828ff25` (validação de ordem da exclusão e documentação).
 - **Entrega:** edição de nome/ambiente/ícone do jardim e nome/descrição da planta; exclusão com confirmação e aviso de remoção em conjunto no jardim; retorno à home após excluir jardim. Dados/análises/fotos preservados nas edições; nomes obrigatórios; feedback de falha e bloqueio durante gravação.
 - **Persistência:** mesma fila/schema v1, sem dependências novas. Exclusão grava antes de limpar fotos sem uso, preserva referências compartilhadas e recalcula agregados/contagens. Falha de gravação não muda memória/fotos; falha de limpeza pode deixar órfãos. IDs excluídos não são recriados por operações atrasadas.
 - **Checks:** `npm run check` (TypeScript, lint sem avisos e 35 testes), export Android e `git diff --check` aprovados. Roteiro manual atualizado em `TESTING.md`.
 - **Limites:** sem JDK/adb/SDK/dispositivo; não houve compilação de APK nem execução da interface no aparelho. Cancelamento, teclado, acessibilidade, navegação e adapters nativos precisam de validação manual. Métricas desconhecidas continuam pendentes; esta etapa não altera sua representação.
-- **Backup:** commits das etapas publicados em `origin/feat/edit-delete-gardens-plants`; confirmar commit final ao encerrar.
+- **Backup:** commits das etapas publicados em `origin/feat/edit-delete-gardens-plants`; atualização final do handoff também publicada ao encerrar.
 - **Próximo passo:** revisar/integrar este PR e executar roteiro no aparelho. Após integração, atualizar `develop` e criar nova branch para diferenciar métricas desconhecidas de zero, última entrega funcional pendente de M1. Cuidados/histórico seguem depois.
 
 ## Modelo para próximas sessões
