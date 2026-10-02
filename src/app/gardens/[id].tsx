@@ -175,10 +175,12 @@ function formatLastScan(value?: string) {
 function PlantCard({
   plant,
   onAnalyze,
+  onOpenDetails,
   onManage,
 }: {
   plant: GardenDetails['plants'][number];
   onAnalyze: () => void;
+  onOpenDetails: () => void;
   onManage: (action: GardenManagementAction) => void;
 }) {
   const lightMetric = plant.metrics.find((metric) => metric.kind === 'light');
@@ -225,6 +227,9 @@ function PlantCard({
         <Text style={styles.estimateText}>
           {typeof plant.vitality === 'number' ? 'Estimativas da IA' : 'Sem análise · indicadores desconhecidos'}
         </Text>
+        <Pressable accessibilityRole="button" accessibilityLabel={`Ver detalhes e cuidados de ${plant.name}`} onPress={onOpenDetails} style={styles.managementButton}>
+          <Text style={{ color: COLORS.primary }}>Ver detalhes e cuidados</Text>
+        </Pressable>
         <View style={styles.plantMetricsRow}>
           <View style={styles.inlineMetric} accessible accessibilityLabel={`Vitalidade: ${formatPercent(plant.vitality)}`}>
             <View style={styles.inlineMetricIcon}>
@@ -265,11 +270,13 @@ function GardenDetailsView({
   garden,
   onAddPlant,
   onAnalyzePlant,
+  onOpenPlant,
   onManage,
 }: {
   garden: GardenDetails;
   onAddPlant: () => void;
   onAnalyzePlant: (plantId: string) => void;
+  onOpenPlant: (plantId: string) => void;
   onManage: (action: GardenManagementAction) => void;
 }) {
   return (
@@ -339,6 +346,7 @@ function GardenDetailsView({
               key={plant.id}
               plant={plant}
               onAnalyze={() => onAnalyzePlant(plant.id)}
+              onOpenDetails={() => onOpenPlant(plant.id)}
               onManage={onManage}
             />
           ))}
@@ -399,6 +407,9 @@ export default function GardenDetailsScreen() {
                 params: { id: garden.id },
               })
             }
+            onOpenPlant={(plantId) => router.push({
+              pathname: '/gardens/[id]/plants/[plantId]', params: { id: garden.id, plantId },
+            })}
             onAnalyzePlant={(plantId) =>
               router.push({
                 pathname: '/gardens/[id]/plants/[plantId]/scan',
