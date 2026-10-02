@@ -21,7 +21,7 @@ Execute com build nativo Android e registre versão do sistema, modelo do dispos
 | --- | --- | --- |
 | Abrir pela primeira vez | Home vazia e acesso à criação de jardim. | Store começa vazio. |
 | Criar jardim | Nome, ambiente e ícone aparecem após salvar; nome vazio gera feedback. | Persistência implementada; testar no aparelho. |
-| Adicionar pelo catálogo | Busca/filtro funcionam; planta aparece após salvar e contagem aumenta. | Catálogo estático; métricas iniciais são placeholders. |
+| Adicionar pelo catálogo | Busca/filtro funcionam; planta aparece após salvar e contagem aumenta. | Catálogo estático; métricas iniciais desconhecidas aparecem como “—”/“Sem análise”. |
 | Analisar uma foto | Pedir permissão; mostrar carregamento, resultado e permitir adicionar/atualizar planta. | Requer rede/chave local; modelos precisam de validação real. |
 | Cancelar seleção / negar câmera | Permitir continuar navegando sem travar. | Registrar falhas encontradas para a etapa de análise. |
 | Abrir perfil | Contagens acompanham jardins/plantas. | Usuário e badges fixos; configurações/sair sem ação. |
@@ -64,3 +64,16 @@ Execução no aparelho pendente. Usar o build nativo com armazenamento já insta
 6. Repetir edição/exclusão sem rede; testar toques rápidos e bloqueio de cancelamento durante gravação. As imagens remotas do catálogo podem ficar indisponíveis.
 
 Checks desta entrega: `npm run check` (TypeScript, lint e 35 testes) e export Android aprovados. Regressões automatizadas cobrem reinício, preservação da análise ao editar, falhas das quatro operações, limpeza após confirmação da gravação, fotos compartilhadas, falha de limpeza e ações atrasadas para registros excluídos. Nenhum APK ou teste manual em aparelho foi executado.
+
+## Roteiro adicional — métricas desconhecidas
+
+Execução no aparelho pendente:
+
+1. Criar jardim vazio e conferir “Sem análise” na home e nos detalhes, sem percentual inventado.
+2. Adicionar pelo catálogo: indicadores da planta mostram “—”, texto “Sem análise” e crescimento desconhecido. Reiniciar e conferir o mesmo estado.
+3. Analisar uma planta: conferir identificação como estimativas da IA, data e indicadores. Num jardim misto, conferir quantidade de plantas analisadas e médias sem incluir as plantas sem análise.
+4. Em dados de teste com análise zero, conferir `0%` e crescimento `0d`, distinguindo-os dos desconhecidos. Com outra análise positiva, conferir que zero participa das médias.
+5. Abrir dados v1 existentes e conferir preservação de nomes, fotos, datas e análises; placeholders sem análise passam a desconhecidos. Salvar uma edição e reiniciar para conferir persistência v2.
+6. Excluir a última planta analisada mantendo uma do catálogo: agregados voltam a “Sem análise”. Verificar também tela pequena, texto ampliado e leitura dos rótulos de vitalidade/luz/água com TalkBack.
+
+Checks automatizados desta entrega: `npm run check` (TypeScript, lint e 40 testes), export Android e `git diff --check`. Cinco novas regressões cobrem valores desconhecidos, zeros nas médias, reanálise, migração sem gravação na leitura, gravação v2, recuperação após falha e rejeição de v1 inválido. Nenhum APK ou teste em dispositivo foi executado.
