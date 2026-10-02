@@ -2,7 +2,7 @@ import { createId } from './ids';
 import { buildAnalyzedPlant, buildPlaceholderPlant, recalculateGardenStats } from './models';
 import { deserializeGardens, GARDENS_STORAGE_KEY, serializeGardens, type GardensStorage } from './persistence';
 import type { PlantPhotoStorage } from './photoStorageCore';
-import type { CreateGardenDraft, GardenDetails, PlantAnalysisResult, PlantCatalogItem } from './types';
+import type { CreateGardenDraft, GardenDetails, PlantAnalysisResult, PlantCatalogItem, GardenPlant } from './types';
 
 export type GardensState = {
   gardens: GardenDetails[];
@@ -65,7 +65,7 @@ export function createGardensStore(storage: GardensStorage, photos: PlantPhotoSt
   }
 
   function photoInUse(reference: string) {
-    return state.gardens.some((garden) => garden.plants.some((plant) =>
+    return state.gardens.some((garden) => garden.imageUrl === reference || garden.plants.some((plant) =>
       plant.imageUrl === reference || plant.lastAnalyzedPhotoUri === reference
     ));
   }
@@ -117,6 +117,52 @@ export function createGardensStore(storage: GardensStorage, photos: PlantPhotoSt
         };
         await commit([next, ...state.gardens]);
         return next;
+      });
+    },
+    updateGarden(gardenId: string, draft: CreateGardenDraft) {
+      return enqueue(async () => {
+        const garden = findGarden(gardenId);
+        const name = draft.name.trim();
+        if (!name) throw new Error('Informe um nome para o jardim.');
+        const updated = {
+          ...garden, name, environment: draft.environment, icon: draft.icon,
+          label: draft.environment === 'indoor' ? 'Jardim interno' : 'Jardim externo',
+        };
+        await commit(replaceGarden(updated));
+        return updated;
+      });
+    },
+    updatePlant(gardenId: string, plantId: string, draft: Pick<GardenPlant, 'name' | 'subtitle'>) {
+      return enqueue(async () => {
+        const garden = findGarden(gardenId);
+        const plant = garden.plants.find((item) => item.id === plantId);
+        if (!plant) throw new Error('Planta não encontrada.');
+        const name = draft.name.trim();
+        if (!name) throw new Error('Informe um nome para a planta.');
+        const updated = { ...plant, name, subtitle: draft.subtitle.trim() };
+        await commit(replaceGarden({ ...garden, plants: garden.plants.map((item) => item.id === plantId ? updated : item) }));
+        return updated;
+      });
+    },
+    deletePlant(gardenId: string, plantId: string) {
+      return enqueue(async () => {
+        const garden = findGarden(gardenId);
+        const plant = garden.plants.find((item) => item.id === plantId);
+        if (!plant) throw new Error('Planta não encontrada.');
+        await commit(replaceGarden(recalculateGardenStats({ ...garden, plants: garden.plants.filter((item) => item.id !== plantId) })));
+        for (const photo of new Set([plant.imageUrl, plant.lastAnalyzedPhotoUri])) {
+          if (photo && !photoInUse(photo)) await cleanupPhoto(photo);
+        }
+      });
+    },
+    deleteGarden(gardenId: string) {
+      return enqueue(async () => {
+        const garden = findGarden(gardenId);
+        const oldPhotos = new Set([garden.imageUrl, ...garden.plants.flatMap((plant) => [plant.imageUrl, plant.lastAnalyzedPhotoUri])]);
+        await commit(state.gardens.filter((item) => item.id !== gardenId));
+        for (const photo of oldPhotos) {
+          if (photo && !photoInUse(photo)) await cleanupPhoto(photo);
+        }
       });
     },
     addPlantToGarden(gardenId: string, item: PlantCatalogItem) {

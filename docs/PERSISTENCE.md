@@ -12,7 +12,7 @@ Não há migração de versões anteriores porque o store anterior existia somen
 
 ## Gravação
 
-As operações de criação de jardim, inclusão pelo catálogo, inclusão por foto e reanálise são assíncronas. Uma fila serializa mudanças, e a memória só é atualizada quando a gravação confirma sucesso. Falhas são apresentadas na tela e a operação pode ser repetida. Uma falha não impede as próximas operações da fila.
+As operações de criação de jardim, inclusão pelo catálogo, inclusão por foto, reanálise, edição e exclusão são assíncronas. Uma fila serializa mudanças, e a memória só é atualizada quando a gravação confirma sucesso. Falhas são apresentadas na tela e a operação pode ser repetida. Uma falha não impede as próximas operações da fila.
 
 A criação exige nome preenchido. O antigo `createMockGarden` foi substituído por `createGarden`; o catálogo estático não inicializa mais o store por efeito colateral. As telas aguardam o salvamento antes de navegar ou apresentar resultado salvo.
 
@@ -32,4 +32,12 @@ Novas dependências nativas exigem reconstruir o app com `npm run android` ou `n
 
 `npm test` executa testes com Node/tsx para reinício do store, schema inválido, bloqueio durante carregamento, falhas de leitura/escrita/cópia, fila de operações e substituição de fotos. Um teste usa dados e fotos em arquivos reais e verifica leitura após remover o cache e realocar o diretório. Os adapters nativos ainda precisam de validação em um aparelho; veja [TESTING.md](TESTING.md).
 
-Edição/exclusão de jardins e plantas, apresentação de métricas desconhecidas e cuidados/histórico seguem como próximas entregas do roadmap. A persistência não transforma as estimativas da IA em medições de sensores.
+Apresentação de métricas desconhecidas e cuidados/histórico seguem como próximas entregas do roadmap. A persistência não transforma as estimativas da IA em medições de sensores.
+
+## Edição e exclusão
+
+Na tela de detalhes, as ações Editar/Excluir aparecem para o jardim e cada planta. Jardins permitem alterar nome, ambiente e ícone; plantas permitem alterar nome e descrição opcional. Nomes vazios são rejeitados. As edições preservam IDs, análises, datas e fotos; reanalisar também preserva o nome/descrição editados.
+
+Excluir exige confirmação explícita, com opção de cancelar. Excluir um jardim remove suas plantas e análises; excluir uma planta recalcula contagens e agregados do jardim. A navegação volta à home após excluir o jardim. Salvamento/exclusão bloqueiam novas ações no diálogo e mostram falhas com opção de repetir.
+
+Os dados são gravados antes de limpar fotos que perderam todas as referências. Fotos compartilhadas, inclusive usadas na capa de outro jardim, são preservadas. Falha de gravação mantém dados e fotos anteriores; falha de limpeza após sucesso pode deixar uma foto órfã e não desfaz a exclusão. A fila rejeita ações para IDs já excluídos, evitando recriar registros por uma operação atrasada. O schema permanece v1, sem novas dependências.

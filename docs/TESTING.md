@@ -51,3 +51,16 @@ Os testes automatizados injetam falhas de leitura, escrita e cópia; não é nec
 ## Registro da sessão de 02/10/2026
 
 Instalação limpa, `npm run check` (typecheck, lint e 24 testes), compatibilidade Expo, export Android e prebuild Android passaram. Os testes de fotos usam um adapter de arquivos no Node, incluindo leitura após remoção do cache; isso não equivale à execução do Expo FileSystem ou do AsyncStorage em um aparelho. O roteiro manual acima ainda deve ser executado com um novo build nativo.
+
+## Roteiro adicional — edição e exclusão
+
+Execução no aparelho pendente. Usar o build nativo com armazenamento já instalado e registrar dispositivo, sistema e commit:
+
+1. Editar nome, ambiente e ícone do jardim; cancelar um rascunho e confirmar que os dados não mudam. Salvar, reiniciar e conferir detalhes e home.
+2. Editar nome e descrição de uma planta analisada; conferir que foto, identificação, data e estimativas permanecem. Reanalisar e verificar que nome/descrição editados continuam.
+3. Salvar nome vazio em ambos os formulários; conferir feedback e possibilidade de corrigir. Verificar teclado, rolagem, botão voltar do Android e texto ampliado em uma tela pequena.
+4. Abrir exclusão de planta e cancelar; repetir e confirmar. Conferir contagem, perfil, agregados e demais plantas após reinício. Excluir a última planta e verificar o estado vazio.
+5. Abrir exclusão de jardim com plantas; conferir aviso de exclusão em conjunto e cancelar. Confirmar depois, verificar retorno à home, contagens do perfil e ausência do jardim após reinício.
+6. Repetir edição/exclusão sem rede; testar toques rápidos e bloqueio de cancelamento durante gravação. As imagens remotas do catálogo podem ficar indisponíveis.
+
+Checks desta entrega: `npm run check` (TypeScript, lint e 35 testes) e export Android aprovados. Regressões automatizadas cobrem reinício, preservação da análise ao editar, falhas das quatro operações, limpeza após confirmação da gravação, fotos compartilhadas, falha de limpeza e ações atrasadas para registros excluídos. Nenhum APK ou teste manual em aparelho foi executado.

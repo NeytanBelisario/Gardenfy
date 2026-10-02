@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Image,
   Pressable,
@@ -20,6 +20,7 @@ import {
 } from '../../features/gardens/types';
 import { AppHeader } from '../../components/shell/AppHeader';
 import { GardenIdentityIcon } from '../../features/gardens/icons';
+import { GardenManagementDialog, type GardenManagementAction } from '../../features/gardens/GardenManagementDialog';
 import { useGardenDetails } from '../../features/gardens/store';
 
 const COLORS = {
@@ -103,9 +104,9 @@ function StatsCard({
 function EmptyState() {
   return (
     <View style={styles.emptyState}>
-      <Text style={styles.emptyTitle}>Jardim nao encontrado</Text>
+      <Text style={styles.emptyTitle}>Jardim não encontrado</Text>
       <Text style={styles.emptyText}>
-        Esse mock ainda nao existe. Volte para a home e escolha um jardim valido.
+        Este jardim não está disponível. Volte para a home e escolha outro jardim.
       </Text>
     </View>
   );
@@ -173,9 +174,11 @@ function formatLastScan(value?: string) {
 function PlantCard({
   plant,
   onAnalyze,
+  onManage,
 }: {
   plant: GardenDetails['plants'][number];
   onAnalyze: () => void;
+  onManage: (action: GardenManagementAction) => void;
 }) {
   const lightMetric = plant.metrics.find((metric) => metric.kind === 'light');
   const waterMetric = plant.metrics.find((metric) => metric.kind === 'water');
@@ -202,6 +205,7 @@ function PlantCard({
       </View>
 
       <View style={styles.plantBody}>
+        <ManagementButtons name={plant.name} onEdit={() => onManage({ mode: 'edit', plant })} onDelete={() => onManage({ mode: 'delete', plant })} />
         <View style={styles.plantHeader}>
           <View style={styles.plantTitleWrap}>
             <Text style={styles.plantName}>{plant.name}</Text>
@@ -257,10 +261,12 @@ function GardenDetailsView({
   garden,
   onAddPlant,
   onAnalyzePlant,
+  onManage,
 }: {
   garden: GardenDetails;
   onAddPlant: () => void;
   onAnalyzePlant: (plantId: string) => void;
+  onManage: (action: GardenManagementAction) => void;
 }) {
   return (
     <>
@@ -278,6 +284,7 @@ function GardenDetailsView({
         </View>
       </View>
 
+      <ManagementButtons name={garden.name} onEdit={() => onManage({ mode: 'edit' })} onDelete={() => onManage({ mode: 'delete' })} />
       <View style={styles.vitalityCard}>
         <View style={styles.vitalityHeader}>
           <Text style={styles.vitalityLabel}>Garden Vitality</Text>
@@ -323,6 +330,7 @@ function GardenDetailsView({
               key={plant.id}
               plant={plant}
               onAnalyze={() => onAnalyzePlant(plant.id)}
+              onManage={onManage}
             />
           ))}
         </View>
@@ -342,11 +350,27 @@ function GardenDetailsView({
   );
 }
 
+function ManagementButtons({ name, onEdit, onDelete }: { name: string; onEdit: () => void; onDelete: () => void }) {
+  return (
+    <View style={styles.managementActions}>
+      <Pressable accessibilityRole="button" accessibilityLabel={`Editar ${name}`} onPress={onEdit} style={styles.managementButton}>
+        <Feather name="edit-2" size={16} color={COLORS.primary} />
+        <Text style={{ color: COLORS.primary }}>Editar</Text>
+      </Pressable>
+      <Pressable accessibilityRole="button" accessibilityLabel={`Excluir ${name}`} onPress={onDelete} style={styles.managementButton}>
+        <Feather name="trash-2" size={16} color={COLORS.dangerText} />
+        <Text style={{ color: COLORS.dangerText }}>Excluir</Text>
+      </Pressable>
+    </View>
+  );
+}
+
 export default function GardenDetailsScreen() {
   const router = useRouter();
   const params = useLocalSearchParams<{ id?: string | string[] }>();
   const id = Array.isArray(params.id) ? params.id[0] : params.id;
   const garden = useGardenDetails(id);
+  const [management, setManagement] = useState<{ garden: GardenDetails; action: GardenManagementAction } | null>(null);
 
   return (
     <View style={styles.screen}>
@@ -359,6 +383,7 @@ export default function GardenDetailsScreen() {
         {garden ? (
           <GardenDetailsView
             garden={garden}
+            onManage={(action) => setManagement({ garden, action })}
             onAddPlant={() =>
               router.push({
                 pathname: '/gardens/[id]/plants/add',
@@ -376,11 +401,16 @@ export default function GardenDetailsScreen() {
           <EmptyState />
         )}
       </ScrollView>
+      {management ? (
+        <GardenManagementDialog garden={management.garden} action={management.action} onClose={() => setManagement(null)} onGardenDeleted={() => router.replace('/')} />
+      ) : null}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  managementActions: { flexDirection: 'row', flexWrap: 'wrap', gap: 12, paddingHorizontal: 24, paddingVertical: 8 },
+  managementButton: { flexDirection: 'row', alignItems: 'center', gap: 8, padding: 12, borderRadius: 12, backgroundColor: COLORS.surfaceLow },
   screen: {
     flex: 1,
     backgroundColor: COLORS.background,
