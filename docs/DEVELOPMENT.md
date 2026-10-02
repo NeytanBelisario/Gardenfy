@@ -35,6 +35,7 @@ Comandos existentes:
 | `npm run lint` | Executar ESLint com configuração Expo versionada; avisos também falham o check. |
 | `npm test` | Executar testes de persistência, cuidados, histórico e análise com Node/tsx. |
 | `npm run check` | Executar typecheck, lint e testes. |
+| `npx supabase --version` | Conferir a CLI Supabase fixada no projeto. |
 | `npx expo install --check` | Conferir compatibilidade de versões com o SDK instalado. |
 | `npx expo export --platform android` | Gerar bundle JS/assets em `dist/`; não compila APK. |
 
@@ -43,6 +44,19 @@ A visualização AR usa `@reactvision/react-viro`, um modelo GLB e módulos nati
 Os dados e fotos de plantas são locais; veja [PERSISTENCE.md](PERSISTENCE.md) para formato, comportamento em falhas e necessidade de reconstruir o app após instalar as dependências nativas de armazenamento.
 
 Não use `npm run reset-project` no fluxo habitual: o script é de reset do projeto, não um comando de instalação.
+
+## Supabase
+
+A CLI Supabase fica fixada como dependência de desenvolvimento e deve ser executada com `npx supabase`. A configuração local versionada está em `supabase/config.toml`; arquivos temporários de vínculo e ambientes locais permanecem ignorados pelo Git.
+
+Para vincular uma nova máquina ao projeto remoto, autentique a CLI com um token pessoal de escopo mínimo e execute:
+
+```bash
+npx supabase login
+npx supabase link --project-ref ukqsiclooawiqmttdobu
+```
+
+O projeto remoto precisa estar ativo para concluir o vínculo. Não versione o token, a senha do banco ou segredos usados por Edge Functions.
 
 ## Preparar Android
 
