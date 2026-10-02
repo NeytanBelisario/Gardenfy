@@ -109,6 +109,7 @@ Atualize este arquivo ao encerrar sessões que mudem o estado do projeto. Não a
 ## Sessão de 02/10/2026 — M3: análise pelo servidor
 
 - **Branch:** `feat/server-plant-analysis`, criada de `develop` atualizado após integrar o PR #9 (`26cfc11`).
+- **PR:** [#10 — proteger análise por foto no Supabase](https://github.com/NeytanBelisario/Gardenfy/pull/10), aberto para `develop`; aguarda integração.
 - **Entrega:** cliente envia somente foto/mime para a Edge Function `analyze-plant`; chave Gemini saiu do bundle e o SDK cliente foi removido. A função valida chave publicável, método, formato/tamanho, aplica timeout e chama uma única vez o endpoint REST do modelo.
 - **Controle de uso:** migração cria tabela com RLS e RPC `security invoker`, acessíveis apenas por `service_role`. Limite de 10 análises por hora por origem; somente hash SHA-256 com salt secreto é salvo, com limpeza após dois dias.
 - **Remoto:** migração `20261002174522` aplicada; secrets `ANALYSIS_RATE_LIMIT_SALT` e `GEMINI_MODEL` configurados; função versão 2 ativa. Chamada sem chave publicável retorna 401 e chamada autenticada retorna erro seguro de configuração enquanto falta `GEMINI_API_KEY`.
