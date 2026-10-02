@@ -57,7 +57,7 @@ Atualize este arquivo ao encerrar sessões que mudem o estado do projeto. Não a
 ## Sessão de 02/10/2026 — M1: métricas desconhecidas
 
 - **Branch:** `fix/unknown-plant-metrics`, criada de `develop` atualizado após integrar o PR #5 (`892475f`).
-- **PR:** [#6 — métricas desconhecidas e médias com zero](https://github.com/NeytanBelisario/Gardenfy/pull/6), aberto para `develop`; aguarda integração.
+- **PR:** [#6 — métricas desconhecidas e médias com zero](https://github.com/NeytanBelisario/Gardenfy/pull/6), integrado pelo usuário em `develop` em 02/10/2026 (`c144c97`).
 - **Etapas publicadas:** `29adb19` (domínio, migração e regressões), `692d74d` (interface e catálogo), `30d7991` (documentação e roteiro).
 - **CI remoto:** workflow disparado pelo PR; consultar o resultado dos checks no GitHub.
 - **Entrega:** desconhecido usa `null` nas métricas/agregados; vitalidade/crescimento da planta permanecem opcionais. Zero conhecido entra nas médias e aparece como zero; jardim sem valores conhecidos mostra “Sem análise”. Indicadores compactos mostram “—” com explicação e rótulos acessíveis. Home/detalhes/resultados identificam estimativas da IA; detalhes informam cobertura das análises. Catálogo estático renomeado de `mocks.ts` para `catalog.ts`.
@@ -66,6 +66,19 @@ Atualize este arquivo ao encerrar sessões que mudem o estado do projeto. Não a
 - **Limites:** nenhuma compilação de APK, execução da interface/adapters no aparelho ou chamada real à IA. Roteiro de métricas, acessibilidade/texto ampliado e migração em instalação existente aguarda dispositivo; bundle Android não substitui esses testes.
 - **Backup:** commits por etapas publicados em `origin/fix/unknown-plant-metrics`; este registro do PR também é publicado no encerramento.
 - **Próximo passo:** revisar/integrar este PR e executar os roteiros de M1 no aparelho. Após integração, atualizar `develop` e criar branch para detalhes da planta, cuidados e histórico (M2), conforme escopo combinado.
+
+## Sessão de 02/10/2026 — M2: planta, cuidados e histórico
+
+- **Branch:** `feat/plant-care-history`, criada de `develop` atualizado após integrar o PR #6 (`c144c97`).
+- **PR:** será aberto para `develop` ao concluir a documentação.
+- **Etapas publicadas:** `04e71ba` (domínio, schema v3 e 13 regressões), `1483722` (detalhes, navegação e diálogos de cuidado).
+- **Entrega:** detalhes da planta com cards de hidratação/luz, origem/data e ausência de análise; ações Regar/Adubar; histórico cronológico misto, incluindo retratos das análises; correção de tipo/data/hora e exclusão confirmada de cuidados. Carregamento é tratado pelo bootstrap existente; alvo ausente, foto indisponível, salvamento e falhas têm feedback. Toques repetidos são bloqueados enquanto salva.
+- **Regras:** cuidados registram ações do usuário sem alterar estimativas, data da análise, fotos ou contagens. Reanálise adiciona retrato sem apagar cuidados/análises anteriores. Histórico mantém valores, não fotos antigas; a foto atual usa a mesma limpeza existente.
+- **Migração:** schema v3 lê v1/v2 sem gravação; histórico vazio ou última análise conhecida com data e ID determinístico. Análises anteriores/cuidados não armazenados nos formatos antigos não são recuperáveis. Próxima gravação confirmada salva v3; falha preserva o original.
+- **Checks:** `npm run check` (TypeScript, lint sem avisos e 53 testes), 53 testes com `TZ=America/Sao_Paulo`, export Android, links locais e `git diff --check` aprovados.
+- **Limites:** nenhum APK, teste em dispositivo ou chamada real à IA. Roteiro M2 em `TESTING.md` aguarda aparelho, incluindo migração de instalação existente, teclado, acessibilidade, navegação e adapters nativos. M1 também mantém validações manuais pendentes.
+- **Backup:** commits por etapas publicados em `origin/feat/plant-care-history`; registrar o PR no encerramento.
+- **Próximo passo:** revisar/integrar este PR e validar jornadas M1/M2 no aparelho. Após integração, atualizar `develop` para a etapa M3 de unificação do serviço/parser e tratamento de falhas de análise. Backend/chamada pelo servidor ainda requer definição de escopo e serviço.
 
 ## Modelo para próximas sessões
 

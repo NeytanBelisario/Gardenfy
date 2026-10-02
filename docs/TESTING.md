@@ -77,3 +77,18 @@ Execução no aparelho pendente:
 6. Excluir a última planta analisada mantendo uma do catálogo: agregados voltam a “Sem análise”. Verificar também tela pequena, texto ampliado e leitura dos rótulos de vitalidade/luz/água com TalkBack.
 
 Checks automatizados desta entrega: `npm run check` (TypeScript, lint e 40 testes), export Android e `git diff --check`. Cinco novas regressões cobrem valores desconhecidos, zeros nas médias, reanálise, migração sem gravação na leitura, gravação v2, recuperação após falha e rejeição de v1 inválido. Nenhum APK ou teste em dispositivo foi executado.
+
+## Roteiro adicional — planta, cuidados e histórico (M2)
+
+Execução no aparelho pendente. Registrar dispositivo, sistema, commit e resultados:
+
+1. Abrir “Ver detalhes e cuidados” de uma planta do catálogo. Conferir nome, descrição, foto/fallback, cards sem análise e histórico vazio. Testar volta ao jardim e rota para ID indisponível.
+2. Tocar Regar e Adubar; conferir confirmação após salvar, tipo e data/hora no histórico. Tocar rapidamente e conferir bloqueio durante gravação. Reiniciar e verificar ambos os registros.
+3. Conferir que os cuidados não mudam hidratação/luz/vitalidade, data da análise, fotos ou contagens, tanto antes quanto depois de analisar a planta.
+4. Analisar pela tela da planta e voltar: conferir origem/data dos cards e registro de análise. Reanalisar: conferir preservação dos retratos anteriores e atualização somente das estimativas atuais/foto atual. Reiniciar e verificar o histórico misto.
+5. Corrigir um cuidado: mudar tipo e data/hora no horário local, salvar e conferir ordem cronológica. Tentar 31/04 e 24:00; conferir erro e possibilidade de corrigir. Cancelar e conferir que nada muda.
+6. Excluir um cuidado: cancelar a confirmação, depois confirmar e reiniciar. Conferir remoção apenas daquele cuidado e preservação das análises/estimativas.
+7. Abrir instalação com dados v1/v2: verificar dados/fotos e recuperação da última análise com data no histórico. Registros anteriores não existiam nesses schemas. Salvar cuidado e reiniciar para verificar migração v3.
+8. Sem rede, registrar/corrigir/excluir cuidados e reiniciar. Fotos remotas podem exibir fallback; análise nova depende de rede. Verificar texto ampliado, tela pequena, TalkBack, teclado, rolagem e voltar do Android nos diálogos.
+
+Checks desta entrega: `npm run check` (TypeScript, lint sem avisos e 53 testes), os mesmos 53 testes com `TZ=America/Sao_Paulo`, export Android e `git diff --check` aprovados. As 13 novas regressões cobrem cuidados sem fabricar medições, retratos históricos, correção/exclusão, falhas das três operações, concorrência, confirmação de gravação, alvo excluído, v2→v3, schema inválido, ordenação e datas locais. Testes anteriores também continuam cobrindo migração de v1 e falhas de análise. Nenhum APK, chamada real à IA ou execução em dispositivo foi realizado.
