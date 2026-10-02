@@ -100,9 +100,9 @@ Atualize este arquivo ao encerrar sessões que mudem o estado do projeto. Não a
 - **Branch:** `chore/setup-supabase`, criada de `develop` atualizado após integrar o PR #8 (`f864678`).
 - **Etapa concluída:** CLI Supabase `2.119.0` fixada como dependência de desenvolvimento; projeto local inicializado em `supabase/config.toml`; autenticação salva validada pela listagem de projetos.
 - **Projeto remoto:** `Gardenfy` (`ukqsiclooawiqmttdobu`, região `us-west-2`) localizado com a credencial existente.
-- **Bloqueio atual:** o projeto remoto está pausado. `supabase link` retornou `ProjectPausedError`; a documentação atual exige retomá-lo pelo Dashboard antes de concluir o vínculo.
+- **Vínculo remoto:** o projeto foi retomado pelo usuário e `npx supabase link --project-ref ukqsiclooawiqmttdobu --yes` concluiu com sucesso. A listagem da CLI confirmou `ACTIVE_HEALTHY` e `linked: true`; a listagem remota de Edge Functions respondeu sem funções cadastradas.
 - **Segurança:** nenhum token, senha de banco ou segredo foi adicionado ao repositório. Arquivos temporários e ambientes locais do Supabase continuam ignorados.
-- **Próximo passo:** retomar o projeto no Dashboard, repetir `npx supabase link --project-ref ukqsiclooawiqmttdobu` e validar o vínculo antes de implementar a Edge Function da análise.
+- **Próximo passo:** revisar/integrar o PR de configuração. Depois, criar uma branch a partir de `develop` atualizado para implementar a Edge Function da análise, segredo Gemini, autenticação e limites de uso.
 
 ## Modelo para próximas sessões
 
