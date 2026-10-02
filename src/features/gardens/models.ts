@@ -111,4 +111,3 @@ export function recalculateGardenStats(garden: GardenDetails): GardenDetails {
     }),
   };
 }
-

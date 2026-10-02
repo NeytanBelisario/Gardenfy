@@ -10,4 +10,3 @@ export const gardenIconOptions = [
 ] as const;
 
 export type GardenIconName = (typeof gardenIconOptions)[number];
-
