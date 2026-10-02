@@ -95,6 +95,15 @@ Atualize este arquivo ao encerrar sessões que mudem o estado do projeto. Não a
 - **Backup:** commits por etapas publicados em `origin/fix/unified-plant-analysis`; este registro do PR também é publicado no encerramento.
 - **Próximo passo:** revisar/integrar este PR e validar análise/Jornadas M1/M2 no aparelho. M3 continua parcial: definir e implementar chamada no servidor com credencial protegida, controle de acesso e limites, antes de distribuir. Serviço/backend ainda não escolhido.
 
+## Sessão de 02/10/2026 — configuração inicial do Supabase
+
+- **Branch:** `chore/setup-supabase`, criada de `develop` atualizado após integrar o PR #8 (`f864678`).
+- **Etapa concluída:** CLI Supabase `2.119.0` fixada como dependência de desenvolvimento; projeto local inicializado em `supabase/config.toml`; autenticação salva validada pela listagem de projetos.
+- **Projeto remoto:** `Gardenfy` (`ukqsiclooawiqmttdobu`, região `us-west-2`) localizado com a credencial existente.
+- **Bloqueio atual:** o projeto remoto está pausado. `supabase link` retornou `ProjectPausedError`; a documentação atual exige retomá-lo pelo Dashboard antes de concluir o vínculo.
+- **Segurança:** nenhum token, senha de banco ou segredo foi adicionado ao repositório. Arquivos temporários e ambientes locais do Supabase continuam ignorados.
+- **Próximo passo:** retomar o projeto no Dashboard, repetir `npx supabase link --project-ref ukqsiclooawiqmttdobu` e validar o vínculo antes de implementar a Edge Function da análise.
+
 ## Modelo para próximas sessões
 
 - Data e branch:
