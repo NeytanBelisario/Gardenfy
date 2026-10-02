@@ -212,11 +212,13 @@ export function createGardensStore(storage: GardensStorage, photos: PlantPhotoSt
         return plant;
       });
     },
-    addAnalyzedPlantToGarden(gardenId: string, analysis: PlantAnalysisResult, photoUri: string) {
+    addAnalyzedPlantToGarden(gardenId: string, analysis: PlantAnalysisResult, photoUri: string, reviewedName?: string) {
       return enqueue(async () => {
         const garden = findGarden(gardenId);
+        const name = reviewedName?.trim() ?? analysis.plantName;
+        if (!name) throw new Error('Informe um nome para a planta.');
         const photo = await photos.save(photoUri);
-        const plant = buildAnalyzedPlant(analysis, photo);
+        const plant = { ...buildAnalyzedPlant(analysis, photo), name };
         await commit(replaceGarden(recalculateGardenStats({ ...garden, plants: [...garden.plants, plant] })), photo);
         return plant;
       });

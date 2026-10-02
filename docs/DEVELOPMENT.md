@@ -19,7 +19,7 @@ Se não usar nvm, instale a versão indicada em `.nvmrc` pelo seu gerenciador de
 
 ## Ambiente e execução
 
-A única variável lida atualmente pelo app é `EXPO_PUBLIC_GEMINI_API_KEY`, em `src/constants/env.ts`. Preencha-a no `.env` apenas para experimentar a análise local; sem ela, a análise não fica habilitada. A interface e os fluxos sem IA devem ser verificados separadamente.
+A análise local lê `EXPO_PUBLIC_GEMINI_API_KEY`, em `src/constants/env.ts`. Preencha-a no `.env` apenas para experimentar a análise; sem ela, a tela informa a indisponibilidade quando solicitada. `EXPO_PUBLIC_GEMINI_MODEL` é opcional e usa `gemini-3.5-flash-lite` por padrão; confirme acesso ao modelo na conta. Veja [ANALYSIS.md](ANALYSIS.md) para a revisão documental da seleção, timeout, revisão antes de salvar e limites do uso local. A interface e os fluxos sem IA devem ser verificados separadamente.
 
 Essa chave é incorporada ao cliente. Antes de distribuir o MVP, o roadmap prevê mover a chamada para um serviço que mantenha a credencial no servidor. `.env.example` contém somente o nome da variável, nunca uma chave real. Em outro PC, recupere configurações locais pelo seu gerenciador de segredos.
 
@@ -33,7 +33,7 @@ Comandos existentes:
 | `npm run web` | Tentar executar a versão web; a compatibilidade completa ainda precisa de validação. |
 | `npm run typecheck` | Verificar os tipos (`tsc --noEmit`). |
 | `npm run lint` | Executar ESLint com configuração Expo versionada; avisos também falham o check. |
-| `npm test` | Executar testes de persistência, cuidados e histórico com Node/tsx. |
+| `npm test` | Executar testes de persistência, cuidados, histórico e análise com Node/tsx. |
 | `npm run check` | Executar typecheck, lint e testes. |
 | `npx expo install --check` | Conferir compatibilidade de versões com o SDK instalado. |
 | `npx expo export --platform android` | Gerar bundle JS/assets em `dist/`; não compila APK. |

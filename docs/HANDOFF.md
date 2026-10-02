@@ -70,7 +70,7 @@ Atualize este arquivo ao encerrar sessões que mudem o estado do projeto. Não a
 ## Sessão de 02/10/2026 — M2: planta, cuidados e histórico
 
 - **Branch:** `feat/plant-care-history`, criada de `develop` atualizado após integrar o PR #6 (`c144c97`).
-- **PR:** [#7 — detalhes da planta, cuidados e histórico](https://github.com/NeytanBelisario/Gardenfy/pull/7), aberto para `develop`; aguarda integração.
+- **PR:** [#7 — detalhes da planta, cuidados e histórico](https://github.com/NeytanBelisario/Gardenfy/pull/7), integrado pelo usuário em `develop` em 02/10/2026 (`3b660ff`).
 - **CI remoto:** workflow disparado pelo PR; consultar o resultado dos checks no GitHub.
 - **Etapas publicadas:** `04e71ba` (domínio, schema v3 e 13 regressões), `1483722` (detalhes, navegação e diálogos de cuidado), `7450156` (documentação e roteiro).
 - **Entrega:** detalhes da planta com cards de hidratação/luz, origem/data e ausência de análise; ações Regar/Adubar; histórico cronológico misto, incluindo retratos das análises; correção de tipo/data/hora e exclusão confirmada de cuidados. Carregamento é tratado pelo bootstrap existente; alvo ausente, foto indisponível, salvamento e falhas têm feedback. Toques repetidos são bloqueados enquanto salva.
@@ -80,6 +80,20 @@ Atualize este arquivo ao encerrar sessões que mudem o estado do projeto. Não a
 - **Limites:** nenhum APK, teste em dispositivo ou chamada real à IA. Roteiro M2 em `TESTING.md` aguarda aparelho, incluindo migração de instalação existente, teclado, acessibilidade, navegação e adapters nativos. M1 também mantém validações manuais pendentes.
 - **Backup:** commits por etapas publicados em `origin/feat/plant-care-history`; este registro do PR também é publicado no encerramento.
 - **Próximo passo:** revisar/integrar este PR e validar jornadas M1/M2 no aparelho. Após integração, atualizar `develop` para a etapa M3 de unificação do serviço/parser e tratamento de falhas de análise. Backend/chamada pelo servidor ainda requer definição de escopo e serviço.
+
+## Sessão de 02/10/2026 — M3: análise compartilhada e falhas locais
+
+- **Branch:** `fix/unified-plant-analysis`, criada de `develop` atualizado após integrar o PR #7 (`3b660ff`).
+- **PR:** [#8 — análise compartilhada, revisão e falhas](https://github.com/NeytanBelisario/Gardenfy/pull/8), aberto para `develop`; aguarda integração.
+- **CI remoto:** workflow disparado pelo PR; consultar o resultado dos checks no GitHub.
+- **Etapas publicadas:** `b69e0cc` (serviço/parser, seleção, erros e regressões), `7ff0506` (tela/hook compartilhados e revisão antes de salvar), `354f61d` (documentação e limites locais).
+- **Entrega:** os três caminhos usam o mesmo fluxo; câmera/galeria com feedback e bloqueio de toques repetidos; erro de configuração, conexão, quota, indisponibilidade, timeout (30s), resposta inválida e cancelamento. Rascunho exige confirmação para incluir/reanalisar; nome escolhido é separado da identificação da IA. Divergência de identificação gera aviso para revisão. Scan geral é consulta sem persistência.
+- **Regras:** respostas inválidas não viram métricas via clamp; zeros válidos são mantidos. Erros não expõem payload/URL/credenciais. Cancelar/sair da tela aborta a espera e ignora resposta atrasada; trocar alvo reinicia a tela. Falha de análise não escreve no store; falha de gravação conserva rascunho para retry sem outra chamada à IA. Schema permanece v3.
+- **Modelo:** configurável por `EXPO_PUBLIC_GEMINI_MODEL`, padrão `gemini-3.5-flash-lite`, com seleção revisada na documentação oficial (links em `ANALYSIS.md`). Removida a cadeia de modelos antigos; uma chamada por tentativa. SDK existente mantido, sem dependências novas.
+- **Checks:** `npm run check` (TypeScript, lint sem avisos e 87 testes), export Android, links locais e `git diff --check` aprovados. 34 novas regressões, usando transporte/seletor simulados.
+- **Limites:** nenhuma chamada real à IA, câmera/galeria/UI em dispositivo ou APK. A revisão documental não comprova acesso/quota/qualidade do modelo na conta; adapters nativos e SDK em rede aguardam roteiro manual. Cancelamento no cliente não garante evitar processamento/cobrança no serviço.
+- **Backup:** commits por etapas publicados em `origin/fix/unified-plant-analysis`; este registro do PR também é publicado no encerramento.
+- **Próximo passo:** revisar/integrar este PR e validar análise/Jornadas M1/M2 no aparelho. M3 continua parcial: definir e implementar chamada no servidor com credencial protegida, controle de acesso e limites, antes de distribuir. Serviço/backend ainda não escolhido.
 
 ## Modelo para próximas sessões
 

@@ -14,7 +14,7 @@ Dados v1 são validados pelo formato original e migrados em memória: água/luz 
 
 As operações de criação de jardim, inclusão pelo catálogo, inclusão por foto, reanálise, edição, exclusão e registro/correção/exclusão de cuidados são assíncronas. Uma fila serializa mudanças, e a memória só é atualizada quando a gravação confirma sucesso. Falhas são apresentadas na tela e a operação pode ser repetida. Uma falha não impede as próximas operações da fila.
 
-A criação exige nome preenchido. O antigo `createMockGarden` foi substituído por `createGarden`; o catálogo estático não inicializa mais o store por efeito colateral. As telas aguardam o salvamento antes de navegar ou apresentar resultado salvo.
+A criação exige nome preenchido. O antigo `createMockGarden` foi substituído por `createGarden`; o catálogo estático não inicializa mais o store por efeito colateral. As telas aguardam o salvamento antes de navegar ou apresentar resultado salvo. A análise por foto exige revisão e confirmação explícita; descartar resultado, cancelar ou falhar na análise não grava nada. O nome revisado na inclusão é salvo na mesma operação, separado da identificação sugerida pela IA; ver [ANALYSIS.md](ANALYSIS.md).
 
 Esse armazenamento é local, sem conta, sincronização ou backup em servidor. Os dados sobrevivem ao reinício normal do app; limpar dados, desinstalar ou perder o aparelho pode removê-los. AsyncStorage não é armazenamento criptografado de credenciais. O Git transfere o código entre PCs, não os jardins de quem usa o aplicativo.
 

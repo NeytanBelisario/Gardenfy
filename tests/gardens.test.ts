@@ -805,3 +805,27 @@ test('local care date editing round trips and rejects invalid calendar dates and
     assert.throws(() => parseCareDateFields(date, time));
   }
 });
+
+test('reviewed name is saved atomically and kept separate from AI identification and analysis history', async () => {
+  const { store, storage, photos } = await fixture();
+  const garden = await store.createGarden(draft);
+  const plant = await store.addAnalyzedPlantToGarden(garden.id, analysis, 'file:///cache/photo.jpg', ' Minha planta ');
+  assert.equal(plant.name, 'Minha planta');
+  assert.equal(plant.identifiedName, analysis.plantName);
+  const entry = plant.history[0];
+  assert.equal(entry.kind, 'analysis');
+  if (entry.kind !== 'analysis') throw new Error('Missing analysis');
+  assert.equal(entry.snapshot.plantName, analysis.plantName);
+  const restarted = createGardensStore(storage, photos);
+  await restarted.hydrate();
+  assert.equal(restarted.getSnapshot().gardens[0].plants[0].name, 'Minha planta');
+});
+
+test('blank reviewed names reject before copying photos or writing data', async () => {
+  const { store, memory, files } = await fixture();
+  const garden = await store.createGarden(draft);
+  const raw = memory.raw;
+  await assert.rejects(store.addAnalyzedPlantToGarden(garden.id, analysis, 'file:///cache/photo.jpg', '  '), /nome/);
+  assert.equal(memory.raw, raw);
+  assert.equal(files.size, 0);
+});
