@@ -12,7 +12,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 
 import { AppHeader } from '../../../../components/shell/AppHeader';
-import { mockPlantCatalog } from '../../../../features/gardens/mocks';
+import { plantCatalog } from '../../../../features/gardens/catalog';
 import { PlantCatalogCategory, PlantCatalogItem } from '../../../../features/gardens/types';
 import { addPlantToGarden, useGardenDetails } from '../../../../features/gardens/store';
 
@@ -95,7 +95,7 @@ export default function AddPlantsScreen() {
   const [selectedCategory, setSelectedCategory] = useState<PlantCatalogCategory>('all');
 
   const filteredPlants = useMemo(() => {
-    return mockPlantCatalog.filter((item) => {
+    return plantCatalog.filter((item) => {
       const matchesCategory =
         selectedCategory === 'all' || item.category === selectedCategory;
       const normalizedQuery = query.trim().toLowerCase();

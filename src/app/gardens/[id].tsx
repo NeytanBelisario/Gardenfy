@@ -20,6 +20,7 @@ import {
 } from '../../features/gardens/types';
 import { AppHeader } from '../../components/shell/AppHeader';
 import { GardenIdentityIcon } from '../../features/gardens/icons';
+import { formatPercent } from '../../features/gardens/metricPresentation';
 import { GardenManagementDialog, type GardenManagementAction } from '../../features/gardens/GardenManagementDialog';
 import { useGardenDetails } from '../../features/gardens/store';
 
@@ -48,13 +49,13 @@ function ProgressBar({
   color,
   trackColor,
 }: {
-  value: number;
+  value: number | null;
   color: string;
   trackColor: string;
 }) {
   return (
     <View style={[styles.progressTrack, { backgroundColor: trackColor }]}>
-      <View style={[styles.progressFill, { width: `${value}%`, backgroundColor: color }]} />
+      {value !== null ? <View style={[styles.progressFill, { width: `${value}%`, backgroundColor: color }]} /> : null}
     </View>
   );
 }
@@ -221,26 +222,29 @@ function PlantCard({
           </Pressable>
         </View>
 
+        <Text style={styles.estimateText}>
+          {typeof plant.vitality === 'number' ? 'Estimativas da IA' : 'Sem análise · indicadores desconhecidos'}
+        </Text>
         <View style={styles.plantMetricsRow}>
-          <View style={styles.inlineMetric}>
+          <View style={styles.inlineMetric} accessible accessibilityLabel={`Vitalidade: ${formatPercent(plant.vitality)}`}>
             <View style={styles.inlineMetricIcon}>
               <Ionicons name="pulse-outline" size={14} color={COLORS.primary} />
             </View>
-            <Text style={styles.inlineMetricText}>{plant.vitality ?? 0}%</Text>
+            <Text style={styles.inlineMetricText}>{formatPercent(plant.vitality, '—')}</Text>
           </View>
 
-          <View style={styles.inlineMetric}>
+          <View style={styles.inlineMetric} accessible accessibilityLabel={`Luz: ${formatPercent(lightMetric?.value)}`}>
             <View style={styles.inlineMetricIcon}>
-              <GardenMetricIcon metric={{ kind: 'light', label: 'Light', value: 0 }} />
+              <GardenMetricIcon metric={{ kind: 'light', label: 'Luz', value: null }} />
             </View>
-            <Text style={styles.inlineMetricText}>{lightMetric?.value ?? 0}%</Text>
+            <Text style={styles.inlineMetricText}>{formatPercent(lightMetric?.value, '—')}</Text>
           </View>
 
-          <View style={styles.inlineMetric}>
+          <View style={styles.inlineMetric} accessible accessibilityLabel={`Água: ${formatPercent(waterMetric?.value)}`}>
             <View style={styles.inlineMetricIcon}>
-              <GardenMetricIcon metric={{ kind: 'water', label: 'Water', value: 0 }} />
+              <GardenMetricIcon metric={{ kind: 'water', label: 'Água', value: null }} />
             </View>
-            <Text style={styles.inlineMetricText}>{waterMetric?.value ?? 0}%</Text>
+            <Text style={styles.inlineMetricText}>{formatPercent(waterMetric?.value, '—')}</Text>
           </View>
 
           <View style={styles.inlineMetric}>
@@ -248,7 +252,7 @@ function PlantCard({
               <MaterialCommunityIcons name="sprout" size={14} color={COLORS.secondary} />
             </View>
             <Text style={styles.inlineMetricText}>
-              {plant.growthDays ? `${plant.growthDays}d` : '--'}
+              {typeof plant.growthDays === 'number' ? `${plant.growthDays}d` : '—'}
             </Text>
           </View>
         </View>
@@ -287,8 +291,8 @@ function GardenDetailsView({
       <ManagementButtons name={garden.name} onEdit={() => onManage({ mode: 'edit' })} onDelete={() => onManage({ mode: 'delete' })} />
       <View style={styles.vitalityCard}>
         <View style={styles.vitalityHeader}>
-          <Text style={styles.vitalityLabel}>Garden Vitality</Text>
-          <Text style={styles.vitalityValue}>{garden.vitality}%</Text>
+          <Text style={styles.vitalityLabel}>Vitalidade do jardim</Text>
+          <Text style={[styles.vitalityValue, garden.vitality === null && styles.unknownValue]}>{formatPercent(garden.vitality)}</Text>
         </View>
         <ProgressBar
           value={garden.vitality}
@@ -297,6 +301,11 @@ function GardenDetailsView({
         />
       </View>
 
+      <Text style={styles.estimateText}>
+        {garden.vitality === null
+          ? 'Analise uma foto de uma planta para obter estimativas.'
+          : `Estimativas da IA · ${garden.plants.filter((plant) => typeof plant.vitality === 'number').length} de ${garden.plantCount} plantas analisadas`}
+      </Text>
       <View style={styles.statsGrid}>
         <StatsCard
           icon={<MaterialCommunityIcons name="sprout" size={24} color={COLORS.secondary} />}
@@ -306,8 +315,8 @@ function GardenDetailsView({
         />
         <StatsCard
           icon={<Ionicons name="water-outline" size={24} color={COLORS.tertiarySoft} />}
-          value={`${garden.averageHydration}%`}
-          label="Avg. Hydration"
+          value={formatPercent(garden.averageHydration)}
+          label="Água média estimada"
           iconColor={COLORS.tertiarySoft}
         />
       </View>
@@ -409,6 +418,12 @@ export default function GardenDetailsScreen() {
 }
 
 const styles = StyleSheet.create({
+  unknownValue: { fontSize: 16 },
+  estimateText: {
+    color: COLORS.textMuted,
+    fontSize: 12,
+    marginVertical: 8,
+  },
   managementActions: { flexDirection: 'row', flexWrap: 'wrap', gap: 12, paddingHorizontal: 24, paddingVertical: 8 },
   managementButton: { flexDirection: 'row', alignItems: 'center', gap: 8, padding: 12, borderRadius: 12, backgroundColor: COLORS.surfaceLow },
   screen: {
