@@ -84,14 +84,15 @@ Atualize este arquivo ao encerrar sessões que mudem o estado do projeto. Não a
 ## Sessão de 02/10/2026 — M3: análise compartilhada e falhas locais
 
 - **Branch:** `fix/unified-plant-analysis`, criada de `develop` atualizado após integrar o PR #7 (`3b660ff`).
-- **PR:** será aberto para `develop` ao concluir a documentação.
-- **Etapas publicadas:** `b69e0cc` (serviço/parser, seleção, erros e regressões), `7ff0506` (tela/hook compartilhados e revisão antes de salvar).
+- **PR:** [#8 — análise compartilhada, revisão e falhas](https://github.com/NeytanBelisario/Gardenfy/pull/8), aberto para `develop`; aguarda integração.
+- **CI remoto:** workflow disparado pelo PR; consultar o resultado dos checks no GitHub.
+- **Etapas publicadas:** `b69e0cc` (serviço/parser, seleção, erros e regressões), `7ff0506` (tela/hook compartilhados e revisão antes de salvar), `354f61d` (documentação e limites locais).
 - **Entrega:** os três caminhos usam o mesmo fluxo; câmera/galeria com feedback e bloqueio de toques repetidos; erro de configuração, conexão, quota, indisponibilidade, timeout (30s), resposta inválida e cancelamento. Rascunho exige confirmação para incluir/reanalisar; nome escolhido é separado da identificação da IA. Divergência de identificação gera aviso para revisão. Scan geral é consulta sem persistência.
 - **Regras:** respostas inválidas não viram métricas via clamp; zeros válidos são mantidos. Erros não expõem payload/URL/credenciais. Cancelar/sair da tela aborta a espera e ignora resposta atrasada; trocar alvo reinicia a tela. Falha de análise não escreve no store; falha de gravação conserva rascunho para retry sem outra chamada à IA. Schema permanece v3.
 - **Modelo:** configurável por `EXPO_PUBLIC_GEMINI_MODEL`, padrão `gemini-3.5-flash-lite`, com seleção revisada na documentação oficial (links em `ANALYSIS.md`). Removida a cadeia de modelos antigos; uma chamada por tentativa. SDK existente mantido, sem dependências novas.
 - **Checks:** `npm run check` (TypeScript, lint sem avisos e 87 testes), export Android, links locais e `git diff --check` aprovados. 34 novas regressões, usando transporte/seletor simulados.
 - **Limites:** nenhuma chamada real à IA, câmera/galeria/UI em dispositivo ou APK. A revisão documental não comprova acesso/quota/qualidade do modelo na conta; adapters nativos e SDK em rede aguardam roteiro manual. Cancelamento no cliente não garante evitar processamento/cobrança no serviço.
-- **Backup:** etapas publicadas em `origin/fix/unified-plant-analysis`; registrar PR no encerramento.
+- **Backup:** commits por etapas publicados em `origin/fix/unified-plant-analysis`; este registro do PR também é publicado no encerramento.
 - **Próximo passo:** revisar/integrar este PR e validar análise/Jornadas M1/M2 no aparelho. M3 continua parcial: definir e implementar chamada no servidor com credencial protegida, controle de acesso e limites, antes de distribuir. Serviço/backend ainda não escolhido.
 
 ## Modelo para próximas sessões
