@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import {
   Alert,
   Image,
@@ -17,6 +17,7 @@ import {
   addAnalyzedPlantToGarden,
   useGardenDetails,
 } from '../../../../features/gardens/store';
+import { plantPhotos } from '../../../../features/gardens/photoStorage';
 import { PlantAnalysisResult } from '../../../../features/gardens/types';
 import { analyzePlantPhoto } from '../../../../features/plant-analysis/geminiAnalysis';
 
@@ -63,6 +64,7 @@ export default function AddPlantByCameraScreen() {
   const params = useLocalSearchParams<{ id?: string | string[] }>();
   const gardenId = getParam(params.id);
   const garden = useGardenDetails(gardenId);
+  const savingRef = useRef(false);
   const [photoUri, setPhotoUri] = useState<string | null>(null);
   const [analysis, setAnalysis] = useState<PlantAnalysisResult | null>(null);
   const [loading, setLoading] = useState(false);
@@ -70,7 +72,7 @@ export default function AddPlantByCameraScreen() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const analyzeAsset = async (asset: ImagePicker.ImagePickerAsset) => {
-    if (!gardenId) {
+    if (!gardenId || !garden || savingRef.current) {
       return;
     }
 
@@ -79,9 +81,11 @@ export default function AddPlantByCameraScreen() {
       return;
     }
 
+    savingRef.current = true;
     setPhotoUri(asset.uri);
     setLoading(true);
     setSaved(false);
+    setAnalysis(null);
     setErrorMessage(null);
 
     try {
@@ -91,7 +95,8 @@ export default function AddPlantByCameraScreen() {
         asset.mimeType ?? 'image/jpeg'
       );
 
-      addAnalyzedPlantToGarden(gardenId, nextAnalysis, asset.uri);
+      const savedPlant = await addAnalyzedPlantToGarden(gardenId, nextAnalysis, asset.uri);
+      setPhotoUri(plantPhotos.resolve(savedPlant.imageUrl));
       setAnalysis(nextAnalysis);
       setSaved(true);
     } catch (error) {
@@ -99,6 +104,7 @@ export default function AddPlantByCameraScreen() {
         error instanceof Error ? error.message : 'Nao foi possivel identificar a planta.';
       setErrorMessage(message);
     } finally {
+      savingRef.current = false;
       setLoading(false);
     }
   };
@@ -177,7 +183,7 @@ export default function AddPlantByCameraScreen() {
               loading && styles.captureButtonDisabled,
             ]}
             onPress={handleTakePhoto}
-            disabled={loading || !gardenId}
+            disabled={loading || !garden}
           >
             <Ionicons name="camera" size={22} color={COLORS.tertiaryText} />
             <Text style={styles.captureButtonText}>
@@ -191,7 +197,7 @@ export default function AddPlantByCameraScreen() {
               loading && styles.captureButtonDisabled,
             ]}
             onPress={handlePickImage}
-            disabled={loading || !gardenId}
+            disabled={loading || !garden}
           >
             <Ionicons name="images-outline" size={21} color={COLORS.white} />
             <Text style={styles.secondaryButtonText}>Escolher da galeria</Text>

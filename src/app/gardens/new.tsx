@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import {
   Image,
   Pressable,
@@ -14,7 +14,7 @@ import {
 } from '@expo/vector-icons';
 
 import { CreateGardenDraft, GardenEnvironment } from '../../features/gardens/types';
-import { createMockGarden } from '../../features/gardens/store';
+import { createGarden } from '../../features/gardens/store';
 import {
   GardenIconName,
   GardenIdentityIcon,
@@ -46,6 +46,9 @@ function IdentityIcon({
 
 export default function NewGardenScreen() {
   const router = useRouter();
+  const savingRef = useRef(false);
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
   const [draft, setDraft] = useState<CreateGardenDraft>({
     name: '',
     environment: 'indoor',
@@ -60,16 +63,23 @@ export default function NewGardenScreen() {
     setDraft((current) => ({ ...current, icon }));
   };
 
-  const handleCreateGarden = () => {
-    const nextGarden = createMockGarden({
-      ...draft,
-      imageUrl: '',
-    });
-
-    router.replace({
-      pathname: '/gardens/[id]/plants/add',
-      params: { id: nextGarden.id },
-    });
+  const handleCreateGarden = async () => {
+    if (savingRef.current) return;
+    savingRef.current = true;
+    setSaving(true);
+    setSaveError(null);
+    try {
+      const nextGarden = await createGarden({ ...draft, imageUrl: '' });
+      router.replace({
+        pathname: '/gardens/[id]/plants/add',
+        params: { id: nextGarden.id },
+      });
+    } catch (error) {
+      setSaveError(error instanceof Error ? error.message : 'Não foi possível salvar o jardim.');
+    } finally {
+      savingRef.current = false;
+      setSaving(false);
+    }
   };
 
   return (
@@ -178,11 +188,12 @@ export default function NewGardenScreen() {
         </View>
 
         <View style={styles.actions}>
-          <Pressable style={styles.primaryButton} onPress={handleCreateGarden}>
-            <Text style={styles.primaryButtonText}>Create Garden</Text>
+          {saveError ? <Text accessibilityRole="alert" style={{ color: '#ba1a1a' }}>{saveError}</Text> : null}
+          <Pressable style={[styles.primaryButton, saving && { opacity: 0.6 }]} onPress={handleCreateGarden} disabled={saving}>
+            <Text style={styles.primaryButtonText}>{saving ? 'Salvando...' : 'Criar jardim'}</Text>
           </Pressable>
 
-          <Pressable style={styles.secondaryButton} onPress={() => router.back()}>
+          <Pressable style={styles.secondaryButton} onPress={() => router.back()} disabled={saving}>
             <Text style={styles.secondaryButtonText}>Discard Draft</Text>
           </Pressable>
         </View>
