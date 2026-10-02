@@ -80,7 +80,7 @@ async function callGemini(base64: string, mimeType: string, apiKey: string, mode
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey },
       body: JSON.stringify({
-        contents: [{ role: 'user', parts: [{ text: prompt }, { inlineData: { data: base64, mimeType } }] }],
+        contents: [{ role: 'user', parts: [{ text: prompt }, { inline_data: { data: base64, mime_type: mimeType } }] }],
         generationConfig: { temperature: 0.1, maxOutputTokens: 256 },
       }),
       signal: controller.signal,
