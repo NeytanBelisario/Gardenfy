@@ -30,7 +30,7 @@ Atualize este arquivo ao encerrar sessões que mudem o estado do projeto. Não a
 ## Sessão de 02/10/2026 — M1: persistência local
 
 - **Branch:** `feat/persistent-gardens`, criada a partir de `develop` atualizado após o merge do PR #3 (`a91f8df`).
-- **PR:** [#4 — persistência local](https://github.com/NeytanBelisario/Gardenfy/pull/4), aberto para `develop`; ainda não integrado.
+- **PR:** [#4 — persistência local](https://github.com/NeytanBelisario/Gardenfy/pull/4), integrado pelo usuário em `develop` em 02/10/2026 (`343d44e`).
 - **CI remoto:** workflow disparado pelo PR, incluindo os 24 testes; consultar o resultado no GitHub.
 - **Entrega:** AsyncStorage com schema v1 validado, hidratação inicial com retry, fila de gravação e memória atualizada somente após confirmação. Criação, inclusão pelo catálogo e resultados de análise/reanálise persistem.
 - **Fotos:** cópia nativa para o diretório de documentos do app, referências relativas resolvidas no sandbox atual e limpeza em falhas/reanálise. Implementação web converte object URLs em data URI; não houve validação do app web nesta sessão.
@@ -41,6 +41,18 @@ Atualize este arquivo ao encerrar sessões que mudem o estado do projeto. Não a
 - **Limites:** JDK/adb/dispositivo não disponíveis; nenhum APK foi compilado ou instalado, nenhuma câmera/AR ou chamada real ao Gemini foi testada. Novas dependências nativas exigem reconstruir o app para teste no aparelho.
 - **Estado de M1:** persistência, hidratação e fotos implementadas/testadas no domínio. Edição/exclusão e representação de métricas desconhecidas continuam pendentes. Não há conta, sincronização nem backend nesta entrega.
 - **Próximo passo:** revisar/integrar o PR da persistência, testar o roteiro no aparelho e criar nova branch a partir de `develop` atualizado para edição/exclusão de jardins e plantas. A etapa de cuidados/histórico vem depois.
+
+## Sessão de 02/10/2026 — M1: edição e exclusão
+
+- **Branch:** `feat/edit-delete-gardens-plants`, criada de `develop` atualizado após integrar o PR #4 (`343d44e`).
+- **PR:** será aberto para `develop` após publicar a documentação; registrar o link nesta sessão.
+- **Etapas publicadas:** `3a151bc` (operações persistentes e regressões), `fdc3b00` (formulários e confirmações). Validação/documentação serão publicadas ao encerrar.
+- **Entrega:** edição de nome/ambiente/ícone do jardim e nome/descrição da planta; exclusão com confirmação e aviso de remoção em conjunto no jardim; retorno à home após excluir jardim. Dados/análises/fotos preservados nas edições; nomes obrigatórios; feedback de falha e bloqueio durante gravação.
+- **Persistência:** mesma fila/schema v1, sem dependências novas. Exclusão grava antes de limpar fotos sem uso, preserva referências compartilhadas e recalcula agregados/contagens. Falha de gravação não muda memória/fotos; falha de limpeza pode deixar órfãos. IDs excluídos não são recriados por operações atrasadas.
+- **Checks:** `npm run check` (TypeScript, lint sem avisos e 35 testes), export Android e `git diff --check` aprovados. Roteiro manual atualizado em `TESTING.md`.
+- **Limites:** sem JDK/adb/SDK/dispositivo; não houve compilação de APK nem execução da interface no aparelho. Cancelamento, teclado, acessibilidade, navegação e adapters nativos precisam de validação manual. Métricas desconhecidas continuam pendentes; esta etapa não altera sua representação.
+- **Backup:** commits das etapas publicados em `origin/feat/edit-delete-gardens-plants`; confirmar commit final ao encerrar.
+- **Próximo passo:** revisar/integrar este PR e executar roteiro no aparelho. Após integração, atualizar `develop` e criar nova branch para diferenciar métricas desconhecidas de zero, última entrega funcional pendente de M1. Cuidados/histórico seguem depois.
 
 ## Modelo para próximas sessões
 

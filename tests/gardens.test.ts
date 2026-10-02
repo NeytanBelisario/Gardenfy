@@ -479,3 +479,21 @@ test('queued deletion rejects stale edits and additions without resurrecting a g
   assert.deepEqual(results.map((result) => result.status), ['fulfilled', 'rejected', 'rejected']);
   assert.deepEqual(deserializeGardens(memory.raw), []);
 });
+
+test('deletion keeps metadata and photo visible until storage confirms success', async () => {
+  const { store, storage, files } = await fixture();
+  const garden = await store.createGarden(draft);
+  const plant = await store.addAnalyzedPlantToGarden(garden.id, analysis, 'file:///cache/plant.jpg');
+  const entered = deferred();
+  const release = deferred();
+  const write = storage.setItem;
+  storage.setItem = async (key, value) => { entered.resolve(); await release.promise; await write(key, value); };
+  const removing = store.deletePlant(garden.id, plant.id);
+  await entered.promise;
+  assert.equal(store.getSnapshot().gardens[0].plantCount, 1);
+  assert.equal(files.size, 1);
+  release.resolve();
+  await removing;
+  assert.equal(store.getSnapshot().gardens[0].plantCount, 0);
+  assert.equal(files.size, 0);
+});
