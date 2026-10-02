@@ -1,6 +1,8 @@
 import React from 'react';
 import { Slot } from 'expo-router';
 
+import { GardensBootstrap } from '../features/gardens/GardensBootstrap';
+
 export default function AppLayout() {
-  return <Slot />;
+  return <GardensBootstrap><Slot /></GardensBootstrap>;
 }

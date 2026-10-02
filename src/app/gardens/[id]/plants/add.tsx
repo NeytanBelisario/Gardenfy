@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import {
   Image,
   Pressable,
@@ -41,16 +41,18 @@ const categoryOptions: { label: string; value: PlantCatalogCategory }[] = [
 function CatalogCard({
   item,
   onAdd,
+  disabled,
 }: {
   item: PlantCatalogItem;
   onAdd: () => void;
+  disabled: boolean;
 }) {
   if (item.featured) {
     return (
       <View style={styles.featuredCard}>
         <View style={styles.featuredImageWrap}>
           <Image source={{ uri: item.imageUrl }} style={styles.featuredImage} />
-          <Pressable style={styles.featuredAddButton} onPress={onAdd}>
+          <Pressable style={styles.featuredAddButton} onPress={onAdd} disabled={disabled} accessibilityLabel={`Adicionar ${item.name}`}>
             <Ionicons name="add" size={24} color={COLORS.tertiaryText} />
           </Pressable>
         </View>
@@ -67,7 +69,7 @@ function CatalogCard({
     <View style={styles.gridCard}>
       <View style={styles.gridImageWrap}>
         <Image source={{ uri: item.imageUrl }} style={styles.gridImage} />
-        <Pressable style={styles.gridAddButton} onPress={onAdd}>
+        <Pressable style={styles.gridAddButton} onPress={onAdd} disabled={disabled} accessibilityLabel={`Adicionar ${item.name}`}>
           <Ionicons name="add" size={18} color={COLORS.primary} />
         </Pressable>
       </View>
@@ -86,6 +88,9 @@ export default function AddPlantsScreen() {
   const params = useLocalSearchParams<{ id?: string | string[] }>();
   const id = Array.isArray(params.id) ? params.id[0] : params.id;
   const garden = useGardenDetails(id);
+  const savingRef = useRef(false);
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
   const [query, setQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<PlantCatalogCategory>('all');
 
@@ -106,13 +111,20 @@ export default function AddPlantsScreen() {
   const featuredPlant = filteredPlants.find((item) => item.featured);
   const gridPlants = filteredPlants.filter((item) => !item.featured);
 
-  const handleAddPlant = (item: PlantCatalogItem) => {
-    if (!id) {
-      return;
+  const handleAddPlant = async (item: PlantCatalogItem) => {
+    if (!id || !garden || savingRef.current) return;
+    savingRef.current = true;
+    setSaving(true);
+    setSaveError(null);
+    try {
+      await addPlantToGarden(id, item);
+      router.back();
+    } catch (error) {
+      setSaveError(error instanceof Error ? error.message : 'Não foi possível salvar a planta.');
+    } finally {
+      savingRef.current = false;
+      setSaving(false);
     }
-
-    addPlantToGarden(id, item);
-    router.back();
   };
 
   return (
@@ -123,7 +135,10 @@ export default function AddPlantsScreen() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
-        <Text style={styles.gardenLabel}>{garden?.name ?? 'Jardim de Inverno'}</Text>
+        <Text style={styles.gardenLabel}>{garden?.name ?? 'Jardim não encontrado'}</Text>
+
+        {saveError ? <Text accessibilityRole="alert" style={{ color: '#ba1a1a' }}>{saveError}</Text> : null}
+        {saving ? <Text style={styles.gardenLabel}>Salvando planta...</Text> : null}
 
         <View style={styles.hero}>
           <View style={styles.heroPlantGhost}>
@@ -142,6 +157,7 @@ export default function AddPlantsScreen() {
 
           <Pressable
             style={styles.scanButton}
+            disabled={saving || !garden}
             onPress={() => {
               if (!id) {
                 return;
@@ -200,11 +216,11 @@ export default function AddPlantsScreen() {
           })}
         </ScrollView>
 
-        {featuredPlant ? <CatalogCard item={featuredPlant} onAdd={() => handleAddPlant(featuredPlant)} /> : null}
+        {featuredPlant ? <CatalogCard item={featuredPlant} onAdd={() => handleAddPlant(featuredPlant)} disabled={saving || !garden} /> : null}
 
         <View style={styles.gridRow}>
           {gridPlants.map((item) => (
-            <CatalogCard key={item.id} item={item} onAdd={() => handleAddPlant(item)} />
+            <CatalogCard key={item.id} item={item} onAdd={() => handleAddPlant(item)} disabled={saving || !garden} />
           ))}
         </View>
       </ScrollView>

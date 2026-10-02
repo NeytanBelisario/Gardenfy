@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import {
   Alert,
   Image,
@@ -17,6 +17,7 @@ import {
   updatePlantAnalysis,
   useGardenDetails,
 } from '../../../../../features/gardens/store';
+import { plantPhotos } from '../../../../../features/gardens/photoStorage';
 import { PlantAnalysisResult } from '../../../../../features/gardens/types';
 import { analyzePlantPhoto } from '../../../../../features/plant-analysis/geminiAnalysis';
 import { plantMatchesCatalogChoice } from '../../../../../features/plant-analysis/plantMatch';
@@ -69,6 +70,7 @@ export default function PlantPhotoScanScreen() {
   const plantId = getParam(params.plantId);
   const garden = useGardenDetails(gardenId);
   const plant = garden?.plants.find((item) => item.id === plantId);
+  const savingRef = useRef(false);
   const [photoUri, setPhotoUri] = useState<string | null>(
     plant?.lastAnalyzedPhotoUri ?? null
   );
@@ -78,7 +80,7 @@ export default function PlantPhotoScanScreen() {
   const [mismatchMessage, setMismatchMessage] = useState<string | null>(null);
 
   const analyzeAsset = async (asset: ImagePicker.ImagePickerAsset) => {
-    if (!gardenId || !plantId || !plant) {
+    if (!gardenId || !plantId || !plant || savingRef.current) {
       return;
     }
 
@@ -87,10 +89,12 @@ export default function PlantPhotoScanScreen() {
       return;
     }
 
+    savingRef.current = true;
     setPhotoUri(asset.uri);
     setLoading(true);
     setErrorMessage(null);
     setMismatchMessage(null);
+    setAnalysis(null);
 
     try {
       const base64Clean = asset.base64.replace(/^data:image\/\w+;base64,/, '');
@@ -99,8 +103,6 @@ export default function PlantPhotoScanScreen() {
         asset.mimeType ?? 'image/jpeg'
       );
 
-      setAnalysis(nextAnalysis);
-
       if (!plantMatchesCatalogChoice(plant, nextAnalysis)) {
         setMismatchMessage(
           `Voce adicionou "${plant.name}", mas a camera identificou "${nextAnalysis.plantName}". Essa foto parece ser outro tipo de planta.`
@@ -108,12 +110,15 @@ export default function PlantPhotoScanScreen() {
         return;
       }
 
-      updatePlantAnalysis(gardenId, plantId, nextAnalysis, asset.uri);
+      const savedPlant = await updatePlantAnalysis(gardenId, plantId, nextAnalysis, asset.uri);
+      setPhotoUri(plantPhotos.resolve(savedPlant.imageUrl));
+      setAnalysis(nextAnalysis);
     } catch (error) {
       const message =
         error instanceof Error ? error.message : 'Nao foi possivel analisar a planta.';
       setErrorMessage(message);
     } finally {
+      savingRef.current = false;
       setLoading(false);
     }
   };

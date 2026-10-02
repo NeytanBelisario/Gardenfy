@@ -27,7 +27,7 @@ jobs:
           cache: npm
       - name: Install locked dependencies
         run: npm ci --no-audit --no-fund
-      - name: Check types and lint
+      - name: Check types, lint and persistence tests
         run: npm run check
       - name: Validate Expo dependency versions
         run: npx expo install --check

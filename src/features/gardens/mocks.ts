@@ -1,7 +1,4 @@
-import { GardenDetails, PlantCatalogItem } from './types';
-import { initializeGardensStore } from './store';
-
-export const mockGardenDetailsSeed: GardenDetails[] = [];
+import type { PlantCatalogItem } from './types';
 
 export const mockPlantCatalog: PlantCatalogItem[] = [
   {
@@ -42,5 +39,3 @@ export const mockPlantCatalog: PlantCatalogItem[] = [
       'https://lh3.googleusercontent.com/aida-public/AB6AXuCKp5cjbikdkG9zbXjv7l0XVlMrbfv31Pb31OrW0SmTE6nOSuFevNWBlGpWdkM-jzA5bUmvZ18sk28Q_dEZrp84YYYUEEfOALcykCS24_ZJhHQ9Pyr1m2OhGC95d_J5M8xi6YoLFudHHhwR_f3QoCah7gm8T6IEVoU6lbtN4bVlQd1VvZJUBSAOTmZcwQ6QZeNKcSrZtKdRPXx3EcBOjZb0z5eB3iKYALBd3pYFeNkj3wXyPGT5fmQIE9hXnXPGsa2ZBbBTaJsvwFw',
   },
 ];
-
-initializeGardensStore(mockGardenDetailsSeed);
