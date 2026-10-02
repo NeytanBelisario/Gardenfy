@@ -1,10 +1,11 @@
+import { buildAnalysisRecord, isHistoryDate } from './plantHistory';
 import { recalculateGardenStats } from './models';
 import { gardenIconOptions } from './iconNames';
 import { isValidPhotoReference } from './photoStorageCore';
 import type { GardenDetails } from './types';
 
 export const GARDENS_STORAGE_KEY = '@gardenfy/gardens';
-export const GARDENS_SCHEMA_VERSION = 2;
+export const GARDENS_SCHEMA_VERSION = 3;
 
 export interface GardensStorage {
   getItem(key: string): Promise<string | null>;
@@ -42,7 +43,19 @@ function isMetrics(value: unknown, nullable = true) {
   );
 }
 
-function isPlant(value: unknown, nullable = true) {
+function isHistory(value: unknown) {
+  return Array.isArray(value) && value.every((entry) => {
+    if (!isRecord(entry) || !isString(entry.id) || !entry.id || !isHistoryDate(entry.occurredAt)) return false;
+    if (entry.kind === 'care') return entry.careType === 'water' || entry.careType === 'fertilize';
+    if (entry.kind !== 'analysis' || !isRecord(entry.snapshot)) return false;
+    const snapshot = entry.snapshot;
+    return isString(snapshot.plantName) && isString(snapshot.health) &&
+      optional(snapshot.vitality, (value) => isNumber(value, 100)) &&
+      optional(snapshot.growthDays, isNumber) && isMetrics(snapshot.metrics);
+  }) && hasUniqueIds(value);
+}
+
+function isPlant(value: unknown, nullable = true, historyRequired = true) {
   return isRecord(value) && isString(value.id) && value.id.length > 0 &&
     isString(value.name) && isString(value.subtitle) && isImage(value.imageUrl) &&
     optional(value.identifiedName, isString) &&
@@ -51,10 +64,10 @@ function isPlant(value: unknown, nullable = true) {
     optional(value.lastAnalyzedPhotoUri, isImage) &&
     optional(value.lastAnalyzedAt, (date) => isString(date) && Number.isFinite(Date.parse(date))) &&
     isRecord(value.status) && isString(value.status.label) &&
-    ['vital', 'stable', 'dry'].includes(String(value.status.tone)) && isMetrics(value.metrics, nullable);
+    ['vital', 'stable', 'dry'].includes(String(value.status.tone)) && isMetrics(value.metrics, nullable) && (!historyRequired || isHistory(value.history));
 }
 
-function isGarden(value: unknown, nullable = true): value is GardenDetails {
+function isGarden(value: unknown, nullable = true, historyRequired = true): value is GardenDetails {
   return isRecord(value) && isString(value.id) && value.id.length > 0 &&
     isString(value.name) && isString(value.label) && isImage(value.imageUrl) &&
     gardenIconOptions.some((icon) => icon === value.icon) &&
@@ -65,7 +78,7 @@ function isGarden(value: unknown, nullable = true): value is GardenDetails {
     optional(value.alert, (alert) => isRecord(alert) && isString(alert.label) &&
       ['danger', 'warning'].includes(String(alert.tone))) &&
     isMetrics(value.metrics, nullable) && Array.isArray(value.plants) &&
-    value.plants.every((plant) => isPlant(plant, nullable)) && hasUniqueIds(value.plants) &&
+    value.plants.every((plant) => isPlant(plant, nullable, historyRequired)) && hasUniqueIds(value.plants) &&
     value.plantCount === value.plants.length;
 }
 
@@ -85,14 +98,15 @@ export function deserializeGardens(raw: string | null): GardenDetails[] {
   } catch {
     throw new Error('Os dados salvos não puderam ser lidos. Eles foram preservados.');
   }
-  if (!isRecord(data) || (data.version !== 1 && data.version !== GARDENS_SCHEMA_VERSION)) {
+  if (!isRecord(data) || (data.version !== 1 && data.version !== 2 && data.version !== GARDENS_SCHEMA_VERSION)) {
     throw new Error('A versão dos dados salvos não é compatível com este app. Eles foram preservados.');
   }
-  if (!Array.isArray(data.gardens) || !data.gardens.every((garden) => isGarden(garden, data.version === GARDENS_SCHEMA_VERSION)) || !hasUniqueIds(data.gardens)) {
+  if (!Array.isArray(data.gardens) || !data.gardens.every((garden) => isGarden(garden, data.version !== 1, data.version === GARDENS_SCHEMA_VERSION)) || !hasUniqueIds(data.gardens)) {
     throw new Error('Os dados salvos estão incompletos ou inválidos. Eles foram preservados.');
   }
+  let gardens = data.gardens;
   if (data.version === 1) {
-    return data.gardens.map((garden) => recalculateGardenStats({
+    gardens = gardens.map((garden) => recalculateGardenStats({
       ...garden,
       metrics: garden.metrics.map((metric) => ({
         ...metric, label: metric.kind === 'light' ? 'Luz' : 'Água',
@@ -108,5 +122,17 @@ export function deserializeGardens(raw: string | null): GardenDetails[] {
       })),
     }));
   }
-  return data.gardens;
+  if (data.version !== GARDENS_SCHEMA_VERSION) {
+    gardens = gardens.map((garden) => ({
+      ...garden,
+      plants: garden.plants.map((plant) => ({
+        ...plant,
+        // Older schemas stored only the latest analysis, not a full timeline.
+        history: plant.lastAnalyzedAt
+          ? [buildAnalysisRecord(plant, `analysis-${plant.id}-legacy`)]
+          : [],
+      })),
+    }));
+  }
+  return gardens;
 }

@@ -14,7 +14,7 @@ Proposta inicial: um MVP de uso individual, com persistência local e Android co
 | --- | --- | --- |
 | Navegação | Expo Router, home, menu, perfil, scan e preview. | Validar jornada completa e padronizar textos. |
 | Jardins | Criação, edição, exclusão, listagem e detalhes com persistência local versionada. | Validação em dispositivo pendente, incluindo confirmação de exclusão. |
-| Plantas | Catálogo estático, inclusão e análise persistidas, com fotos guardadas fora do cache no app nativo. | Edição/exclusão implementadas; não há tela dedicada de cuidados ou histórico. Adapters nativos aguardam teste em dispositivo. |
+| Plantas | Catálogo estático, inclusão e análise persistidas, com fotos guardadas fora do cache no app nativo. | Edição/exclusão implementadas; detalhes, cuidados e histórico implementados; validação em dispositivo pendente. Adapters nativos aguardam teste em dispositivo. |
 | Análise | Foto/câmera, integração Gemini, adição e reanálise de plantas nas rotas de jardins. | Chamada no cliente, parser textual e lógica duplicada no scan geral. Disponibilidade dos modelos não foi verificada. |
 | Métricas | Vitalidade e indicadores de água/luz, com agregação no jardim. | São estimativas/valores do modelo, não sensores; valores desconhecidos são distintos de zero; validação visual em aparelho pendente. |
 | AR | Modelo GLB, posicionamento em plano, rotação, escala e reposicionamento. | Precisa de build nativo e aparelho compatível; execução não validada nesta revisão. |
@@ -38,7 +38,7 @@ Aceite: outro PC consegue preparar o projeto seguindo o guia; checks executam se
 
 ### M1 — Jardins e plantas que sobrevivem ao reinício
 
-- [x] Escolher armazenamento local e definir schema versionado e hidratação inicial do store. AsyncStorage, schema v2 com migração de v1 e bootstrap com retry; ver `docs/PERSISTENCE.md`.
+- [x] Escolher armazenamento local e definir schema versionado e hidratação inicial do store. AsyncStorage, schema v3 com migração de v1/v2 e bootstrap com retry; ver `docs/PERSISTENCE.md`.
 - [x] Persistir criação/inclusão e resultados de análise; tratar falhas de leitura/escrita. Fila de gravação e confirmação após sucesso; testes de reinício e falhas passaram.
 - [x] Preservar fotos em armazenamento durável, sem depender de URIs temporárias do picker. Implementação nativa e teste com arquivos reais; validação do adapter no aparelho ainda pendente.
 - [x] Permitir editar e excluir jardins e plantas com confirmação nas exclusões. Persistência e regressões testadas; interface aguarda validação no aparelho.
@@ -52,11 +52,13 @@ Aceite: criar jardim, adicionar planta, reiniciar e recuperar dados/fotos; edita
 
 Preserva as ideias do README anterior: hidratação, luz, regar, adubar e histórico.
 
-- [ ] Criar tela de detalhes da planta acessível pelo jardim.
-- [ ] Mostrar cards de hidratação e luz com origem/data da informação e estado sem análise.
-- [ ] Criar ações rápidas **Regar** e **Adubar**, registrando data/hora e tipo do cuidado.
-- [ ] Mostrar histórico persistente de cuidados e análises, com ordem cronológica e estado vazio.
-- [ ] Permitir corrigir/remover um registro de cuidado lançado por engano.
+- [x] Criar tela de detalhes da planta acessível pelo jardim. Botão “Ver detalhes e cuidados”; validação da navegação no aparelho pendente.
+- [x] Mostrar cards de hidratação e luz com origem/data da informação e estado sem análise. Identificados como estimativas da IA.
+- [x] Criar ações rápidas **Regar** e **Adubar**, registrando data/hora e tipo do cuidado. Persistência/falhas testadas; não altera estimativas.
+- [x] Mostrar histórico persistente de cuidados e análises, com ordem cronológica e estado vazio. Reanálises preservam retratos anteriores; migração recupera somente a última análise conhecida com data.
+- [x] Permitir corrigir/remover um registro de cuidado lançado por engano. Tipo, data/hora e exclusão com confirmação; reinício e falhas testados.
+
+Estado: entrega funcional implementada, com 53 testes de domínio/persistência aprovados. Jornada, teclado, acessibilidade e adapters nativos ainda precisam de validação no aparelho. Histórico não mantém fotos antigas.
 
 Aceite: registrar rega/adubação, consultar histórico e reencontrá-lo após reinício. Registrar um cuidado não fabrica uma nova medição de hidratação ou vitalidade.
 

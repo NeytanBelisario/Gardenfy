@@ -33,7 +33,7 @@ Comandos existentes:
 | `npm run web` | Tentar executar a versão web; a compatibilidade completa ainda precisa de validação. |
 | `npm run typecheck` | Verificar os tipos (`tsc --noEmit`). |
 | `npm run lint` | Executar ESLint com configuração Expo versionada; avisos também falham o check. |
-| `npm test` | Executar os testes de persistência com Node/tsx. |
+| `npm test` | Executar testes de persistência, cuidados e histórico com Node/tsx. |
 | `npm run check` | Executar typecheck, lint e testes. |
 | `npx expo install --check` | Conferir compatibilidade de versões com o SDK instalado. |
 | `npx expo export --platform android` | Gerar bundle JS/assets em `dist/`; não compila APK. |

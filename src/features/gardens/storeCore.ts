@@ -1,8 +1,9 @@
 import { createId } from './ids';
+import { normalizeCareDraft } from './plantHistory';
 import { buildAnalyzedPlant, buildPlaceholderPlant, recalculateGardenStats } from './models';
 import { deserializeGardens, GARDENS_STORAGE_KEY, serializeGardens, type GardensStorage } from './persistence';
 import type { PlantPhotoStorage } from './photoStorageCore';
-import type { CreateGardenDraft, GardenDetails, PlantAnalysisResult, PlantCatalogItem, GardenPlant } from './types';
+import type { CreateGardenDraft, GardenDetails, PlantAnalysisResult, PlantCatalogItem, GardenPlant, PlantCareType, PlantCareDraft, PlantCareRecord } from './types';
 
 export type GardensState = {
   gardens: GardenDetails[];
@@ -144,6 +145,44 @@ export function createGardensStore(storage: GardensStorage, photos: PlantPhotoSt
         return updated;
       });
     },
+    recordPlantCare(gardenId: string, plantId: string, careType: PlantCareType) {
+      return enqueue(async () => {
+        const garden = findGarden(gardenId);
+        const plant = garden.plants.find((item) => item.id === plantId);
+        if (!plant) throw new Error('Planta não encontrada.');
+        const record: PlantCareRecord = {
+          id: createId('care'), kind: 'care',
+          ...normalizeCareDraft({ careType, occurredAt: new Date().toISOString() }),
+        };
+        const updated = { ...plant, history: [...plant.history, record] };
+        await commit(replaceGarden({ ...garden, plants: garden.plants.map((item) => item.id === plantId ? updated : item) }));
+        return record;
+      });
+    },
+    updatePlantCare(gardenId: string, plantId: string, recordId: string, draft: PlantCareDraft) {
+      return enqueue(async () => {
+        const garden = findGarden(gardenId);
+        const plant = garden.plants.find((item) => item.id === plantId);
+        if (!plant) throw new Error('Planta não encontrada.');
+        const record = plant.history.find((item) => item.id === recordId && item.kind === 'care');
+        if (!record) throw new Error('Registro de cuidado não encontrado.');
+        const updated = { ...record, ...normalizeCareDraft(draft) };
+        const next = { ...plant, history: plant.history.map((item) => item.id === recordId ? updated : item) };
+        await commit(replaceGarden({ ...garden, plants: garden.plants.map((item) => item.id === plantId ? next : item) }));
+      });
+    },
+    deletePlantCare(gardenId: string, plantId: string, recordId: string) {
+      return enqueue(async () => {
+        const garden = findGarden(gardenId);
+        const plant = garden.plants.find((item) => item.id === plantId);
+        if (!plant) throw new Error('Planta não encontrada.');
+        if (!plant.history.some((item) => item.id === recordId && item.kind === 'care')) {
+          throw new Error('Registro de cuidado não encontrado.');
+        }
+        const next = { ...plant, history: plant.history.filter((item) => item.id !== recordId) };
+        await commit(replaceGarden({ ...garden, plants: garden.plants.map((item) => item.id === plantId ? next : item) }));
+      });
+    },
     deletePlant(gardenId: string, plantId: string) {
       return enqueue(async () => {
         const garden = findGarden(gardenId);
@@ -193,6 +232,7 @@ export function createGardensStore(storage: GardensStorage, photos: PlantPhotoSt
           ...plant,
           ...analyzed,
           id: plant.id,
+          history: [...plant.history, ...analyzed.history],
           name: plant.name,
           subtitle: plant.subtitle,
           lastAnalyzedPhotoUri: photo ?? plant.lastAnalyzedPhotoUri,

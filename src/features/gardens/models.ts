@@ -1,5 +1,6 @@
 import type { GardenDetails, GardenPlant, PlantAnalysisResult, PlantCatalogItem, PlantHealthTone } from './types';
 import { createId } from './ids';
+import { buildAnalysisRecord } from './plantHistory';
 
 export function buildPlaceholderPlant(item: PlantCatalogItem): GardenPlant {
   return {
@@ -11,6 +12,7 @@ export function buildPlaceholderPlant(item: PlantCatalogItem): GardenPlant {
       label: 'Sem análise',
       tone: 'stable',
     },
+    history: [],
     metrics: [
       {
         kind: 'light',
@@ -27,8 +29,9 @@ export function buildPlaceholderPlant(item: PlantCatalogItem): GardenPlant {
 }
 
 export function buildAnalyzedPlant(analysis: PlantAnalysisResult, photoUri: string): GardenPlant {
-  return {
+  const plant: GardenPlant = {
     id: createId('plant'),
+    history: [],
     name: analysis.plantName || 'Planta identificada',
     subtitle: 'Identificada pela camera',
     imageUrl: photoUri,
@@ -54,6 +57,8 @@ export function buildAnalyzedPlant(analysis: PlantAnalysisResult, photoUri: stri
       },
     ],
   };
+  plant.history = [buildAnalysisRecord(plant, createId('analysis'))];
+  return plant;
 }
 
 function clampPercent(value: number) {
