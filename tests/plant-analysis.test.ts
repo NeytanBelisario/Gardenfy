@@ -6,6 +6,16 @@ import { parseGeminiAnalysisResponse } from '../src/features/plant-analysis/anal
 import { createPlantAnalysisService, normalizeAnalysisPhoto } from '../src/features/plant-analysis/analysisService';
 import { selectAnalysisPhoto, type PhotoPicker } from '../src/features/plant-analysis/photoSelection';
 import { plantMatchesCatalogChoice } from '../src/features/plant-analysis/plantMatch';
+import { createSupabaseAnalysisTransport } from '../src/features/plant-analysis/supabaseAnalysis';
+import {
+  FunctionError,
+  MAX_BASE64_LENGTH,
+  extractGeminiText,
+  getClientAddress,
+  hashQuotaKey,
+  mapGeminiStatus,
+  parseAnalysisRequest,
+} from '../supabase/functions/analyze-plant/core';
 
 const response = 'Nome: Jiboia (Epipremnum aureum)\nSaúde: Boa\nVitalidade: 80%\nRega: 4\nLuz: 6\nCrescimento: 30';
 const photo = { uri: 'file:///cache/plant.jpg', base64: 'YWJj', mimeType: 'image/jpeg' };
@@ -161,4 +171,77 @@ test('catalog matching handles accents and a different identification is surface
   const analysis = parseGeminiAnalysisResponse(response);
   assert.equal(plantMatchesCatalogChoice({ name: 'Jibóia', subtitle: '' }, analysis), true);
   assert.equal(plantMatchesCatalogChoice({ name: 'Samambaia', subtitle: '' }, analysis), false);
+});
+
+test('server validates supported image payloads and enforces its upload limit', () => {
+  assert.deepEqual(parseAnalysisRequest({ base64: 'YWJj', mimeType: 'image/jpeg' }), {
+    base64: 'YWJj', mimeType: 'image/jpeg',
+  });
+  for (const invalid of [
+    null,
+    {},
+    { base64: 'YWJj', mimeType: 'image/gif' },
+    { base64: 'not base64', mimeType: 'image/jpeg' },
+  ]) {
+    assert.throws(() => parseAnalysisRequest(invalid), (error) => error instanceof FunctionError && error.code === 'image');
+  }
+  assert.throws(
+    () => parseAnalysisRequest({ base64: 'A'.repeat(MAX_BASE64_LENGTH + 4), mimeType: 'image/jpeg' }),
+    (error) => error instanceof FunctionError && error.status === 413,
+  );
+});
+
+test('server hashes the last forwarded address and never stores its raw value', async () => {
+  const request = new Request('https://example.test', {
+    headers: { 'x-forwarded-for': 'spoofed, 203.0.113.8' },
+  });
+  assert.equal(getClientAddress(request), '203.0.113.8');
+  const hash = await hashQuotaKey(getClientAddress(request), 'test-salt');
+  assert.match(hash, /^[0-9a-f]{64}$/);
+  assert.equal(hash.includes('203.0.113.8'), false);
+  assert.equal(hash, await hashQuotaKey('203.0.113.8', 'test-salt'));
+});
+
+test('server extracts Gemini text and maps provider failures to safe categories', () => {
+  assert.equal(extractGeminiText({ candidates: [{ content: { parts: [{ text: response }] } }] }), response);
+  assert.throws(
+    () => extractGeminiText({ candidates: [{ finishReason: 'SAFETY' }] }),
+    (error) => error instanceof FunctionError && error.code === 'invalid-response',
+  );
+  assert.equal(mapGeminiStatus(403).code, 'configuration');
+  assert.equal(mapGeminiStatus(429).code, 'rate-limit');
+  assert.equal(mapGeminiStatus(503).code, 'unavailable');
+});
+
+test('client transport sends only image data to the protected function and parses its text', async () => {
+  const controller = new AbortController();
+  let receivedUrl = '';
+  let receivedInit: RequestInit | undefined;
+  const transport = createSupabaseAnalysisTransport(
+    { url: 'https://gardenfy.supabase.co/', publishableKey: 'public-key' },
+    async (url, init) => {
+      receivedUrl = url;
+      receivedInit = init;
+      return Response.json({ text: response });
+    },
+  );
+  assert.equal(await transport(photo, controller.signal), response);
+  assert.equal(receivedUrl, 'https://gardenfy.supabase.co/functions/v1/analyze-plant');
+  assert.equal((receivedInit?.headers as Record<string, string>).apikey, 'public-key');
+  assert.equal(receivedInit?.signal, controller.signal);
+  assert.deepEqual(JSON.parse(receivedInit?.body as string), { base64: photo.base64, mimeType: photo.mimeType });
+});
+
+test('client transport preserves safe server errors and rejects malformed responses', async () => {
+  const call = (response: Response) => createPlantAnalysisService(createSupabaseAnalysisTransport(
+    { url: 'https://gardenfy.supabase.co', publishableKey: 'public-key' },
+    async () => response,
+  ))(photo, new AbortController().signal);
+  await assert.rejects(call(Response.json({ error: 'rate-limit' }, { status: 429 })), errorCode('rate-limit'));
+  await assert.rejects(call(Response.json({ error: 'private detail' }, { status: 500 })), errorCode('unavailable'));
+  await assert.rejects(call(Response.json({ value: 'missing text' })), errorCode('invalid-response'));
+  await assert.rejects(
+    createSupabaseAnalysisTransport({}, async () => Response.json({ text: response }))(photo, new AbortController().signal),
+    errorCode('configuration'),
+  );
 });
