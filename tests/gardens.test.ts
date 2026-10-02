@@ -359,3 +359,123 @@ test('real files remain readable after cache removal and app-directory relocatio
     await rm(root, { recursive: true, force: true });
   }
 });
+
+test('editing garden and plant survives restart and retains analysis, photos and ids', async () => {
+  const { store, storage, photos, files } = await fixture();
+  const garden = await store.createGarden(draft);
+  const plant = await store.addAnalyzedPlantToGarden(garden.id, analysis, 'file:///cache/plant.jpg');
+  await store.updateGarden(garden.id, { name: '  Sala  ', environment: 'indoor', icon: 'spa' });
+  await store.updatePlant(garden.id, plant.id, { name: '  Minha jiboia  ', subtitle: '  Presente  ' });
+  const restarted = createGardensStore(storage, photos);
+  await restarted.hydrate();
+  const saved = restarted.getSnapshot().gardens[0];
+  assert.equal(saved.id, garden.id);
+  assert.equal(saved.name, 'Sala');
+  assert.equal(saved.label, 'Jardim interno');
+  assert.equal(saved.icon, 'spa');
+  assert.deepEqual(saved.plants[0], { ...plant, name: 'Minha jiboia', subtitle: 'Presente' });
+  assert.equal(files.size, 1);
+  const reanalyzed = await restarted.updatePlantAnalysis(garden.id, plant.id, analysis);
+  assert.equal(reanalyzed.name, 'Minha jiboia');
+  assert.equal(reanalyzed.subtitle, 'Presente');
+});
+
+for (const operation of ['updateGarden', 'updatePlant', 'deleteGarden', 'deletePlant'] as const) {
+  test(`${operation} failure preserves memory, saved metadata and photos and permits retry`, async () => {
+    const { store, memory, files } = await fixture();
+    const garden = await store.createGarden(draft);
+    const plant = await store.addAnalyzedPlantToGarden(garden.id, analysis, 'file:///cache/plant.jpg');
+    const perform = () => {
+      if (operation === 'updateGarden') return store.updateGarden(garden.id, { ...draft, name: 'Novo' });
+      if (operation === 'updatePlant') return store.updatePlant(garden.id, plant.id, { name: 'Nova', subtitle: '' });
+      if (operation === 'deleteGarden') return store.deleteGarden(garden.id);
+      return store.deletePlant(garden.id, plant.id);
+    };
+    const previous = store.getSnapshot();
+    const raw = memory.raw;
+    memory.failWrites = 1;
+    await assert.rejects(perform(), /Nenhuma alteração/);
+    assert.equal(store.getSnapshot(), previous);
+    assert.equal(memory.raw, raw);
+    assert.equal(files.size, 1);
+    await perform();
+    assert.notEqual(memory.raw, raw);
+  });
+}
+
+test('plant deletion recalculates stats and last deletion resets counts after restart', async () => {
+  const { store, storage, photos, files } = await fixture();
+  const garden = await store.createGarden(draft);
+  const first = await store.addAnalyzedPlantToGarden(garden.id, analysis, 'file:///cache/first.jpg');
+  const second = await store.addAnalyzedPlantToGarden(garden.id, { ...analysis, vitality: 20, water: 2 }, 'file:///cache/second.jpg');
+  await store.deletePlant(garden.id, first.id);
+  assert.equal(store.getSnapshot().gardens[0].vitality, 20);
+  assert.equal(store.getSnapshot().gardens[0].averageHydration, 20);
+  assert.equal(files.size, 1);
+  await store.deletePlant(garden.id, second.id);
+  const restarted = createGardensStore(storage, photos);
+  await restarted.hydrate();
+  const saved = restarted.getSnapshot().gardens[0];
+  assert.equal(saved.plantCount, 0);
+  assert.equal(saved.vitality, 0);
+  assert.equal(saved.averageHydration, 0);
+  assert.equal(files.size, 0);
+});
+
+test('garden deletion preserves shared photos until the final referencing garden is removed', async () => {
+  const { store, storage, photos, files } = await fixture();
+  const garden = await store.createGarden(draft);
+  const plant = await store.addAnalyzedPlantToGarden(garden.id, analysis, 'file:///cache/shared.jpg');
+  const gardens = structuredClone(store.getSnapshot().gardens);
+  gardens.push({ ...gardens[0], id: 'other-garden' });
+  gardens.push({ ...gardens[0], id: 'cover-garden', imageUrl: plant.imageUrl, plants: [], plantCount: 0 });
+  await storage.setItem(GARDENS_STORAGE_KEY, serializeGardens(gardens));
+  const restarted = createGardensStore(storage, photos);
+  await restarted.hydrate();
+  await restarted.deletePlant(garden.id, plant.id);
+  await restarted.deleteGarden('other-garden');
+  assert.equal(files.size, 1);
+  await restarted.deleteGarden('cover-garden');
+  assert.equal(files.size, 0);
+  await restarted.deleteGarden(garden.id);
+  const final = createGardensStore(storage, photos);
+  await final.hydrate();
+  assert.deepEqual(final.getSnapshot().gardens, []);
+});
+
+test('photo cleanup failure does not undo a committed deletion', async () => {
+  const { store, storage, photos } = await fixture();
+  const garden = await store.createGarden(draft);
+  await store.addAnalyzedPlantToGarden(garden.id, analysis, 'file:///cache/plant.jpg');
+  const restarted = createGardensStore(storage, { ...photos, async remove() { throw new Error('cleanup failed'); } });
+  await restarted.hydrate();
+  await restarted.deleteGarden(garden.id);
+  assert.deepEqual(restarted.getSnapshot().gardens, []);
+  assert.deepEqual(deserializeGardens(await storage.getItem(GARDENS_STORAGE_KEY)), []);
+});
+
+test('blank names and missing targets reject edits and deletions without writing', async () => {
+  const { store, memory } = await fixture();
+  const garden = await store.createGarden(draft);
+  const plant = await store.addPlantToGarden(garden.id, catalog);
+  const writes = memory.writes;
+  await assert.rejects(store.updateGarden(garden.id, { ...draft, name: '  ' }), /nome/);
+  await assert.rejects(store.updatePlant(garden.id, plant.id, { name: '  ', subtitle: '' }), /nome/);
+  await assert.rejects(store.updateGarden('missing', draft), /Jardim não encontrado/);
+  await assert.rejects(store.updatePlant(garden.id, 'missing', catalog), /Planta não encontrada/);
+  await assert.rejects(store.deletePlant(garden.id, 'missing'), /Planta não encontrada/);
+  await assert.rejects(store.deleteGarden('missing'), /Jardim não encontrado/);
+  assert.equal(memory.writes, writes);
+});
+
+test('queued deletion rejects stale edits and additions without resurrecting a garden', async () => {
+  const { store, memory } = await fixture();
+  const garden = await store.createGarden(draft);
+  const results = await Promise.allSettled([
+    store.deleteGarden(garden.id),
+    store.updateGarden(garden.id, draft),
+    store.addPlantToGarden(garden.id, catalog),
+  ]);
+  assert.deepEqual(results.map((result) => result.status), ['fulfilled', 'rejected', 'rejected']);
+  assert.deepEqual(deserializeGardens(memory.raw), []);
+});

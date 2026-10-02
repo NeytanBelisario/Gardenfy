@@ -9,6 +9,10 @@ const store = createGardensStore(AsyncStorage, plantPhotos);
 
 export const hydrateGardensStore = store.hydrate;
 export const createGarden = store.createGarden;
+export const updateGarden = store.updateGarden;
+export const updatePlant = store.updatePlant;
+export const deleteGarden = store.deleteGarden;
+export const deletePlant = store.deletePlant;
 export const addPlantToGarden = store.addPlantToGarden;
 export const addAnalyzedPlantToGarden = store.addAnalyzedPlantToGarden;
 export const updatePlantAnalysis = store.updatePlantAnalysis;
