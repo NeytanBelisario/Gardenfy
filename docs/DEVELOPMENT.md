@@ -33,11 +33,14 @@ Comandos existentes:
 | `npm run web` | Tentar executar a versão web; a compatibilidade completa ainda precisa de validação. |
 | `npm run typecheck` | Verificar os tipos (`tsc --noEmit`). |
 | `npm run lint` | Executar ESLint com configuração Expo versionada; avisos também falham o check. |
-| `npm run check` | Executar typecheck e lint. |
+| `npm test` | Executar os testes de persistência com Node/tsx. |
+| `npm run check` | Executar typecheck, lint e testes. |
 | `npx expo install --check` | Conferir compatibilidade de versões com o SDK instalado. |
 | `npx expo export --platform android` | Gerar bundle JS/assets em `dist/`; não compila APK. |
 
 A visualização AR usa `@reactvision/react-viro`, um modelo GLB e módulos nativos. O próprio código exige build nativo compatível e dispositivo com suporte; Expo Go não executa esse recurso. A tela tem fallback para indisponibilidade, mas isso não comprova que todo o app funciona na web. As pastas `android/` e `ios/` são geradas e ignoradas pelo Git.
+
+Os dados e fotos de plantas são locais; veja [PERSISTENCE.md](PERSISTENCE.md) para formato, comportamento em falhas e necessidade de reconstruir o app após instalar as dependências nativas de armazenamento.
 
 Não use `npm run reset-project` no fluxo habitual: o script é de reset do projeto, não um comando de instalação.
 
