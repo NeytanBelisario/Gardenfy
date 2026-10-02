@@ -133,7 +133,7 @@ test('a synchronously failing storage adapter can also retry hydration', async (
 
 for (const [name, raw] of [
   ['broken JSON', '{broken'],
-  ['future version', '{"version":2,"gardens":[]}'],
+  ['future version', '{"version":3,"gardens":[]}'],
   ['missing schema', '{"gardens":[]}'],
   ['invalid garden', '{"version":1,"gardens":[{"id":"x"}]}'],
 ] as const) {
@@ -161,7 +161,7 @@ test('nested invalid values and duplicate ids are rejected before loading', asyn
   ]) {
     const copy = structuredClone(base);
     corrupt(copy);
-    assert.throws(() => deserializeGardens(JSON.stringify({ version: 1, gardens: copy })));
+    assert.throws(() => deserializeGardens(JSON.stringify({ version: 2, gardens: copy })));
   }
 });
 
@@ -417,8 +417,8 @@ test('plant deletion recalculates stats and last deletion resets counts after re
   await restarted.hydrate();
   const saved = restarted.getSnapshot().gardens[0];
   assert.equal(saved.plantCount, 0);
-  assert.equal(saved.vitality, 0);
-  assert.equal(saved.averageHydration, 0);
+  assert.equal(saved.vitality, null);
+  assert.equal(saved.averageHydration, null);
   assert.equal(files.size, 0);
 });
 
@@ -496,4 +496,106 @@ test('deletion keeps metadata and photo visible until storage confirms success',
   await removing;
   assert.equal(store.getSnapshot().gardens[0].plantCount, 0);
   assert.equal(files.size, 0);
+});
+
+test('unknown metrics stay null across restart, while analyzed zeros participate in averages', async () => {
+  const { store, storage, photos } = await fixture();
+  const garden = await store.createGarden(draft);
+  assert.equal(garden.vitality, null);
+  assert.equal(garden.averageHydration, null);
+  assert.ok(garden.metrics.every((metric) => metric.value === null));
+  const manual = await store.addPlantToGarden(garden.id, catalog);
+  assert.ok(manual.metrics.every((metric) => metric.value === null));
+  const zero = await store.addAnalyzedPlantToGarden(garden.id, {
+    ...analysis, vitality: 0, water: 0, light: 0, growthDays: 0,
+  }, 'file:///cache/zero.jpg');
+  await store.addAnalyzedPlantToGarden(garden.id, analysis, 'file:///cache/positive.jpg');
+  const restarted = createGardensStore(storage, photos);
+  await restarted.hydrate();
+  const saved = restarted.getSnapshot().gardens[0];
+  assert.equal(saved.vitality, 40);
+  assert.equal(saved.averageHydration, 20);
+  assert.equal(saved.metrics.find((metric) => metric.kind === 'light')?.value, 30);
+  assert.equal(saved.plants.find((plant) => plant.id === zero.id)?.growthDays, 0);
+  await restarted.deletePlant(garden.id, zero.id);
+  assert.equal(restarted.getSnapshot().gardens[0].averageHydration, 40);
+});
+
+test('reanalyzing a catalog plant replaces unknown metrics with valid zero estimates', async () => {
+  const { store, storage, photos } = await fixture();
+  const garden = await store.createGarden(draft);
+  const plant = await store.addPlantToGarden(garden.id, catalog);
+  await store.updatePlantAnalysis(garden.id, plant.id, {
+    ...analysis, vitality: 0, water: 0, light: 0,
+  });
+  const restarted = createGardensStore(storage, photos);
+  await restarted.hydrate();
+  const saved = restarted.getSnapshot().gardens[0];
+  assert.equal(saved.vitality, 0);
+  assert.equal(saved.averageHydration, 0);
+  assert.ok(saved.plants[0].metrics.every((metric) => metric.value === 0));
+});
+
+async function legacyFixture() {
+  const { store, storage, photos, memory } = await fixture();
+  const garden = await store.createGarden(draft);
+  await store.addPlantToGarden(garden.id, catalog);
+  await store.addAnalyzedPlantToGarden(garden.id, { ...analysis, vitality: 0, water: 0, light: 0 }, 'file:///cache/zero.jpg');
+  await store.addAnalyzedPlantToGarden(garden.id, analysis, 'file:///cache/positive.jpg');
+  const legacy = structuredClone(store.getSnapshot().gardens);
+  legacy[0].plants[0].metrics.forEach((metric) => { metric.value = 0; });
+  legacy[0].averageHydration = 40;
+  legacy[0].metrics.forEach((metric) => { metric.value = metric.kind === 'water' ? 40 : 60; });
+  const raw = JSON.stringify({ version: 1, gardens: legacy });
+  memory.raw = raw;
+  return { storage, photos, memory, legacy, raw };
+}
+
+test('v1 migration clears placeholders, preserves analyses and photos, and recomputes averages without writing', async () => {
+  const { storage, photos, memory, legacy, raw } = await legacyFixture();
+  const writes = memory.writes;
+  const restarted = createGardensStore(storage, photos);
+  await restarted.hydrate();
+  const migrated = restarted.getSnapshot().gardens[0];
+  assert.ok(migrated.plants[0].metrics.every((metric) => metric.value === null));
+  assert.deepEqual(migrated.plants[1].metrics.map((metric) => metric.value), [0, 0]);
+  assert.equal(migrated.averageHydration, 20);
+  assert.equal(migrated.metrics.find((metric) => metric.kind === 'light')?.value, 30);
+  assert.equal(migrated.plants[1].imageUrl, legacy[0].plants[1].imageUrl);
+  assert.equal(migrated.plants[1].lastAnalyzedAt, legacy[0].plants[1].lastAnalyzedAt);
+  assert.equal(memory.raw, raw);
+  assert.equal(memory.writes, writes);
+  await restarted.updateGarden(migrated.id, { ...draft, name: 'Migrado' });
+  assert.equal(JSON.parse(memory.raw!).version, 2);
+  const final = createGardensStore(storage, photos);
+  await final.hydrate();
+  assert.deepEqual(final.getSnapshot().gardens, restarted.getSnapshot().gardens);
+});
+
+test('failed save after migration preserves original v1 payload and supports retry', async () => {
+  const { storage, photos, memory, raw } = await legacyFixture();
+  const restarted = createGardensStore(storage, photos);
+  await restarted.hydrate();
+  const before = restarted.getSnapshot();
+  memory.failWrites = 1;
+  await assert.rejects(restarted.updateGarden(before.gardens[0].id, draft), /Nenhuma alteração/);
+  assert.equal(memory.raw, raw);
+  assert.equal(restarted.getSnapshot(), before);
+  await restarted.updateGarden(before.gardens[0].id, draft);
+  assert.equal(JSON.parse(memory.raw!).version, 2);
+});
+
+test('legacy empty gardens migrate to unknown aggregates and corrupted v1 metrics are rejected', async () => {
+  const { store } = await fixture();
+  const garden = await store.createGarden(draft);
+  const legacy = { ...garden, vitality: 0, averageHydration: 0,
+    metrics: garden.metrics.map((metric) => ({ ...metric, value: 0 })) };
+  const migrated = deserializeGardens(JSON.stringify({ version: 1, gardens: [legacy] }))[0];
+  assert.equal(migrated.vitality, null);
+  assert.equal(migrated.averageHydration, null);
+  for (const value of [null, -1, 101, '0']) {
+    const invalid = structuredClone(legacy);
+    Object.assign(invalid.metrics[0], { value });
+    assert.throws(() => deserializeGardens(JSON.stringify({ version: 1, gardens: [invalid] })));
+  }
 });

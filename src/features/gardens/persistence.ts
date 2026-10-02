@@ -1,9 +1,10 @@
+import { recalculateGardenStats } from './models';
 import { gardenIconOptions } from './iconNames';
 import { isValidPhotoReference } from './photoStorageCore';
 import type { GardenDetails } from './types';
 
 export const GARDENS_STORAGE_KEY = '@gardenfy/gardens';
-export const GARDENS_SCHEMA_VERSION = 1;
+export const GARDENS_SCHEMA_VERSION = 2;
 
 export interface GardensStorage {
   getItem(key: string): Promise<string | null>;
@@ -34,14 +35,14 @@ function hasUniqueIds(values: { id: string }[]) {
   return new Set(values.map((value) => value.id)).size === values.length;
 }
 
-function isMetrics(value: unknown) {
+function isMetrics(value: unknown, nullable = true) {
   return Array.isArray(value) && value.every((metric) =>
     isRecord(metric) && ['light', 'water'].includes(String(metric.kind)) &&
-    isString(metric.label) && isNumber(metric.value, 100)
+    isString(metric.label) && (nullable && metric.value === null || isNumber(metric.value, 100))
   );
 }
 
-function isPlant(value: unknown) {
+function isPlant(value: unknown, nullable = true) {
   return isRecord(value) && isString(value.id) && value.id.length > 0 &&
     isString(value.name) && isString(value.subtitle) && isImage(value.imageUrl) &&
     optional(value.identifiedName, isString) &&
@@ -50,25 +51,26 @@ function isPlant(value: unknown) {
     optional(value.lastAnalyzedPhotoUri, isImage) &&
     optional(value.lastAnalyzedAt, (date) => isString(date) && Number.isFinite(Date.parse(date))) &&
     isRecord(value.status) && isString(value.status.label) &&
-    ['vital', 'stable', 'dry'].includes(String(value.status.tone)) && isMetrics(value.metrics);
+    ['vital', 'stable', 'dry'].includes(String(value.status.tone)) && isMetrics(value.metrics, nullable);
 }
 
-function isGarden(value: unknown): value is GardenDetails {
+function isGarden(value: unknown, nullable = true): value is GardenDetails {
   return isRecord(value) && isString(value.id) && value.id.length > 0 &&
     isString(value.name) && isString(value.label) && isImage(value.imageUrl) &&
     gardenIconOptions.some((icon) => icon === value.icon) &&
     ['indoor', 'outdoor'].includes(String(value.environment)) &&
     isNumber(value.plantCount) && Number.isInteger(value.plantCount) &&
-    isNumber(value.vitality, 100) && isNumber(value.averageHydration, 100) &&
+    (nullable && value.vitality === null || isNumber(value.vitality, 100)) &&
+    (nullable && value.averageHydration === null || isNumber(value.averageHydration, 100)) &&
     optional(value.alert, (alert) => isRecord(alert) && isString(alert.label) &&
       ['danger', 'warning'].includes(String(alert.tone))) &&
-    isMetrics(value.metrics) && Array.isArray(value.plants) &&
-    value.plants.every(isPlant) && hasUniqueIds(value.plants) &&
+    isMetrics(value.metrics, nullable) && Array.isArray(value.plants) &&
+    value.plants.every((plant) => isPlant(plant, nullable)) && hasUniqueIds(value.plants) &&
     value.plantCount === value.plants.length;
 }
 
 export function serializeGardens(gardens: GardenDetails[]) {
-  if (!gardens.every(isGarden) || !hasUniqueIds(gardens)) {
+  if (!gardens.every((garden) => isGarden(garden)) || !hasUniqueIds(gardens)) {
     throw new Error('Os dados do jardim são inválidos e não foram salvos.');
   }
   return JSON.stringify({ version: GARDENS_SCHEMA_VERSION, gardens });
@@ -83,11 +85,28 @@ export function deserializeGardens(raw: string | null): GardenDetails[] {
   } catch {
     throw new Error('Os dados salvos não puderam ser lidos. Eles foram preservados.');
   }
-  if (!isRecord(data) || data.version !== GARDENS_SCHEMA_VERSION) {
+  if (!isRecord(data) || (data.version !== 1 && data.version !== GARDENS_SCHEMA_VERSION)) {
     throw new Error('A versão dos dados salvos não é compatível com este app. Eles foram preservados.');
   }
-  if (!Array.isArray(data.gardens) || !data.gardens.every(isGarden) || !hasUniqueIds(data.gardens)) {
+  if (!Array.isArray(data.gardens) || !data.gardens.every((garden) => isGarden(garden, data.version === GARDENS_SCHEMA_VERSION)) || !hasUniqueIds(data.gardens)) {
     throw new Error('Os dados salvos estão incompletos ou inválidos. Eles foram preservados.');
+  }
+  if (data.version === 1) {
+    return data.gardens.map((garden) => recalculateGardenStats({
+      ...garden,
+      metrics: garden.metrics.map((metric) => ({
+        ...metric, label: metric.kind === 'light' ? 'Luz' : 'Água',
+      })),
+      plants: garden.plants.map((plant) => ({
+        ...plant,
+        // Legacy catalog entries have no vitality; their zeros were placeholders.
+        metrics: plant.metrics.map((metric) => ({
+          ...metric,
+          label: metric.kind === 'light' ? 'Luz' : 'Água',
+          value: typeof plant.vitality === 'number' ? metric.value : null,
+        })),
+      })),
+    }));
   }
   return data.gardens;
 }
