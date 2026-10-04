@@ -49,7 +49,7 @@ function IdentificationView({ mode, id, plantId }: { mode: Mode; id?: string; pl
   };
 
   return (
-    <KeyboardAvoidingView style={styles.screen} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+    <KeyboardAvoidingView style={styles.screen} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <AppHeader title="Identificar planta" mode={mode === 'general' ? 'menu' : 'back'} onPressLeading={back} />
       <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={[styles.content, { paddingBottom: mode === 'general' ? 140 + insets.bottom : 32 + insets.bottom }]}>
         <View style={styles.hero}>

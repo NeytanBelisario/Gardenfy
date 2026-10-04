@@ -11,6 +11,7 @@ import {
   View,
 } from 'react-native';
 import { useRouter } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   Ionicons,
 } from '@expo/vector-icons';
@@ -54,6 +55,7 @@ function IdentityIcon({
 
 export default function NewGardenScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const savingRef = useRef(false);
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
@@ -97,12 +99,12 @@ export default function NewGardenScreen() {
   };
 
   return (
-    <KeyboardAvoidingView style={styles.screen} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+    <KeyboardAvoidingView style={styles.screen} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <AppHeader title="Criar jardim" mode="back" onPressLeading={handleBack} />
       <ScrollView
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={[styles.scrollContent, { paddingBottom: 32 + insets.bottom }]}
       >
         <View style={styles.hero}>
           <Image
@@ -244,10 +246,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingTop: 12,
     paddingBottom: 40,
-    gap: 30,
+    gap: 20,
   },
   hero: {
-    minHeight: 220,
+    minHeight: 148,
     borderRadius: 28,
     backgroundColor: COLORS.primary,
     overflow: 'hidden',
@@ -268,9 +270,9 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(23, 54, 29, 0.32)',
   },
   heroCopy: {
-    minHeight: 220,
+    minHeight: 148,
     justifyContent: 'flex-end',
-    padding: 28,
+    padding: 20,
     gap: 8,
   },
   heroStep: {
@@ -278,12 +280,12 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '800',
     textTransform: 'uppercase',
-    letterSpacing: 3,
+    letterSpacing: 1.5,
   },
   heroTitle: {
     color: COLORS.white,
-    fontSize: 30,
-    lineHeight: 36,
+    fontSize: 26,
+    lineHeight: 32,
     fontWeight: '900',
   },
   formSection: {
@@ -297,8 +299,9 @@ const styles = StyleSheet.create({
   input: {
     backgroundColor: COLORS.surfaceLow,
     borderRadius: 24,
-    paddingHorizontal: 24,
-    paddingVertical: 22,
+    minHeight: 56,
+    paddingHorizontal: 16,
+    paddingVertical: 16,
     color: COLORS.primary,
     fontSize: 18,
     fontWeight: '500',
@@ -350,10 +353,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
-    gap: 14,
+    gap: 12,
   },
   iconButton: {
-    width: '22%',
+    width: '21%',
     aspectRatio: 1,
     minWidth: 56,
     borderRadius: 24,

@@ -56,7 +56,7 @@ export default function HomeScreen() {
         </View>
         <View style={styles.sectionHeader}>
           <Text accessibilityRole="header" style={styles.sectionTitle}>Meus jardins</Text>
-          {gardens.length ? <Pressable accessibilityRole="button" onPress={() => router.push('/gardens/new')} style={styles.newButton}>
+          {gardens.length ? <Pressable accessibilityRole="button" accessibilityLabel="Criar jardim" onPress={() => router.push('/gardens/new')} style={styles.newButton}>
             <Ionicons name="add" size={20} color="#17361d" /><Text style={styles.newButtonText}>Novo jardim</Text>
           </Pressable> : null}
         </View>
@@ -65,7 +65,7 @@ export default function HomeScreen() {
             <Image source={require('../public/nogardenicon.png')} style={styles.emptyImage} resizeMode="contain" />
             <Text style={styles.emptyTitle}>Tudo começa com um jardim</Text>
             <Text style={styles.emptyText}>Escolha um nome, adicione plantas pelo catálogo e registre regas e adubações.</Text>
-            <Pressable accessibilityRole="button" onPress={() => router.push('/gardens/new')} style={({ pressed }) => [styles.primaryButton, pressed && styles.pressed]}>
+            <Pressable accessibilityRole="button" accessibilityLabel="Criar meu primeiro jardim" onPress={() => router.push('/gardens/new')} style={({ pressed }) => [styles.primaryButton, pressed && styles.pressed]}>
               <Ionicons name="add" size={22} color="#ffffff" /><Text style={styles.primaryButtonText}>Criar meu primeiro jardim</Text>
             </Pressable>
           </View>
