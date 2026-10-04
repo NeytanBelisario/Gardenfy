@@ -2,6 +2,18 @@
 
 Atualize este arquivo ao encerrar sessões que mudem o estado do projeto. Não armazene credenciais ou configurações privadas.
 
+## Sessão de 04/10/2026 — publicação da beta e apresentação no GitHub
+
+- **Base/branch/PR:** PR #14 já integrado pelo usuário; `develop` atualizado com `git pull --ff-only origin develop` em `2d99498`. Nova tarefa em `docs/mvp-beta-release`, [PR #16](https://github.com/NeytanBelisario/Gardenfy/pull/16) aberto para `develop`, com labels `documentation`/`release`; nenhum merge realizado nesta sessão.
+- **Release:** [1.0.0-beta.1](https://github.com/NeytanBelisario/Gardenfy/releases/tag/v1.0.0-beta.1) publicada por solicitação do usuário, como pre-release. Tag anotada no código `1a9190e`; as mudanças entre esse código e a integração são somente documentação.
+- **APK:** `Gardenfy-1.0.0-beta.1-android.apk`, 90.564.805 bytes, e `.sha256` anexados. Hash local e digest GitHub iguais: `b3f36fdd87f95031f3c3db6d822d81b2100d93f9476be5a99c423fabef3ab7ff`. É o APK autônomo já instalado/validado na sessão anterior, com assinatura de avaliação/debug; não houve novo build ou novo teste no celular nesta tarefa.
+- **Commits/README:** `4910882` apresentação simples, download e três capturas reais; `3f6bbaf` notas da beta, distribuição e guias atualizados. Ambos publicados no remoto; fechamento com registro de CI/PR e link de distribuição também publicado na mesma branch. Apenas barras do sistema recortadas e redução de tamanho; nomes de teste e imagem pública de Monstera, sem fotos da galeria/configurações.
+- **GitHub:** release `app` preservada e identificada como histórica, com link para a beta. Label `release`, [milestone 1](https://github.com/NeytanBelisario/Gardenfy/milestone/1) e [issue #15](https://github.com/NeytanBelisario/Gardenfy/issues/15) criados para acompanhar câmera, TalkBack e assinatura de produção.
+- **Limitação de acesso:** credencial com escrita/triagem, sem administração/manutenção. Alteração de descrição/tópicos retornou 404 e não foi aplicada. Texto, tópicos e passos para o administrador prontos em [GITHUB_RELEASE.md](GITHUB_RELEASE.md).
+- **Documentação:** notas da beta, forma de distribuir e guias atualizados para a preparação já integrada. A versão estável continua pendente; este trabalho não promove `develop` para `main`.
+- **Verificações desta tarefa:** tag/commit, tamanho e SHA-256 do APK, estado `uploaded` de ambos os anexos e publicação `draft=false`/`prerelease=true` conferidos. Downloads públicos e três imagens com HTTP 200; checksum público igual ao local. Capturas finais inspecionadas e `git diff --check` aprovado; links locais sem destinos ausentes. [CI da documentação](https://github.com/NeytanBelisario/Gardenfy/actions/runs/37237571661) aprovado em `3f6bbaf`; consultar checks do PR após o push de encerramento. Não houve execução local de testes do app nesta tarefa de documentação.
+- **Próximo passo:** integrar a documentação em `develop` após revisão e concluir os aceites da issue #15. A página inicial continua mostrando o README de `main` até a promoção; administrador pode atualizar About desde já. Densidade do celular ainda precisa da restauração registrada na sessão anterior quando o aparelho reconectar.
+
 ## Sessão de 04/10/2026 — Supabase e validação no celular
 
 - **Branch/PR:** `feat/release-v1`, [PR #14](https://github.com/NeytanBelisario/Gardenfy/pull/14) para `develop`, ainda não integrado. `develop` permanece em `80d0750`; nenhum merge, tag ou release realizado.
