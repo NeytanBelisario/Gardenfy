@@ -108,6 +108,19 @@ Execução no aparelho/serviço real pendente. Registrar dispositivo, sistema, m
 
 Checks acumulados: `npm run check` (TypeScript, lint sem avisos e 92 testes), além das validações remotas descritas em `ANALYSIS.md`. Os adapters simulam transporte/seletor e as regressões novas cobrem a fronteira cliente/servidor; não executam UI, câmera/galeria ou permissões do sistema. Nenhum APK, chamada real ao Gemini ou teste em aparelho foi realizado.
 
+## Continuar a validação sem Gemini
+
+Decisão do usuário em 03/10/2026: seguir pelo catálogo e pelos cuidados locais. Não é necessário configurar ou chamar Supabase/Gemini para este roteiro. Usar um jardim de teste separado; o jardim `Validacao 03-10` criado na sessão anterior pode ser reutilizado.
+
+1. Criar jardim e incluir uma planta pelo catálogo. Conferir contagens, detalhes e água/luz “Sem análise”. Essa parte passou na sessão anterior.
+2. Editar nome/ambiente/ícone do jardim e nome/descrição da planta; cancelar um rascunho e testar nome vazio. Conferir preservação dos demais dados.
+3. Registrar rega/adubação, corrigir tipo/data/hora e testar data inválida. Cancelar e confirmar a exclusão de um cuidado; conferir ordem do histórico e métricas desconhecidas. Registro dos dois tipos e ordenação passaram; correção/exclusão ainda pendentes.
+4. Encerrar o app manualmente e reabrir com Metro acessível; conferir dados e cuidados. O `Reload` anterior passou, mas não substitui encerramento completo do processo.
+5. Cancelar e confirmar exclusão da planta de teste, conferir jardim vazio e contagens; repetir com o jardim de teste e conferir retorno à home. Preservar jardins pessoais.
+6. Repetir operações locais sem rede no aparelho; conferir recuperação dos dados e fallback das fotos remotas. O build debug deve continuar alcançando Metro pelo USB.
+
+Registrar dispositivo, commit e resultado de cada passo. Em 03/10/2026, na retomada após integrar o PR #11, o ADB não encontrou aparelho conectado; nenhum novo teste nativo foi executado. Câmera/galeria, fotos duráveis, análise bem-sucedida e AR mantêm seus roteiros separados e continuam pendentes.
+
 ## Registro da sessão de 03/10/2026 — Windows, APK e análise real
 
 - Node `22.22.2`, npm `10.9.7`, JDK 17 e SDK Android 36 no Windows; aparelho Samsung `SM-G781B`, Android 13 / API 33, ARM64.

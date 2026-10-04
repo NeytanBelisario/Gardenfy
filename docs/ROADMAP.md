@@ -8,6 +8,8 @@ Permitir que uma pessoa crie seus jardins, cadastre plantas, consulte informaç�
 
 Proposta inicial: um MVP de uso individual, com persistência local e Android como primeira plataforma de validação. Login, sincronização entre dispositivos do usuário e publicação em lojas precisam de definição de escopo. Trocar de PC para desenvolver é resolvido pelo fluxo Git e pelo guia de ambiente; isso não sincroniza os dados de quem usa o app.
 
+Prioridade combinada em 03/10/2026: continuar usando jardins, plantas do catálogo e cuidados sem Gemini. A validação de sucesso da análise e a regularização de faturamento ficam adiadas; M3 permanece parcial. Seguir o roteiro local de `TESTING.md`; esta decisão não conclui M3/M5 nem amplia o escopo para novas features.
+
 ## Estado atual observado no código
 
 | Área | O que já existe | Limitação / próximo trabalho |
