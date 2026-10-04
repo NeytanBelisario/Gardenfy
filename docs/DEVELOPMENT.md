@@ -19,6 +19,16 @@ Se não usar nvm, instale a versão indicada em `.nvmrc` pelo seu gerenciador de
 
 ## Ambiente e execução
 
+### Continuar sem Gemini
+
+O fluxo local não exige os valores de Supabase nem o segredo Gemini: criação/edição/exclusão de jardins e plantas do catálogo, detalhes e registros/correções/exclusões de cuidados usam AsyncStorage. Não é necessário alterar o `.env` existente ou remover secrets remotos para trabalhar nesses fluxos.
+
+Abra um jardim, use a inclusão pelo catálogo e entre em “Ver detalhes e cuidados” para regar/adubar. Evite scan, inclusão por foto e reanálise enquanto a integração estiver adiada. As telas de análise permanecem expostas; esta decisão não introduz um bloqueio de chamadas no código. As imagens do catálogo são remotas e podem exibir fallback sem rede. Os dados são deste aparelho, sem conta ou sincronização.
+
+Use o [roteiro local em TESTING.md](TESTING.md#continuar-a-validação-sem-gemini) para as próximas verificações. O build debug ainda precisa de Metro e conexão com o computador.
+
+### Configurar análise quando for retomada
+
 A análise no app lê `EXPO_PUBLIC_SUPABASE_URL` e `EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, em `src/constants/env.ts`. Preencha esses valores no `.env`; ambos identificam o backend público e não concedem privilégios administrativos. Sem eles, a tela informa que o serviço está indisponível. Veja [ANALYSIS.md](ANALYSIS.md) para o fluxo, timeout, revisão, cota e limites ainda pendentes.
 
 A credencial Gemini fica apenas nos secrets da Edge Function. Nunca use uma chave secreta em variável `EXPO_PUBLIC_*`. `.env.example` contém somente nomes de variáveis públicas; em outro PC, recupere os valores pelo ambiente de desenvolvimento autorizado.

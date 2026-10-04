@@ -2,7 +2,7 @@
 
 Aplicativo de jardins e cuidados com plantas feito com Expo, React Native e TypeScript. Já inclui criação, edição e exclusão de jardins e plantas, catálogo de plantas, detalhes da planta, registros de rega/adubação com histórico, análise por foto com Gemini e visualização em realidade aumentada.
 
-O projeto está em desenvolvimento: jardins, plantas e análises têm persistência local; métricas sem análise são desconhecidas e os resultados são identificados como estimativas da IA; o perfil usa dados fixos e algumas ações ainda são apenas visuais. A persistência está coberta por testes automatizados e aguarda validação em dispositivo. A existência das telas não significa que o MVP esteja pronto.
+O projeto está em desenvolvimento: jardins, plantas e análises têm persistência local; métricas sem análise são desconhecidas e os resultados são identificados como estimativas da IA; o perfil usa dados fixos e algumas ações ainda são apenas visuais. A persistência está coberta por testes automatizados e teve validação básica em dispositivo; o roteiro completo permanece pendente. A existência das telas não significa que o MVP esteja pronto.
 
 ## Documentação
 
@@ -24,6 +24,8 @@ cp .env.example .env
 npm start
 ```
 
-Leia o guia para preparar builds nativos. O recurso AR exige módulos nativos e não roda no Expo Go. A análise por foto usa uma Edge Function Supabase: o app recebe apenas URL e chave publicável do projeto, enquanto a credencial Gemini permanece nos secrets do servidor. A função e o segredo estão configurados; a primeira requisição real alcançou o Gemini, mas recebeu HTTP 402. Regularizar faturamento/créditos e validar uma análise bem-sucedida na conta continuam pendentes. Build debug Android, cadastro pelo catálogo, cuidados e recuperação após recarregar JavaScript foram validados no aparelho; o roteiro nativo completo continua pendente.
+Leia o guia para preparar builds nativos. O recurso AR exige módulos nativos e não roda no Expo Go. Para continuar sem Gemini, crie um jardim, adicione plantas pelo catálogo e registre cuidados nos detalhes da planta. Esses fluxos usam armazenamento local e dispensam configuração Supabase/Gemini; imagens remotas do catálogo dependem de rede. Água/luz permanecem “Sem análise” e registrar um cuidado não altera essas estimativas.
+
+A análise por foto usa uma Edge Function Supabase, com a credencial Gemini somente no servidor. A primeira requisição real recebeu HTTP 402; por decisão do usuário, a análise e a regularização do faturamento ficam adiadas. As telas de análise continuam disponíveis e podem retornar erro de configuração ao serem usadas. Build debug Android, cadastro pelo catálogo, cuidados e recuperação após recarregar JavaScript foram validados no aparelho; o roteiro nativo completo continua pendente.
 
 O fluxo de trabalho usa branches a partir de `develop`, commits frequentes por etapas no formato `🌱 | feat: mensagem` e PR para `develop` ao finalizar cada feature. As ideias anteriores de moedas, ranks, cards da planta, regar, adubar e histórico foram preservadas no roadmap.

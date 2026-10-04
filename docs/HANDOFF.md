@@ -120,7 +120,7 @@ Atualize este arquivo ao encerrar sessões que mudem o estado do projeto. Não a
 ## Sessão de 03/10/2026 — Android e diagnóstico da análise real
 
 - **Branch:** `chore/android-analysis-validation`, criada de `develop` atualizado em `6d1b1f5`, após confirmar a integração do PR #10. Não havia PRs abertos na retomada.
-- **PR:** [#11 — faturamento da análise e validação Android](https://github.com/NeytanBelisario/Gardenfy/pull/11), aberto para `develop`; integração pendente.
+- **PR:** [#11 — faturamento da análise e validação Android](https://github.com/NeytanBelisario/Gardenfy/pull/11), integrado em `develop` em 03/10/2026 (horário de São Paulo), commit `56749e2`.
 - **Etapas publicadas:** `47520dc` (diagnósticos seguros do servidor), `0936ecf` (HTTP 402 tratado como configuração, com regressões) e `0c2268d` (build, jornada local e documentação).
 - **Ambiente:** Windows, Node `22.22.2` e npm `10.9.7` portáteis em `%LOCALAPPDATA%\Gardenfy\tools`; arquivo oficial conferido por SHA-256. Dependências instaladas pelo lockfile; dry-run confirmado com as versões fixadas. `.env` público preenchido pelo usuário e ignorado pelo Git; CLI Supabase `2.119.0` autenticada e vinculada ao projeto existente.
 - **Android:** JDK 17, Platform/Build Tools 36 e NDK `27.1.12297006`; aparelho Samsung `SM-G781B`, Android 13 / API 33, ARM64. `expo run:android --device SM_G781B --no-bundler` compilou o APK debug com Nova Arquitetura e instalou como atualização do aplicativo existente. Nenhuma desinstalação ou limpeza de dados executada.
@@ -131,6 +131,16 @@ Atualize este arquivo ao encerrar sessões que mudem o estado do projeto. Não a
 - **Pendências:** regularizar faturamento/créditos do projeto Gemini e repetir a análise; validar encerramento/reabertura completos, fotos duráveis, edição/exclusão, câmera/galeria, acessibilidade e AR no aparelho. Não há análise bem-sucedida nem roteiro nativo completo validado nesta sessão. O jardim de teste permanece no aparelho para revisão.
 - **Backup:** código e documentação publicados em `origin/chore/android-analysis-validation`; este registro do PR também será publicado no encerramento. Não fazer merge sem instrução específica.
 - **Próximo passo:** regularizar o projeto da chave Gemini e repetir uma chamada real com imagem não sensível; depois validar o fluxo no aparelho e os cenários manuais restantes. Metro permanece ativo por USB neste PC.
+
+## Sessão de 03/10/2026 — continuidade sem Gemini
+
+- **Branch:** `docs/local-work-continuation`, criada de `develop` atualizado em `56749e2`, após confirmar o merge do PR #11.
+- **PR:** [#12 — continuidade pelo catálogo e cuidados sem Gemini](https://github.com/NeytanBelisario/Gardenfy/pull/12), aberto para `develop`; integração pendente.
+- **Decisão do usuário:** continuar sem Gemini. Usar catálogo e cuidados locais; análise por foto e faturamento ficam adiados, com M3 ainda parcial. Nenhuma nova chamada ao provedor ou alteração de secrets/configuração realizada nesta retomada.
+- **Entrega:** README e guia explicam o uso local; roteiro prioriza edição/exclusão, correção de cuidados, encerramento/reabertura e uso sem rede. As telas de análise continuam disponíveis, sem bloqueio novo no código.
+- **Checks:** `npm run check` aprovado na base integrada: TypeScript, lint sem avisos e 94 testes. Os 13 links locais, a âncora do roteiro e `git diff --check` passaram. Metro respondeu em `/status`; ADB não encontrou aparelho conectado. Nenhum novo teste nativo realizado.
+- **Próximo passo:** com aparelho conectado, seguir “Continuar a validação sem Gemini” em `TESTING.md`. Escolha de nova feature permanece aberta; o roadmap não autoriza implementá-la automaticamente.
+- **Backup:** `3d0fd79` (roteiro e decisão de uso local) publicado em `origin/docs/local-work-continuation`; este registro do PR também será publicado no encerramento.
 
 ## Modelo para próximas sessões
 
