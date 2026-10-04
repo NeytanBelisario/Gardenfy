@@ -86,7 +86,6 @@ export function AppNavbar({ hidden = false }: AppNavbarProps) {
         },
       ]}
     >
-      <View pointerEvents="none" style={[styles.systemInset, { height: insets.bottom }]} />
       <View style={styles.navBar}>
         {navItems.map((item) => {
           const active = item.route === '/'
@@ -118,7 +117,6 @@ export function AppNavbar({ hidden = false }: AppNavbarProps) {
 }
 
 const styles = StyleSheet.create({
-  systemInset: { position: 'absolute', bottom: 0, left: 0, right: 0, backgroundColor: COLORS.background },
   navShell: {
     position: 'absolute',
     left: 0,
