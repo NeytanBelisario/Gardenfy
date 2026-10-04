@@ -26,7 +26,8 @@ Abrir PR da branch para `develop` com evidências e pendências reais. Depois da
 - [ ] Pl@ntNet configurado no servidor; identificação real, espécie sem ficha, falhas, permissões e cancelamento validados.
 - [ ] AR informa Em breve e permite retornar, sem inicializar recurso nativo.
 - [ ] Telas pequenas, teclado, áreas seguras, texto ampliado e navegação Android revisados.
-- [ ] TypeScript, lint, testes, compatibilidade Expo e exports aprovados na revisão final.
+- [x] TypeScript, lint, 109 testes, compatibilidade Expo, runtime Deno e exports Android/web aprovados na revisão final e no CI do PR #14.
+- [ ] Alertas de dependências triados e correções compatíveis com Expo aplicadas, com exposição/aceite restante documentados.
 - [ ] APK autônomo de avaliação instalado e testado sem Metro; atualização preserva dados existentes.
 - [ ] Configuração de assinatura/distribuição e resultados manuais documentados antes de publicar.
 

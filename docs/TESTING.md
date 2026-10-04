@@ -17,6 +17,17 @@ Ver [RELEASE_1.0.md](RELEASE_1.0.md). Usar jardim de teste separado e registrar 
 
 Não há navegador nem aparelho disponível para automação nesta sessão de preparação; os cenários manuais permanecem pendentes até registro de execução.
 
+### Resultados da preparação — 04/10/2026
+
+- Node 22.22.2/npm 10.9.7 no Windows: TypeScript, lint sem avisos e 109 testes aprovados. Regressões incluem parsing Pl@ntNet, validação da resposta no cliente, migração v3 com histórico misto, preservação de fotos/cuidados e resumos após correção/exclusão.
+- Compatibilidade Expo, Deno 2.9.6 com imports congelados, exports Android/web (12 rotas), 23 links locais e `git diff --check` aprovados. Metro recuperou um cache incompatível com leitura completa; o export concluiu com sucesso.
+- [CI do PR #14](https://github.com/NeytanBelisario/Gardenfy/actions/runs/37180890829) aprovado no commit `6fbe0dc`, incluindo instalação limpa, checks, Deno e exports.
+- Função e migração implantadas no Supabase; lint do banco sem erros. Requisição sem credencial pública respondeu 401 e com credencial respondeu 500/configuration. Falta o secret `PLANTNET_API_KEY`; não houve reconhecimento real bem-sucedido.
+- `npm audit --omit=dev` reportou 42 entradas: 29 altas, 12 moderadas, 1 baixa e nenhuma crítica. Inclui cadeias de ferramentas Expo/Metro, não apenas código embarcado no app. Triagem de exposição e correções compatíveis continuam pendentes; não executar `audit fix --force`, pois as propostas incluem troca de versões do SDK/React Native. Contagens históricas abaixo não representam a auditoria atual.
+- Inspeção preliminar do sourcemap Android: oito pacotes com avisos altos próprios (`@xmldom/xmldom`, `brace-expansion`, `braces`, `browserslist`, `image-size`, `js-yaml`, `node-forge`, `ws`) não aparecem no JavaScript embarcado; `decode-uri-component`, com aviso moderado, aparece. Isso não encerra a triagem de ferramentas, código nativo ou caminhos exploráveis; a avaliação permanece pendente.
+- Prioridade concreta da triagem: [GHSA-vcc3-ghjq-m6fr](https://github.com/advisories/GHSA-vcc3-ghjq-m6fr), decodificação de URI malformada que pode consumir CPU. O lockfile usa `decode-uri-component@0.2.2` via `query-string` (`^0.2.2`); o patch indicado pelo mantenedor é 0.5.0, fora dessa faixa. Avaliar atualização do consumidor/compatibilidade de módulo e testar links/rotas antes de substituir, sem override indiscriminado.
+- Prebuild Android novo sem Viro e `assembleRelease` aprovados em JDK 17/SDK 36. APK de avaliação com bundle embarcado, 90.554.333 bytes e quatro ABIs; assinatura v2 verificada. Manifesto sem microfone, arquivo sem entradas Viro e mesmo keystore anterior. ADB sem dispositivo conectado e navegador de automação indisponível: nenhum teste manual/visual novo ocorreu. Build autônomo gerado não equivale a teste sem Metro no aparelho.
+
 ## Checks automatizados
 
 ```bash

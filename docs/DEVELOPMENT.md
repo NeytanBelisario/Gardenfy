@@ -4,7 +4,7 @@
 
 O projeto usa Expo 55, React Native 0.83, React 19 e TypeScript estrito, conforme `package.json`. O gerenciador é npm, com `package-lock.json` versionado.
 
-A versão de Node em `.nvmrc` é `22.22.2`, com npm `10.9.7` registrado em `package.json`. A instalação limpa foi verificada em Linux/WSL2. A validação de compilação nativa ainda exige uma máquina com Android SDK/JDK; não confunda export do bundle com geração de APK.
+A versão de Node em `.nvmrc` é `22.22.2`, com npm `10.9.7` registrado em `package.json`. A instalação limpa foi verificada em Linux/WSL2 e no CI. APK de avaliação da 1.0 foi compilado no Windows com JDK 17/SDK 36; não confunda export do bundle, compilação do APK e execução no aparelho.
 
 ```bash
 git clone https://github.com/NeytanBelisario/Gardenfy.git
