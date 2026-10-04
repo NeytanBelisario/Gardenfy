@@ -30,7 +30,7 @@ export function usePlantPhotoRequest<T>(request: (photo: AnalysisPhoto, signal?:
   const run = async (source?: PhotoSource) => {
     if (busy.current) return;
     busy.current = true;
-    setError(null); setNotice(null); setDraft(null);
+    setError(null); setNotice(null);
     const abort = new AbortController();
     controller.current = abort;
     setPhase(source ? 'selecting' : 'analyzing');
@@ -40,6 +40,7 @@ export function usePlantPhotoRequest<T>(request: (photo: AnalysisPhoto, signal?:
       if (!mounted.current) return;
       if (abort.signal.aborted) throw new PlantAnalysisError('cancelled');
       if (!photo) { setNotice('Seleção cancelada. Nenhuma alteração foi salva.'); return; }
+      setDraft(null);
       setRetryPhoto(photo);
       setPhase('analyzing');
       const result = await request(photo, abort.signal);

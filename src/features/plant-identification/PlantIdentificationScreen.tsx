@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { ActivityIndicator, Image, KeyboardAvoidingView, Linking, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -29,6 +29,8 @@ function IdentificationView({ mode, id, plantId }: { mode: Mode; id?: string; pl
   const garden = useGardenDetails(gardenId);
   const plant = garden?.plants.find((item) => item.id === plantId);
   const flow = usePlantPhotoRequest(identifyPlantPhoto, identificationErrorMessage);
+  const scroll = useRef<ScrollView>(null);
+  const lastScrolledDraft = useRef<typeof flow.draft>(null);
   const [review, setReview] = useState<{ candidates: PlantCandidate[]; index: number; name: string }>();
   const busy = flow.phase !== 'idle';
   const candidates = flow.draft?.result;
@@ -51,7 +53,7 @@ function IdentificationView({ mode, id, plantId }: { mode: Mode; id?: string; pl
   return (
     <KeyboardAvoidingView style={styles.screen} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <AppHeader title="Identificar planta" mode={mode === 'general' ? 'menu' : 'back'} onPressLeading={back} />
-      <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={[styles.content, { paddingBottom: mode === 'general' ? 140 + insets.bottom : 32 + insets.bottom }]}>
+      <ScrollView ref={scroll} keyboardShouldPersistTaps="handled" contentContainerStyle={[styles.content, { paddingBottom: mode === 'general' ? 140 + insets.bottom : 32 + insets.bottom }]}>
         <View style={styles.hero}>
           <Text accessibilityRole="header" style={styles.title}>Qual é a sua planta?</Text>
           <Text style={styles.heroText}>Escolha uma foto nítida de uma folha ou flor. Enviamos a imagem ao Pl@ntNet e você confirma a espécie antes de salvar.</Text>
@@ -77,7 +79,12 @@ function IdentificationView({ mode, id, plantId }: { mode: Mode; id?: string; pl
             {flow.notice ? <Text accessibilityLiveRegion="polite" style={styles.text}>{flow.notice}</Text> : null}
             {flow.canRetry ? <Pressable accessibilityRole="button" disabled={busy} onPress={flow.retry} style={styles.secondary}><Text style={styles.label}>Tentar novamente com esta foto</Text></Pressable> : null}
             {flow.draft && candidates && candidate ? (
-              <View style={styles.card}>
+              <View style={styles.card} onLayout={(event) => {
+                if (lastScrolledDraft.current !== flow.draft) {
+                  lastScrolledDraft.current = flow.draft;
+                  scroll.current?.scrollTo({ y: event.nativeEvent.layout.y, animated: true });
+                }
+              }}>
                 <Image source={{ uri: flow.draft.photo.uri }} style={styles.photo} accessibilityLabel="Foto da planta em revisão" />
                 <Text accessibilityRole="header" style={styles.heading}>Confira a espécie</Text>
                 <Text style={styles.caption}>As sugestões podem estar incorretas. A pontuação indica confiança na identificação, sem avaliar a saúde da planta.</Text>
