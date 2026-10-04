@@ -1,6 +1,6 @@
 # Gardenfy 1.0 — preparação da primeira versão estável
 
-Escopo aprovado em 04/10/2026. Branch de preparação: `feat/release-v1`, baseada em `develop` (`80d0750`). Este documento define a entrega; não declara a versão lançada.
+Escopo aprovado em 04/10/2026. A preparação `feat/release-v1`, baseada em `develop` (`80d0750`), foi integrada pelo PR #14 (`2d99498`). A distribuição de avaliação é a [1.0.0-beta.1](releases/1.0.0-beta.1.md), com tag no código do APK (`1a9190e`). Este documento define o aceite da versão estável, ainda não lançada.
 
 ## Experiência principal
 
@@ -14,9 +14,9 @@ Uso individual no Android, com jardins, plantas e cuidados salvos neste aparelho
 
 ## Forma de trabalhar
 
-Concentrar a preparação na branch `feat/release-v1`, com commits pequenos por etapas funcionais: escopo, modelo/persistência, backend, identificação, experiência de cuidados, validação e documentação. Publicar cada etapa relevante. Não criar commits vazios nem dividir mudanças arbitrariamente.
+Preparação inicial concluída na branch `feat/release-v1`, com commits pequenos por etapas funcionais: escopo, modelo/persistência, backend, identificação, experiência de cuidados, validação e documentação. Após a integração, novas tarefas partem de `develop` atualizado em branches próprias. Publicar cada etapa relevante. Não criar commits vazios nem dividir mudanças arbitrariamente.
 
-Abrir PR da branch para `develop` com evidências e pendências reais. Depois da integração, atualizar `develop` e preparar o PR `develop` → `main`. Merge, tag e publicação dependem de instrução específica. Não chamar o resultado de estável enquanto os critérios abaixo estiverem pendentes.
+Abrir PR de cada tarefa para `develop` com evidências e pendências reais. Após os aceites restantes, preparar o PR `develop` → `main`. Merge e publicação estável dependem de instrução específica. A publicação da beta foi solicitada pelo usuário; não chamar o resultado de estável enquanto os critérios abaixo estiverem pendentes.
 
 ## Critérios de liberação
 
@@ -30,7 +30,7 @@ Abrir PR da branch para `develop` com evidências e pendências reais. Depois da
 - [x] TypeScript, lint, 112 testes, compatibilidade Expo, runtime Deno e exports Android/web aprovados; consultar último CI do PR #14.
 - [x] Alertas triados e correções compatíveis aplicadas. Restam 23 entradas altas de duas ferramentas sem patch publicado, ausentes nos bundles inspecionados; exposição/monitoramento documentados em TESTING.md.
 - [x] APK autônomo de avaliação instalado e testado sem Metro; atualização preserva dados existentes.
-- [ ] Configuração de assinatura/distribuição e resultados manuais documentados antes de publicar.
+- [ ] Configuração de assinatura/distribuição de produção e resultados manuais documentados antes de publicar a versão estável. A beta de testes usa o APK assinado com keystore debug.
 
 ## Fora do escopo
 

@@ -4,7 +4,7 @@
 
 Decisão de 04/10/2026: priorizar manutenção de jardins/plantas e uma experiência fluida no Android, com armazenamento local. Identificação por foto migra para Pl@ntNet com fichas locais de cuidados. AR fica em **Em breve**; perfil editável, gamificação, login, sincronização e IA generativa ficam para depois.
 
-O plano e os critérios de lançamento estão em [RELEASE_1.0.md](RELEASE_1.0.md). A preparação usa `feat/release-v1`, commits por etapas publicados e PR para `develop`; a promoção para `main` só ocorre após validação e instrução de integração. M3/M4 abaixo registram a proposta anterior e não obrigam incluir Gemini ou AR na 1.0.
+O plano e os critérios de lançamento estão em [RELEASE_1.0.md](RELEASE_1.0.md). A preparação `feat/release-v1` foi integrada em `develop` pelo PR #14; a distribuição de avaliação está identificada como [1.0.0-beta.1](releases/1.0.0-beta.1.md). A promoção estável para `main` só ocorre após aceite e instrução de integração. M3/M4 abaixo registram a proposta anterior e não obrigam incluir Gemini ou AR na 1.0.
 
 ## Histórico do MVP inicial
 

@@ -23,7 +23,7 @@ Se não usar nvm, instale a versão indicada em `.nvmrc` pelo seu gerenciador de
 
 ### Trabalhar na primeira versão estável
 
-O escopo vigente está em [RELEASE_1.0.md](RELEASE_1.0.md). Usar `feat/release-v1` para a preparação, com commits por etapas publicados, PR para `develop` e aceite antes da promoção para `main`. AR fica em breve; manutenção local e identificação Pl@ntNet são a prioridade.
+O escopo vigente está em [RELEASE_1.0.md](RELEASE_1.0.md). A preparação `feat/release-v1` foi integrada em `develop` pelo PR #14. A distribuição de avaliação é a [1.0.0-beta.1](releases/1.0.0-beta.1.md); a versão estável ainda exige aceite antes da promoção para `main`. Novas tarefas seguem em branches próprias a partir de `develop` atualizado. AR fica em breve; manutenção local e identificação Pl@ntNet são a prioridade.
 
 Jardins, catálogo, fichas de cuidados e histórico usam armazenamento local e funcionam sem configurar serviço externo. Imagens remotas têm fallback sem rede. Após adicionar uma planta, o app abre seus detalhes para registrar cuidados; edição/exclusão da planta fica nessa tela. Não há conta ou sincronização entre dispositivos.
 
