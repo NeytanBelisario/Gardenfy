@@ -18,6 +18,8 @@ Vitalidade fica em 0–100; água/luz em 0–10; crescimento é um inteiro não 
 
 O app faz uma única chamada à Edge Function `analyze-plant`, que então faz uma única chamada ao modelo configurado. Mensagens distinguem configuração ausente/inválida, falha de conexão, limite de uso, indisponibilidade, timeout e resposta inválida/bloqueada. Resposta bruta, URLs do provedor e credenciais não são mostradas nem registradas no console.
 
+Para investigar falhas no servidor, os logs registram somente status HTTP e modelo em respostas de erro do provedor; falhas de transporte registram modelo, cancelamento e nome da classe do erro. Falhas inesperadas registram apenas o nome da classe. Foto, Base64, resposta bruta, mensagem da exceção e credenciais permanecem fora dos logs.
+
 Após 30 segundos, o cliente encerra a espera e sinaliza abort ao transporte. É possível cancelar durante a análise e repetir a mesma foto após falha, ou escolher outra. Sair da tela cancela a análise e ignora resultados atrasados; mudar jardim/planta reinicia a sessão da tela. A tentativa de nova análise não apaga o resultado anterior nem escreve no store. O cancelamento é do cliente; não garante interromper processamento/cobrança já iniciados no provedor. Uma gravação já confirmada não é desfeita por sair da tela.
 
 ## Configuração e seleção do modelo
