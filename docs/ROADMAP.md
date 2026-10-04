@@ -1,10 +1,18 @@
-# Roadmap — Gardenfy MVP
+# Roadmap — Gardenfy
+
+## Escopo vigente: versão 1.0 estável
+
+Decisão de 04/10/2026: priorizar manutenção de jardins/plantas e uma experiência fluida no Android, com armazenamento local. Identificação por foto migra para Pl@ntNet com fichas locais de cuidados. AR fica em **Em breve**; perfil editável, gamificação, login, sincronização e IA generativa ficam para depois.
+
+O plano e os critérios de lançamento estão em [RELEASE_1.0.md](RELEASE_1.0.md). A preparação usa `feat/release-v1`, commits por etapas publicados e PR para `develop`; a promoção para `main` só ocorre após validação e instrução de integração. M3/M4 abaixo registram a proposta anterior e não obrigam incluir Gemini ou AR na 1.0.
+
+## Histórico do MVP inicial
 
 Referência inicial: 01/10/2026. Este documento separa o que existe no código das entregas propostas. Prioridades e funcionalidades adicionais podem mudar conforme os próximos detalhes do produto; nenhuma escolha de backend ou regra de pontuação está fechada.
 
 ## Objetivo
 
-Permitir que uma pessoa crie seus jardins, cadastre plantas, consulte informações e registre cuidados no dia a dia, sem perder os dados ao fechar o aplicativo. A análise por foto complementa esse fluxo. A experiência AR existente deve continuar acessível em aparelhos compatíveis.
+Permitir que uma pessoa crie seus jardins, cadastre plantas, consulte informações e registre cuidados no dia a dia, sem perder os dados ao fechar o aplicativo. A identificação por foto complementa esse fluxo. AR foi adiada para depois da versão 1.0.
 
 Proposta inicial: um MVP de uso individual, com persistência local e Android como primeira plataforma de validação. Login, sincronização entre dispositivos do usuário e publicação em lojas precisam de definição de escopo. Trocar de PC para desenvolver é resolvido pelo fluxo Git e pelo guia de ambiente; isso não sincroniza os dados de quem usa o app.
 

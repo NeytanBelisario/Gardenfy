@@ -2,6 +2,14 @@
 
 Atualize este arquivo ao encerrar sessões que mudem o estado do projeto. Não armazene credenciais ou configurações privadas.
 
+## Sessão de 04/10/2026 — preparação da versão 1.0 (em andamento)
+
+- **Branch:** `feat/release-v1`, criada de `develop` atualizado em `80d0750`; árvore limpa na abertura.
+- **Escopo autorizado:** manutenção de jardins/plantas, experiência fluida, identificação Pl@ntNet e fichas locais de cuidados. AR em breve, sem execução nativa. Ver `RELEASE_1.0.md`.
+- **Etapa inicial:** escopo e fluxo de preparação registrados no roadmap e nas instruções para agentes. Implementação e checks finais em andamento.
+- **Pendências reais:** chave Pl@ntNet no servidor, identificação real, roteiro Android e APK autônomo. Não há declaração de lançamento ou autorização de merge.
+- **Próximo passo:** implementar domínio, backend e interface por etapas; publicar commits e abrir PR para `develop`.
+
 ## Sessão de 01/10/2026 — documentação inicial
 
 - **Branch:** `docs/mvp-development-guide`, criada a partir de `develop`.

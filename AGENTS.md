@@ -7,6 +7,7 @@ Estas regras valem para todo o repositório e para qualquer agente que trabalhe 
 - Aplicativo Expo / React Native / TypeScript, com rotas em `src/app`.
 - Consulte `README.md`, `docs/DEVELOPMENT.md` e `docs/ROADMAP.md` antes de implementar uma tarefa.
 - O roadmap é uma proposta evolutiva. Implemente apenas o escopo solicitado; não inicie novas features só porque estão listadas nele.
+- Na preparação da versão 1.0, consulte `docs/RELEASE_1.0.md`: manutenção local de jardins/plantas, identificação Pl@ntNet com fichas de cuidados e AR em breve. Gemini, diagnóstico de doenças e percentuais derivados de foto não fazem parte da experiência nova.
 - Atualize a documentação afetada junto da implementação. Não marque como concluído algo apenas planejado ou sem validação.
 - Comunique-se com o usuário em português. Mantenha identificadores e convenções existentes no código.
 
@@ -16,6 +17,7 @@ Estas regras valem para todo o repositório e para qualquer agente que trabalhe 
 - Antes de começar, confira `git status`, faça fetch e atualize `develop` com `git pull --ff-only origin develop`.
 - Crie uma branch nova a partir de `develop` atualizado para cada feature, correção ou tarefa: `feat/<descricao>`, `fix/<descricao>`, `chore/<descricao>` ou `docs/<descricao>`.
 - Não implemente nem faça commits diretamente em `develop` ou `main`.
+- A preparação autorizada da primeira versão usa `feat/release-v1`, com etapas coerentes na mesma branch e commits frequentes publicados. O PR de preparação tem base em `develop`; depois de integrado e validado, a promoção é `develop` → `main`. Não iniciar features adicionais durante a preparação.
 - Ao terminar cada feature, publique a branch e abra um PR com base em `develop`, incluindo objetivo, mudanças, validações e pendências reais.
 - Aguarde a integração do PR antes de criar uma feature dependente. A próxima branch deve partir de `develop` atualizado, nunca da branch anterior.
 - Abrir PRs faz parte do fluxo automático autorizado. Não faça merge de PRs nem publique releases sem uma instrução específica.
