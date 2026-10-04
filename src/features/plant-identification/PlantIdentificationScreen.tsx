@@ -51,7 +51,8 @@ function IdentificationView({ mode, id, plantId }: { mode: Mode; id?: string; pl
   };
 
   return (
-    <KeyboardAvoidingView style={styles.screen} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+    <View style={styles.screen}>
+      <KeyboardAvoidingView style={styles.screen} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <AppHeader title="Identificar planta" mode={mode === 'general' ? 'menu' : 'back'} onPressLeading={back} />
       <ScrollView ref={scroll} keyboardShouldPersistTaps="handled" contentContainerStyle={[styles.content, { paddingBottom: mode === 'general' ? 140 + insets.bottom : 32 + insets.bottom }]}>
         <View style={styles.hero}>
@@ -113,8 +114,9 @@ function IdentificationView({ mode, id, plantId }: { mode: Mode; id?: string; pl
           <Text style={styles.caption}>Identificação de espécies baseada na API Pl@ntNet, atualizada regularmente. Conheça o projeto ↗</Text>
         </Pressable>
       </ScrollView>
+      </KeyboardAvoidingView>
       {mode === 'general' ? <AppNavbar /> : null}
-    </KeyboardAvoidingView>
+    </View>
   );
 }
 
