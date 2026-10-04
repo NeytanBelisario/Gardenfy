@@ -53,15 +53,13 @@ function IdentificationView({ mode, id, plantId }: { mode: Mode; id?: string; pl
       <AppHeader title="Identificar planta" mode={mode === 'general' ? 'menu' : 'back'} onPressLeading={back} />
       <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={[styles.content, { paddingBottom: mode === 'general' ? 140 + insets.bottom : 32 + insets.bottom }]}>
         <View style={styles.hero}>
-          <Ionicons name="camera-outline" size={36} color="#c4d9b9" />
           <Text accessibilityRole="header" style={styles.title}>Qual é a sua planta?</Text>
-          <Text style={styles.heroText}>Fotografe uma folha ou flor, de perto e com boa luz. Sua foto será enviada ao Pl@ntNet para sugerir a espécie.</Text>
-          <Text style={styles.heroText}>Você escolhe a identificação antes de salvar. Os cuidados vêm das nossas fichas de espécies.</Text>
+          <Text style={styles.heroText}>Escolha uma foto nítida de uma folha ou flor. Enviamos a imagem ao Pl@ntNet e você confirma a espécie antes de salvar.</Text>
         </View>
         {mode === 'general' && gardens.length > 1 ? (
           <View style={styles.card}>
             <Text accessibilityRole="header" style={styles.heading}>Em qual jardim?</Text>
-            {gardens.map((item) => <Pressable key={item.id} accessibilityRole="radio" accessibilityState={{ checked: gardenId === item.id, disabled: busy }} disabled={busy} onPress={() => setChosenGarden(item.id)} style={[styles.choice, gardenId === item.id && styles.selected]}>
+            {gardens.map((item) => <Pressable key={item.id} accessibilityRole="radio" accessibilityLabel={item.name} accessibilityState={{ checked: gardenId === item.id, disabled: busy }} disabled={busy} onPress={() => setChosenGarden(item.id)} style={[styles.choice, gardenId === item.id && styles.selected]}>
               <Ionicons name={gardenId === item.id ? 'radio-button-on' : 'radio-button-off'} size={20} color="#476644" /><Text style={styles.choiceText}>{item.name}</Text>
             </Pressable>)}
           </View>
@@ -70,8 +68,8 @@ function IdentificationView({ mode, id, plantId }: { mode: Mode; id?: string; pl
           <>
             <Text style={styles.caption}>{plant ? `Atualizar identificação de ${plant.name}` : `Adicionar em ${garden.name}`}</Text>
             <View style={styles.actions}>
-              <Pressable accessibilityRole="button" disabled={busy} accessibilityState={{ disabled: busy }} onPress={() => flow.select('camera')} style={[styles.primary, busy && styles.disabled]}><Ionicons name="camera-outline" size={22} color="#fff" /><Text style={styles.primaryText}>Tirar foto</Text></Pressable>
-              <Pressable accessibilityRole="button" disabled={busy} accessibilityState={{ disabled: busy }} onPress={() => flow.select('gallery')} style={[styles.secondary, busy && styles.disabled]}><Ionicons name="images-outline" size={22} color="#17361d" /><Text style={styles.label}>Galeria</Text></Pressable>
+              <Pressable accessibilityRole="button" accessibilityLabel="Tirar foto" disabled={busy} accessibilityState={{ disabled: busy }} onPress={() => flow.select('camera')} style={[styles.primary, busy && styles.disabled]}><Ionicons name="camera-outline" size={22} color="#fff" /><Text style={styles.primaryText}>Tirar foto</Text></Pressable>
+              <Pressable accessibilityRole="button" accessibilityLabel="Escolher foto da galeria" disabled={busy} accessibilityState={{ disabled: busy }} onPress={() => flow.select('gallery')} style={[styles.secondary, busy && styles.disabled]}><Ionicons name="images-outline" size={22} color="#17361d" /><Text style={styles.label}>Galeria</Text></Pressable>
             </View>
             {busy ? <View style={styles.loading}><ActivityIndicator color="#476644" /><Text accessibilityLiveRegion="polite" style={styles.text}>{flow.phase === 'saving' ? 'Guardando sua planta...' : flow.phase === 'selecting' ? 'Escolhendo foto...' : 'Buscando espécies parecidas...'}</Text></View> : null}
             {flow.phase === 'analyzing' ? <Pressable accessibilityRole="button" onPress={flow.cancel} style={styles.secondary}><Text style={styles.label}>Cancelar identificação</Text></Pressable> : null}
@@ -83,7 +81,7 @@ function IdentificationView({ mode, id, plantId }: { mode: Mode; id?: string; pl
                 <Image source={{ uri: flow.draft.photo.uri }} style={styles.photo} accessibilityLabel="Foto da planta em revisão" />
                 <Text accessibilityRole="header" style={styles.heading}>Confira a espécie</Text>
                 <Text style={styles.caption}>As sugestões podem estar incorretas. A pontuação indica confiança na identificação, sem avaliar a saúde da planta.</Text>
-                {candidates.map((item, index) => <Pressable key={item.scientificName} accessibilityRole="radio" accessibilityState={{ checked: item === candidate, disabled: busy }} disabled={busy} onPress={() => setReview({ candidates, index, name: item.commonName })} style={[styles.choice, item === candidate && styles.selected]}>
+                {candidates.map((item, index) => <Pressable key={item.scientificName} accessibilityRole="radio" accessibilityLabel={`${item.commonName}, ${item.scientificName}, ${Math.round(item.confidence * 100)}% de confiança`} accessibilityState={{ checked: item === candidate, disabled: busy }} disabled={busy} onPress={() => setReview({ candidates, index, name: item.commonName })} style={[styles.choice, item === candidate && styles.selected]}>
                   <Ionicons name={item === candidate ? 'radio-button-on' : 'radio-button-off'} size={22} color="#476644" />
                   <View style={styles.choiceCopy}><Text style={styles.label}>{item.commonName}</Text><Text style={styles.caption}>{item.scientificName}</Text><Text style={styles.caption}>{Math.round(item.confidence * 100)}% de confiança</Text></View>
                 </Pressable>)}
@@ -92,7 +90,7 @@ function IdentificationView({ mode, id, plantId }: { mode: Mode; id?: string; pl
                 <Text style={styles.label}>{profile ? 'Ficha de cuidados disponível' : 'Ainda sem ficha de cuidados'}</Text>
                 <Text style={styles.text}>{profile?.description ?? 'Você pode salvar a espécie e registrar os cuidados. As orientações específicas ainda não estão no nosso catálogo.'}</Text>
                 {mode !== 'update' ? <><Text style={styles.label}>Como quer chamar sua planta?</Text><TextInput accessibilityLabel="Nome da planta" value={name} maxLength={120} onChangeText={(value) => setReview({ candidates, index: selection?.index ?? 0, name: value })} editable={!busy} style={styles.input} /></> : null}
-                <Pressable accessibilityRole="button" disabled={busy || !name.trim()} accessibilityState={{ disabled: busy || !name.trim(), busy: flow.phase === 'saving' }} onPress={save} style={[styles.primary, (busy || !name.trim()) && styles.disabled]}><Text style={styles.primaryText}>{mode === 'update' ? 'Confirmar identificação' : 'Confirmar e adicionar planta'}</Text></Pressable>
+                <Pressable accessibilityRole="button" accessibilityLabel={mode === 'update' ? 'Confirmar identificação' : 'Confirmar e adicionar planta'} disabled={busy || !name.trim()} accessibilityState={{ disabled: busy || !name.trim(), busy: flow.phase === 'saving' }} onPress={save} style={[styles.primary, (busy || !name.trim()) && styles.disabled]}><Text style={styles.primaryText}>{mode === 'update' ? 'Confirmar identificação' : 'Confirmar e adicionar planta'}</Text></Pressable>
                 <Pressable accessibilityRole="button" disabled={busy} onPress={flow.discard} style={styles.secondary}><Text style={styles.label}>Descartar e escolher outra foto</Text></Pressable>
               </View>
             ) : null}
@@ -116,9 +114,9 @@ function IdentificationView({ mode, id, plantId }: { mode: Mode; id?: string; pl
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: '#fbf9f5' },
   content: { width: '100%', maxWidth: 720, alignSelf: 'center', padding: 20, gap: 16 },
-  hero: { backgroundColor: '#17361d', borderRadius: 28, padding: 24, gap: 14 },
-  title: { color: '#fff', fontSize: 30, fontWeight: '800' },
-  heroText: { color: '#d6e2d0', fontSize: 15, lineHeight: 24 },
+  hero: { backgroundColor: '#17361d', borderRadius: 24, padding: 20, gap: 10 },
+  title: { color: '#fff', fontSize: 24, fontWeight: '800' },
+  heroText: { color: '#d6e2d0', fontSize: 15, lineHeight: 22 },
   actions: { flexDirection: 'row', flexWrap: 'wrap', gap: 12 },
   primary: { minHeight: 52, backgroundColor: '#17361d', borderRadius: 16, padding: 16, flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'center', gap: 8 },
   primaryText: { color: '#fff', fontSize: 16, fontWeight: '700', textAlign: 'center', flexShrink: 1 },

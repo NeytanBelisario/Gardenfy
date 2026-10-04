@@ -221,7 +221,7 @@ export default function NewGardenScreen() {
 
         <View style={styles.actions}>
           {saveError ? <Text accessibilityRole="alert" style={{ color: '#ba1a1a' }}>{saveError}</Text> : null}
-          <Pressable accessibilityRole="button" accessibilityState={{ disabled: saving, busy: saving }} style={[styles.primaryButton, saving && { opacity: 0.6 }]} onPress={handleCreateGarden} disabled={saving}>
+          <Pressable accessibilityRole="button" accessibilityLabel="Criar jardim" accessibilityState={{ disabled: saving, busy: saving }} style={[styles.primaryButton, saving && { opacity: 0.6 }]} onPress={handleCreateGarden} disabled={saving}>
             <Text style={styles.primaryButtonText}>{saving ? 'Salvando...' : 'Criar jardim'}</Text>
           </Pressable>
 

@@ -7,10 +7,6 @@
     "icon": "./assets/images/icon.png",
     "scheme": "gardenfy",
     "userInterfaceStyle": "light",
-    "androidNavigationBar": {
-      "barStyle": "dark-content",
-      "enforceContrast": false
-    },
     "newArchEnabled": true,
     "ios": {
       "icon": "./assets/images/icon.png",
@@ -38,6 +34,10 @@
     },
     "plugins": [
       "expo-router",
+      [
+        "expo-navigation-bar",
+        { "barStyle": "dark", "enforceContrast": false }
+      ],
       [
         "expo-image-picker",
         {

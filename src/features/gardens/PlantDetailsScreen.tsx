@@ -73,7 +73,7 @@ export default function PlantDetailsScreen() {
               const last = lastPlantCare(plant, type);
               return <View key={type} style={styles.lastCare}><Text style={styles.label}>{type === 'water' ? 'Última rega' : 'Última adubação'}</Text><Text style={styles.caption}>{last ? formatCareDay(last.occurredAt) : 'Ainda sem registro'}</Text></View>;
             })}</View>
-            <View style={styles.actions}>{(['water', 'fertilize'] as const).map((careType) => <Pressable key={careType} accessibilityRole="button" disabled={busy || !!action || !!management} accessibilityState={{ disabled: busy || !!action || !!management, busy }} onPress={() => record(careType)} style={[styles.primary, busy && styles.disabled]}>
+            <View style={styles.actions}>{(['water', 'fertilize'] as const).map((careType) => <Pressable key={careType} accessibilityRole="button" accessibilityLabel={careType === 'water' ? 'Registrar rega' : 'Registrar adubação'} disabled={busy || !!action || !!management} accessibilityState={{ disabled: busy || !!action || !!management, busy }} onPress={() => record(careType)} style={[styles.primary, busy && styles.disabled]}>
               <Ionicons name={careType === 'water' ? 'water-outline' : 'leaf-outline'} size={20} color="#fff" /><Text style={styles.primaryText}>{careType === 'water' ? 'Registrar rega' : 'Registrar adubação'}</Text>
             </Pressable>)}</View>
             {busy ? <Text accessibilityLiveRegion="polite" style={styles.caption}>Salvando cuidado...</Text> : null}

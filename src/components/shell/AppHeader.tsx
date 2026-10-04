@@ -291,7 +291,7 @@ export function AppHeader({
             />
           </Pressable>
 
-          <Text style={styles.headerBrand}>{title}</Text>
+          <Text numberOfLines={2} style={styles.headerBrand}>{title}</Text>
         </View>
 
         <Pressable accessibilityRole="button" accessibilityLabel="Abrir meu espaço" style={styles.avatarWrap} onPress={handleProfilePress}>
