@@ -55,3 +55,5 @@ O endpoint Gemini `analyze-plant` e helpers legados permanecem para compatibilid
 ## Validação
 
 Checks e resultados atuais estão em [TESTING.md](TESTING.md) e [HANDOFF.md](HANDOFF.md). O runtime Supabase deve ser verificado com Deno, além de TypeScript/lint do app. Parsing, transporte, limites de imagem e preservação dos cuidados/fotos têm regressões automatizadas; câmera, qualidade de identificação e permissões reais exigem teste no aparelho.
+
+Em 04/10/2026, após configurar o secret, uma foto pública de Monstera foi identificada com sucesso pelo servidor e pela galeria Android. O MIME enviado agora vem da assinatura do arquivo retornado pelo seletor: a compressão pode produzir JPEG mesmo quando o asset original informa PNG. Abertura/cancelamento e negativa de câmera foram testados; não houve captura nova de planta pela câmera nesta sessão.

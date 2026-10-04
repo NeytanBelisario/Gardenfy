@@ -29,6 +29,6 @@ npm start
 
 Jardins, cadastro pelo catálogo, fichas de cuidados e histórico funcionam sem Supabase/Pl@ntNet. Imagens remotas do catálogo dependem de rede e têm fallback. Para usar fotos, configure apenas URL/chave pública Supabase no app e `PLANTNET_API_KEY` nos secrets do servidor, conforme [o passo a passo](docs/ANALYSIS.md#configurar-plantnet).
 
-Build Android autônomo, testes de atualização, permissões e jornada nativa completa são critérios de liberação. Consulte o handoff para os resultados efetivamente realizados; código implementado ou bundle exportado não significa versão estável lançada.
+APK Android autônomo instalado como atualização, identificação real por galeria, cuidados offline, persistência e revisão visual foram validados em Samsung Android 13. Captura nova de planta pela câmera, jornada com TalkBack e assinatura de distribuição ainda precisam de aceite. Consulte o handoff para evidências e limites; a versão estável ainda não foi publicada.
 
 Commits por etapas são publicados na branch de preparação, com PR para `develop`. Após integração e aceite, a promoção será `develop` → `main`; merge e publicação exigem instrução específica.

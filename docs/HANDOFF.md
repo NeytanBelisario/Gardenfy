@@ -2,6 +2,22 @@
 
 Atualize este arquivo ao encerrar sessões que mudem o estado do projeto. Não armazene credenciais ou configurações privadas.
 
+## Sessão de 04/10/2026 — Supabase e validação no celular
+
+- **Branch/PR:** `feat/release-v1`, [PR #14](https://github.com/NeytanBelisario/Gardenfy/pull/14) para `develop`, ainda não integrado. `develop` permanece em `80d0750`; nenhum merge, tag ou release realizado.
+- **Etapas publicadas:** `7a13ad7` formulários/contraste; `6c92623` MIME real da imagem Android; `d7a00e9` ações acessíveis/navegação; `0c01c1d` decoder e dependências; `0e5b1d8` teclado; `9071c47` revisão preservada e rolagem; `4b8acb7` área dos botões Android em todas as telas; `96fb031` navegação da foto fora do redimensionamento do teclado; `1a9190e` rótulos ampliados e texto de confirmação. São 19 commits de preparação até o código final, com backup em `origin/feat/release-v1`; documentação desta validação publicada na etapa de encerramento.
+- **Supabase:** chave Pl@ntNet configurada pelo usuário e reconhecimento real validado no servidor e no celular. Não é necessário novo token. Cota compartilhada continua 450/dia UTC e 10/origem/hora; tentativas canceladas também podem consumir quota.
+- **Dispositivo:** Samsung SM-G781B, Android 13. APK autônomo instalado como atualização preservou os dois jardins e duas plantas anteriores. Foto pública de Monstera usada por escolha do usuário; nenhuma foto pessoal enviada. Cadastro, cuidados, reidentificação, edição, exclusão de planta/jardim, ausência de rede, cancelamentos e persistência após limpar cache foram exercitados. Jardim desta sessão removido após cancelar/confirmar exclusão; reinício manteve os dois jardins/duas plantas anteriores. Evidências e limites em [TESTING.md](TESTING.md).
+- **Interface:** revisão visual em 320/390/768 lógicos no mesmo celular, fonte 1,4, teclado, menu, espaço local e AR Em breve. Corrigidos formato da foto, contraste, rótulos, scroll, rascunho e navegação. Fonte/rede/permissão restauradas; falta apenas restaurar a densidade após reconectar o celular, conforme registro abaixo.
+- **Checks:** 112 testes, TypeScript, lint sem avisos, compatibilidade Expo, Deno e exports aprovados. [CI com instalação limpa do código final](https://github.com/NeytanBelisario/Gardenfy/actions/runs/37185848291) verde em `1a9190e`; checks da documentação final no PR. `npm ci` Windows encontrou lock de arquivo nativo; `npm install` recuperou o ambiente e checks passaram.
+- **APK final:** `%LOCALAPPDATA%/Gardenfy/builds/Gardenfy-1.0-evaluation-1a9190e.apk`, 90.564.805 bytes; SHA-256 `B3F36FDD87F95031F3C3DB6D822D81B2100D93F9476BE5A99C423FABEF3AB7FF`. Build e assinatura v2 verificados, instalado no celular. Fonte 1,4 manteve rótulos em uma linha; abrir/fechar teclado na revisão manteve navegação ancorada e oculta durante digitação.
+- **Conexão ao encerrar:** aparelho desconectou após o último teste, antes de restaurar densidade 443 para o valor original 540. Fonte já voltou a 1,0; rede, câmera e serviços de acessibilidade anteriores foram conferidos/restaurados. Ao reconectar, executar `adb -s RXCTA0B0TPZ shell wm density 540` e reabrir Gardenfy. Última revisão é rascunho não salvo; nenhum cadastro extra feito nos jardins anteriores. Foto pública de Monstera permanece na galeria para facilitar novos testes; imagem sintética do logo foi removida.
+- **Dependências:** correções compatíveis aplicadas sem alterar versões principais de Expo/RN. Restam 23 alertas altos derivados de duas dependências de ferramentas sem patch disponível (`braces`/`node-forge`), ausentes nos bundles inspecionados. Triagem e monitoramento documentados em TESTING.md; auditoria não está zerada.
+- **Pendências reais:** captura nova de planta pela câmera e jornada com TalkBack não comprovadas; assinatura/canal de distribuição de produção ainda não definidos. APK usa assinatura de avaliação. Não houve teste nativo iOS/tablet/gestos. Não declarar cobertura de 100% nem versão publicada.
+- **Próximo passo:** revisar o PR e os critérios de [RELEASE_1.0.md](RELEASE_1.0.md), concluir aceite específico de câmera/acessibilidade e definir distribuição. Integração e promoção `develop` → `main` exigem instrução específica.
+
+Os registros abaixo preservam o histórico anterior a esta validação.
+
 ## Sessão de 04/10/2026 — preparação da versão 1.0
 
 - **Branch:** `feat/release-v1`, criada de `develop` atualizado em `80d0750`; árvore limpa na abertura.

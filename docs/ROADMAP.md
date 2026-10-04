@@ -22,14 +22,14 @@ Histórico de 03/10/2026: continuar pelo catálogo e cuidados sem Gemini. Em 04/
 
 | Área | O que já existe | Limitação / próximo trabalho |
 | --- | --- | --- |
-| Navegação | Expo Router, home, menu, espaço local, identificação e AR em breve. Barra Jardins/Criar/Foto/Espaço. | Validar jornada completa, texto ampliado, teclado e navegação no aparelho. |
-| Jardins | Criação, edição, exclusão, listagem e detalhes com persistência local versionada. Criação/listagem validadas em Samsung Android 13. | Edição/exclusão, encerramento/reabertura completos e cenários de falha ainda pendentes no aparelho. |
-| Plantas/cuidados | Catálogo e identificação confirmada persistidos em schema v4. Cadastro abre detalhes com últimas regas/adubações, fichas locais, histórico e edição/exclusão. Busca com/sem acentos e fallback de fotos. | Validar novas telas, fotos duráveis, edição/exclusão e reinício completo no aparelho. Jornada básica anterior passou, mas não substitui o roteiro da 1.0. |
-| Identificação | Foto/câmera, sugestões Pl@ntNet e confirmação explícita da espécie. Edge Function e cota compartilhada implantadas; parser/transporte testados. | Falta secret `PLANTNET_API_KEY`, identificação real, permissões e qualidade no aparelho. Gemini permanece apenas como compatibilidade legada. |
+| Navegação | Home, menu, espaço local, foto e AR Em breve validados no Android. Teclado, fonte ampliada, larguras lógicas 320/390/768 e contraste revisados. | Jornada com TalkBack e navegação por gestos ainda não comprovadas. |
+| Jardins | Criação/edição/exclusão, persistência e reabertura validadas em Samsung Android 13. Jardim de teste removido, preservando dados anteriores. | Falhas de gravação cobertas em testes automatizados; dados ficam neste aparelho. |
+| Plantas/cuidados | Schema v4, catálogo, identificação, fotos duráveis, cuidados, histórico, edição/exclusão e uso offline validados no celular. | Não há sincronização entre dispositivos; fichas locais cobrem quatro espécies. |
+| Identificação | Secret configurado, reconhecimento real pela galeria, baixa confiança, espécie sem ficha, erro sem rede/foto sem planta e cancelamentos validados. | Captura nova de planta pela câmera não executada; abertura/cancelamento/negativa testados. Gemini permanece como compatibilidade legada. |
 | Orientações | Quatro fichas locais com fontes; estimativas Gemini antigas preservadas no histórico, sem novos percentuais da foto. | Espécies sem ficha têm estado explícito de ausência de orientações. |
 | AR | Tela Em breve com retorno aos jardins, em todas as plataformas. Viro removido do app. | Funcionalidade adiada para depois da 1.0; sem requisito AR no Android atual. |
-| Perfil | Resumo com contagens derivadas dos jardins/plantas e atalhos úteis. Nome/e-mail fictícios, rank/conquistas estáticos e ações sem handler removidos da interface. | Perfil local editável ainda não implementado; interação e contagens na interface aguardam validação. |
-| Qualidade | TypeScript, lint, 109 testes, Deno e CI com exports Android/web aprovados. Prebuild Android novo sem Viro aprovado. | Aceite Android, APK instalado sem Metro e assinatura de distribuição pendentes; auditoria de dependências exige triagem. |
+| Perfil | Resumo e atalhos com contagens reais validados; dados fictícios e ações sem handler removidos. | Perfil editável fora do escopo 1.0. |
+| Qualidade | 112 testes, TypeScript, lint, Deno e exports aprovados. APK autônomo atualizado preserva dados. Correções compatíveis e triagem de dependências feitas. | Assinatura/distribuição de produção pendentes. Restam 23 alertas de ferramentas sem patch publicado, documentados em TESTING.md. |
 
 Fontes principais: `src/features/gardens/store.ts`, `types.ts` e `catalog.ts`; `src/features/plant-analysis`; `src/features/ar/PlantArScreen.tsx`; `src/app/profile.tsx`; `package.json`.
 

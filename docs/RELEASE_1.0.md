@@ -20,21 +20,24 @@ Abrir PR da branch para `develop` com evidências e pendências reais. Depois da
 
 ## Critérios de liberação
 
-- [ ] Jornada principal completa validada em Android, incluindo encerramento completo e reabertura.
-- [ ] Edição/exclusão de jardins/plantas e correção/exclusão de cuidados validadas, com confirmação e persistência.
-- [ ] Cadastro e cuidados utilizáveis sem internet; fotos remotas indisponíveis têm fallback.
-- [ ] Pl@ntNet configurado no servidor; identificação real, espécie sem ficha, falhas, permissões e cancelamento validados.
-- [ ] AR informa Em breve e permite retornar, sem inicializar recurso nativo.
-- [ ] Telas pequenas, teclado, áreas seguras, texto ampliado e navegação Android revisados.
-- [x] TypeScript, lint, 109 testes, compatibilidade Expo, runtime Deno e exports Android/web aprovados na revisão final e no CI do PR #14.
-- [ ] Alertas de dependências triados e correções compatíveis com Expo aplicadas, com exposição/aceite restante documentados.
-- [ ] APK autônomo de avaliação instalado e testado sem Metro; atualização preserva dados existentes.
+- [x] Jornada principal por galeria/catálogo validada em Android, incluindo encerramento completo e reabertura.
+- [x] Edição/exclusão de jardins/plantas e correção/exclusão de cuidados validadas, com confirmação e persistência. Limpeza do jardim de teste preservou os dois jardins/duas plantas anteriores após reinício.
+- [x] Cadastro e cuidados utilizáveis sem internet; fotos remotas indisponíveis têm fallback.
+- [x] Pl@ntNet configurado no servidor; identificação real por galeria, espécie sem ficha, falhas, permissões e cancelamento validados.
+- [ ] Captura nova de uma planta pela câmera e jornada com TalkBack validadas. Abertura/cancelamento/negativa de câmera aprovados; usuário optou por foto pública.
+- [x] AR informa Em breve e permite retornar, sem inicializar recurso nativo.
+- [x] Telas pequenas, teclado, áreas seguras, texto ampliado e navegação Android por três botões revisados. Larguras lógicas ajustadas no mesmo celular; não equivalem a tablet físico.
+- [x] TypeScript, lint, 112 testes, compatibilidade Expo, runtime Deno e exports Android/web aprovados; consultar último CI do PR #14.
+- [x] Alertas triados e correções compatíveis aplicadas. Restam 23 entradas altas de duas ferramentas sem patch publicado, ausentes nos bundles inspecionados; exposição/monitoramento documentados em TESTING.md.
+- [x] APK autônomo de avaliação instalado e testado sem Metro; atualização preserva dados existentes.
 - [ ] Configuração de assinatura/distribuição e resultados manuais documentados antes de publicar.
 
 ## Fora do escopo
 
 Diagnóstico de doenças por foto, IA generativa e AR ficam para versões futuras. A API de doenças do Pl@ntNet tem cobertura limitada e não entra automaticamente nesta entrega. Publicação em loja também exige preparação e instrução própria.
 
-## Configuração pendente
+## Configuração do serviço
 
 A chave `PLANTNET_API_KEY` deve existir somente nos secrets do Supabase. O passo a passo está em [ANALYSIS.md](ANALYSIS.md#configurar-plantnet). Nenhuma chave deve ser enviada por chat ou adicionada ao Git. A cota gratuita do Pl@ntNet pertence à conta usada pelo backend, compartilhada por todas as instalações do Gardenfy.
+
+Secret configurado e identificação real validada em 04/10/2026. Resultados e limites do aceite em [TESTING.md](TESTING.md).
