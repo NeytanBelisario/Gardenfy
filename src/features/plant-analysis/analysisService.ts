@@ -7,7 +7,11 @@ export type AnalysisTransport = (photo: AnalysisPhoto, signal: AbortSignal) => P
 export function normalizeAnalysisPhoto(photo: { uri?: string; base64?: string | null; mimeType?: string | null }): AnalysisPhoto {
   const dataUrl = photo.base64?.match(/^data:(image\/[\w.+-]+);base64,/);
   const base64 = photo.base64?.replace(/^data:image\/[\w.+-]+;base64,/, '').replace(/\s/g, '') ?? '';
-  const mimeType = photo.mimeType ?? dataUrl?.[1] ?? 'image/jpeg';
+  // Android's image picker compresses PNGs to JPEG but retains the source MIME.
+  // Send the type of the actual bytes so the server can validate the signature.
+  const encodedMime = base64.startsWith('/9j/') ? 'image/jpeg'
+    : /^iVBORw0KGg[opqr]/.test(base64) ? 'image/png' : undefined;
+  const mimeType = encodedMime ?? photo.mimeType ?? dataUrl?.[1] ?? 'image/jpeg';
   if (!photo.uri || !base64 || !/^[A-Za-z0-9+/]+={0,2}$/.test(base64) || base64.length % 4 !== 0 || !/^image\/[\w.+-]+$/.test(mimeType)) {
     throw new PlantAnalysisError('image');
   }
