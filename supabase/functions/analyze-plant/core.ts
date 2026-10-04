@@ -80,7 +80,7 @@ export function extractGeminiText(value: unknown): string {
 }
 
 export function mapGeminiStatus(status: number): FunctionError {
-  if (status === 400 || status === 401 || status === 403 || status === 404) {
+  if (status === 400 || status === 401 || status === 402 || status === 403 || status === 404) {
     return new FunctionError('configuration', 500);
   }
   if (status === 429) return new FunctionError('rate-limit', 429);

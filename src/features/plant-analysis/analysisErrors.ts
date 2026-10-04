@@ -22,7 +22,7 @@ export function normalizeAnalysisError(error: unknown): PlantAnalysisError {
   if (error instanceof PlantAnalysisError) return error;
   const status = typeof error === 'object' && error !== null && 'status' in error ? error.status : undefined;
   if (status === 429) return new PlantAnalysisError('rate-limit');
-  if (status === 400 || status === 401 || status === 403 || status === 404) return new PlantAnalysisError('configuration');
+  if (status === 400 || status === 401 || status === 402 || status === 403 || status === 404) return new PlantAnalysisError('configuration');
   if (typeof status === 'number' && status >= 500) return new PlantAnalysisError('unavailable');
   return new PlantAnalysisError('network');
 }

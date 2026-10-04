@@ -20,6 +20,8 @@ O app faz uma única chamada à Edge Function `analyze-plant`, que então faz um
 
 Para investigar falhas no servidor, os logs registram somente status HTTP e modelo em respostas de erro do provedor; falhas de transporte registram modelo, cancelamento e nome da classe do erro. Falhas inesperadas registram apenas o nome da classe. Foto, Base64, resposta bruta, mensagem da exceção e credenciais permanecem fora dos logs.
 
+HTTP 402 do Gemini é tratado como falha de configuração do serviço. Na validação de 03/10/2026, a chave cadastrada alcançou o provedor, mas o modelo respondeu 402; a análise bem-sucedida ficou pendente de regularizar o faturamento/créditos no projeto associado à chave. A [documentação de faturamento](https://ai.google.dev/gemini-api/docs/billing#prepay) explica esse status; não basta cadastrar uma chave para comprovar acesso ao modelo.
+
 Após 30 segundos, o cliente encerra a espera e sinaliza abort ao transporte. É possível cancelar durante a análise e repetir a mesma foto após falha, ou escolher outra. Sair da tela cancela a análise e ignora resultados atrasados; mudar jardim/planta reinicia a sessão da tela. A tentativa de nova análise não apaga o resultado anterior nem escreve no store. O cancelamento é do cliente; não garante interromper processamento/cobrança já iniciados no provedor. Uma gravação já confirmada não é desfeita por sair da tela.
 
 ## Configuração e seleção do modelo
