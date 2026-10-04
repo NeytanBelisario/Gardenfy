@@ -1,6 +1,6 @@
 import React from 'react';
-import { PlantAnalysisScreen } from '../../../../../features/plant-analysis/PlantAnalysisScreen';
+import { PlantIdentificationScreen } from '../../../../../features/plant-identification/PlantIdentificationScreen';
 
 export default function PlantPhotoScanScreen() {
-  return <PlantAnalysisScreen mode="update" />;
+  return <PlantIdentificationScreen mode="update" />;
 }

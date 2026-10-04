@@ -1,19 +1,80 @@
 # Validação do Gardenfy
 
+## Validação no Android — 04/10/2026
+
+Samsung SM-G781B, Android 13/API 33. APK `release` autônomo de avaliação, instalado como atualização com `adb install -r`, sem depender de Metro. Os dois jardins e duas plantas anteriores permaneceram; os testes de alteração/exclusão usam apenas o jardim criado nesta sessão. Código final em `1a9190e`, na branch `feat/release-v1`.
+
+| Fluxo | Resultado observado |
+| --- | --- |
+| Supabase/Pl@ntNet | Secret configurado pelo usuário. Requisição real respondeu 200; foto pública de Monstera escolhida na galeria identificou Monstera deliciosa com cerca de 67% de confiança. |
+| Revisão da foto | Três sugestões, baixa confiança e espécie sem ficha explícitas; nome editável e confirmação antes de salvar. Resultado aparece com rolagem automática. Abrir/cancelar a galeria preserva foto, sugestões e nome digitado. |
+| Reidentificação | Troca de espécie confirmada manteve apelido, descrição e cuidados. Histórico exibiu ambas as identificações e a rega anterior. |
+| Cuidados | Rega/adubação, correção de tipo/data/hora e exclusão com cancelar/confirmar. Data 31/04 e hora 24:00 rejeitadas; rega retroativa ordenada corretamente no histórico. |
+| Jardins/plantas | Criação e edição de jardim, edição do nome da planta, feedback para nome vazio, busca sem acentos, filtro e ausência de resultados. Exclusões de planta e jardim de teste canceladas e depois confirmadas. Após reiniciar, os dois jardins/duas plantas anteriores permaneceram e os dados de teste foram removidos. |
+| Sem rede | Cadastro pelo catálogo e registro de rega funcionaram. Identificação explicou a falha e permitiu retry; após restaurar rede, mesma foto identificada sem abrir novamente a galeria. |
+| Persistência | Encerramento completo e reabertura preservaram dados. Limpar apenas o cache do Android e reabrir offline manteve foto identificada e histórico; foto remota do catálogo exibiu fallback. Não foi usado “Limpar dados”. |
+| Fotos/permissões | Galeria real e recorte funcionando; câmera abriu e foi cancelada sem capturar. Negativa da permissão de câmera recebeu orientação e alternativa pela galeria. Imagem do logo React recebeu “Não encontramos uma planta”. Cancelamento durante requisição exibiu confirmação e não salvou resultado tardio. |
+| Navegação/visual | Menu, espaço local com contagens, atalhos, voltar Android e AR Em breve com retorno. Larguras lógicas 320/390/768 conferidas no mesmo aparelho por ajuste temporário da densidade; 768 não equivale a teste em tablet. Texto ampliado a 1,4 e nomes longos revisados. |
+| Teclado | Criação, edição de jardim e correção de horário permitem rolagem até as ações acima do teclado. Barra inferior esconde durante digitação; navegação Android tem contraste escuro e fundo sem texto sobre os botões do sistema. |
+
+Correções encontradas no aparelho: formato real do arquivo após compressão Android, formulários compactos, contraste das barras, rótulos acessíveis em português, rolagem para revisão, preservação do rascunho ao cancelar e posição da navegação após fechar o teclado. Configurações temporárias de densidade/fonte, rede, câmera e serviços de acessibilidade devem ser restauradas ao fim do teste.
+
+**Limites do aceite:** o usuário optou por imagem pública, portanto não houve captura nova de uma planta pela câmera. A tentativa de ativar TalkBack abriu o tutorial com aviso de leitor desativado; não conta como jornada validada com leitor de tela. Não houve teste nativo iOS, tablet físico, navegação por gestos nem publicação em loja. Quota/timeout/respostas inválidas e falhas de gravação são cobertos por testes automatizados, sem esgotar a conta ou corromper dados reais.
+
+### Checks e dependências desta sessão
+
+- `npm run check`: TypeScript, lint sem avisos e 112 testes aprovados. Compatibilidade Expo, Deno congelado e exports Android/web aprovados; [CI com instalação limpa do código final](https://github.com/NeytanBelisario/Gardenfy/actions/runs/37185848291) aprovado em `1a9190e`. Consultar o PR para o resultado da atualização de documentação.
+- Builds Android incrementais e instalação como atualização aprovados. Assinatura de avaliação preservada para compatibilidade; ainda não há assinatura de produção nem instrução de publicação.
+- `npm ci` nesta sessão Windows encontrou arquivo nativo bloqueado por outro processo (`EPERM`). Dependências recuperadas com `npm install` pelo lockfile, seguido de checks aprovados. Instalação limpa do novo lockfile/postinstall passou no CI Linux; não declarar esta tentativa Windows como aprovada.
+- Correções compatíveis reduziram a auditoria de 42 para **23 entradas altas**, sem moderadas, baixas ou críticas. As cadeias restantes vêm de `braces@3.0.3` e `node-forge@1.4.0`, sem versão corrigida publicada na consulta desta sessão: [braces](https://github.com/advisories/GHSA-vfj7-8cjw-p6xm), [node-forge](https://github.com/advisories/GHSA-86w9-cpqp-85rv).
+- Ambos estão na cadeia de ferramentas e não aparecem nos sourcemaps Android/web inspecionados. Isso indica exposição no ambiente de build, sem provar ausência de outros riscos. Evitar entradas de glob/certificados não confiáveis no build e acompanhar patches. Não há atualização OTA assinada configurada. Não usar `npm audit fix --force` para trocar Expo/React Native.
+- `decode-uri-component` embarcado foi atualizado de 0.2.2 para 0.5.0, com adapter idempotente no postinstall para `query-string` 7.1. Dois testes verificam acentos, parâmetros repetidos e entrada malformada longa com timeout. Deep link `%FF` abriu a rota no Android sem travar. O override `xcode` → `uuid` 11.1.1 preservou o prebuild. Ver [DEVELOPMENT.md](DEVELOPMENT.md).
+
+Os registros abaixo são históricos da preparação e de versões anteriores; pendências e contagens antigas não substituem esta validação.
+
+## Aceite vigente da versão 1.0
+
+Ver [RELEASE_1.0.md](RELEASE_1.0.md). Usar jardim de teste separado e registrar commit, dispositivo, Android, tipo de build e resultado. Não confundir export, Reload do JavaScript, encerramento completo ou execução em aparelho.
+
+1. Primeiro acesso: criar jardim, cancelar/validar nome vazio e editar nome/ambiente/ícone. Conferir estado vazio e acesso ao cadastro.
+2. Catálogo: pesquisar com/sem acentos, filtrar e adicionar planta. Deve abrir os detalhes; nome, espécie e ficha de cuidados devem corresponder. Voltar deve levar ao jardim correto.
+3. Cuidados: registrar rega e adubação, verificar últimas datas, histórico e contagem no jardim/home. Corrigir tipo/data/hora, rejeitar data inválida e cancelar/confirmar exclusão de um cuidado.
+4. Persistência: encerrar completamente e reabrir; conferir jardins, plantas, fotos próprias e cuidados. Repetir sem rede, inclusive criar/editar/excluir pelo catálogo. Fotos remotas indisponíveis devem ter fallback.
+5. Identificação: configurar Pl@ntNet conforme ANALYSIS.md; câmera e galeria reais, negativa de permissão, cancelamento, foto sem planta, baixa confiança, espécie sem ficha e revisão de espécie diferente. Confirmar uma sugestão, escolher nome e verificar foto/espécie/cuidados após reinício. Reidentificação mantém nome/descrição e cuidados.
+6. Erros: sem internet/configuração/cota, identificação deve explicar e permitir catálogo. Retry de gravação não deve repetir chamada ao provedor. Falha/timeout/cancelamento não salva resultados tardios.
+7. Edição/exclusão: editar planta pelos detalhes, preservar espécie/ficha; cancelar/confirmar exclusão, retornar ao jardim e revisar contagens. Excluir jardim de teste com confirmação. Não usar jardins pessoais para exclusões.
+8. AR: menu AR · Em breve e rota direta /preview mostram orientação/retorno, sem pedir câmera ou iniciar sessão AR.
+9. Experiência: largura 320/390/768, nomes longos, texto ampliado, TalkBack, áreas seguras, teclado, scroll e voltar Android. Todas as ações visíveis devem ter comportamento útil.
+10. APK autônomo: instalar como atualização compatível, encerrar Metro/desconectar computador e repetir o núcleo local. Conferir preservação de dados. Assinatura de avaliação não equivale à assinatura para publicação em loja.
+
+Na primeira etapa da preparação não havia aparelho disponível. A execução posterior está registrada no início deste documento.
+
+### Resultados da preparação — 04/10/2026
+
+- Node 22.22.2/npm 10.9.7 no Windows: TypeScript, lint sem avisos e 109 testes aprovados. Regressões incluem parsing Pl@ntNet, validação da resposta no cliente, migração v3 com histórico misto, preservação de fotos/cuidados e resumos após correção/exclusão.
+- Compatibilidade Expo, Deno 2.9.6 com imports congelados, exports Android/web (12 rotas), 23 links locais e `git diff --check` aprovados. Metro recuperou um cache incompatível com leitura completa; o export concluiu com sucesso.
+- [CI do PR #14](https://github.com/NeytanBelisario/Gardenfy/actions/runs/37180890829) aprovado no commit `6fbe0dc`, incluindo instalação limpa, checks, Deno e exports.
+- Função e migração implantadas no Supabase; lint do banco sem erros. Requisição sem credencial pública respondeu 401 e com credencial respondeu 500/configuration. Falta o secret `PLANTNET_API_KEY`; não houve reconhecimento real bem-sucedido.
+- `npm audit --omit=dev` reportou 42 entradas: 29 altas, 12 moderadas, 1 baixa e nenhuma crítica. Inclui cadeias de ferramentas Expo/Metro, não apenas código embarcado no app. Triagem de exposição e correções compatíveis continuam pendentes; não executar `audit fix --force`, pois as propostas incluem troca de versões do SDK/React Native. Contagens históricas abaixo não representam a auditoria atual.
+- Inspeção preliminar do sourcemap Android: oito pacotes com avisos altos próprios (`@xmldom/xmldom`, `brace-expansion`, `braces`, `browserslist`, `image-size`, `js-yaml`, `node-forge`, `ws`) não aparecem no JavaScript embarcado; `decode-uri-component`, com aviso moderado, aparece. Isso não encerra a triagem de ferramentas, código nativo ou caminhos exploráveis; a avaliação permanece pendente.
+- Prioridade concreta da triagem: [GHSA-vcc3-ghjq-m6fr](https://github.com/advisories/GHSA-vcc3-ghjq-m6fr), decodificação de URI malformada que pode consumir CPU. O lockfile usa `decode-uri-component@0.2.2` via `query-string` (`^0.2.2`); o patch indicado pelo mantenedor é 0.5.0, fora dessa faixa. Avaliar atualização do consumidor/compatibilidade de módulo e testar links/rotas antes de substituir, sem override indiscriminado.
+- Prebuild Android novo sem Viro e `assembleRelease` aprovados em JDK 17/SDK 36. APK de avaliação com bundle embarcado, 90.554.333 bytes e quatro ABIs; assinatura v2 verificada. Manifesto sem microfone, arquivo sem entradas Viro e mesmo keystore anterior. ADB sem dispositivo conectado e navegador de automação indisponível: nenhum teste manual/visual novo ocorreu. Build autônomo gerado não equivale a teste sem Metro no aparelho.
+
 ## Checks automatizados
 
 ```bash
 npm ci
 npm run check
 npx expo install --check
-npx expo export --platform android
+npx --yes deno@2.9.6 check --frozen --config supabase/functions/identify-plant/deno.json supabase/functions/identify-plant/index.ts
+npx expo export --platform android --platform web
 ```
 
-`npm run check` executa TypeScript, ESLint (com zero avisos permitidos) e testes de persistência. `npm test` permite executar só os testes. A configuração de lint segue o [guia oficial do Expo](https://docs.expo.dev/guides/using-eslint/), com exceção pontual documentada para o asset GLB nativo.
+`npm run check` executa TypeScript, ESLint (com zero avisos permitidos) e testes de domínio/transporte. `npm test` permite executar só os testes. A configuração de lint segue o [guia oficial do Expo](https://docs.expo.dev/guides/using-eslint/). O check Deno cobre os arquivos do runtime Supabase, excluídos do TypeScript do app.
 
-O workflow `.github/workflows/checks.yml` executa instalação pelo lockfile, checks e testes, compatibilidade dos pacotes Expo e export do bundle Android em PRs para `develop`/`main` e pushes nessas bases. O export valida JavaScript/assets; não produz APK nem substitui teste nativo.
+O workflow `.github/workflows/checks.yml` executa instalação pelo lockfile, checks e testes, compatibilidade dos pacotes Expo, check Deno e exports Android/web em PRs para `develop`/`main` e pushes nessas bases. O export valida JavaScript/assets; não produz APK nem substitui teste nativo.
 
-## Roteiro manual — situação atual
+## Roteiro manual — histórico do MVP anterior à 1.0
 
 Execute com build nativo Android e registre versão do sistema, modelo do dispositivo, commit e resultado. Os resultados abaixo ainda não foram executados em dispositivo nesta sessão.
 

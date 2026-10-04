@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react';
 import { KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 
-import { GardenIdentityIcon, gardenIconOptions } from './icons';
+import { GardenIdentityIcon, gardenIconLabels, gardenIconOptions } from './icons';
 import { deleteGarden, deletePlant, updateGarden, updatePlant } from './store';
 import type { GardenDetails, GardenPlant } from './types';
 
@@ -10,11 +10,12 @@ export type GardenManagementAction = {
   plant?: GardenPlant;
 };
 
-export function GardenManagementDialog({ garden, action, onClose, onGardenDeleted }: {
+export function GardenManagementDialog({ garden, action, onClose, onGardenDeleted, onPlantDeleted }: {
   garden: GardenDetails;
   action: GardenManagementAction;
   onClose: () => void;
   onGardenDeleted: () => void;
+  onPlantDeleted?: () => void;
 }) {
   const plant = action.plant;
   const deleting = action.mode === 'delete';
@@ -50,19 +51,20 @@ export function GardenManagementDialog({ garden, action, onClose, onGardenDelete
     }
     onClose();
     if (deleting && !plant) onGardenDeleted();
+    if (deleting && plant) onPlantDeleted?.();
   };
 
   return (
     <Modal transparent animationType="fade" onRequestClose={dismiss}>
-      <KeyboardAvoidingView style={styles.overlay} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+      <KeyboardAvoidingView style={styles.overlay} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
         <View style={styles.dialog} accessibilityViewIsModal>
           <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.content}>
             <Text accessibilityRole="header" style={styles.title}>{title}</Text>
             {deleting ? (
               <Text style={styles.text}>
                 {plant
-                  ? `Excluir “${plant.name}” deste jardim? A análise e as fotos locais sem uso também serão removidas.`
-                  : `Excluir “${garden.name}” e suas ${garden.plantCount} plantas? As análises e fotos locais sem uso também serão removidas.`}
+                  ? `Excluir “${plant.name}” deste jardim? O histórico de cuidados e as fotos locais desta planta também serão removidos.`
+                  : `Excluir “${garden.name}”${garden.plantCount ? ` e ${garden.plantCount} ${garden.plantCount === 1 ? 'planta' : 'plantas'}` : ''}? Os históricos de cuidados e as fotos locais também serão removidos.`}
                 {'\n\n'}Esta ação não pode ser desfeita.
               </Text>
             ) : (
@@ -87,7 +89,7 @@ export function GardenManagementDialog({ garden, action, onClose, onGardenDelete
                     <Text style={styles.label}>Ícone</Text>
                     <View style={styles.row}>
                       {gardenIconOptions.map((value) => (
-                        <Pressable key={value} accessibilityRole="button" accessibilityLabel={`Ícone ${value}`} accessibilityState={{ selected: icon === value, disabled: busy }} disabled={busy} onPress={() => setIcon(value)} style={[styles.choice, icon === value && styles.selected]}>
+                        <Pressable key={value} accessibilityRole="button" accessibilityLabel={gardenIconLabels[value]} accessibilityState={{ selected: icon === value, disabled: busy }} disabled={busy} onPress={() => setIcon(value)} style={[styles.choice, icon === value && styles.selected]}>
                           <GardenIdentityIcon icon={value} size={28} color="#17361d" />
                         </Pressable>
                       ))}
@@ -97,7 +99,7 @@ export function GardenManagementDialog({ garden, action, onClose, onGardenDelete
               </>
             )}
             {error ? <Text accessibilityRole="alert" style={styles.error}>{error}</Text> : null}
-            <Pressable accessibilityRole="button" disabled={busy} accessibilityState={{ disabled: busy, busy }} onPress={save} style={[styles.primary, deleting && styles.destructive, busy && styles.disabled]}>
+            <Pressable accessibilityRole="button" accessibilityLabel={deleting ? 'Confirmar exclusão' : 'Salvar alterações'} disabled={busy} accessibilityState={{ disabled: busy, busy }} onPress={save} style={[styles.primary, deleting && styles.destructive, busy && styles.disabled]}>
               <Text style={styles.primaryText}>{busy ? (deleting ? 'Excluindo...' : 'Salvando...') : deleting ? 'Confirmar exclusão' : 'Salvar alterações'}</Text>
             </Pressable>
             <Pressable accessibilityRole="button" disabled={busy} onPress={dismiss} style={styles.choice}>

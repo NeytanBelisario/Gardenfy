@@ -6,12 +6,12 @@ import { Ionicons } from '@expo/vector-icons';
 import { AppHeader } from '../components/shell/AppHeader';
 import { AppNavbar } from '../components/shell/AppNavbar';
 import { GardenIdentityIcon } from '../features/gardens/icons';
-import { formatPercent } from '../features/gardens/metricPresentation';
-import type { GardenSummary } from '../features/gardens/types';
-import { useGardenSummaries } from '../features/gardens/store';
+import { gardenCareCount } from '../features/gardens/careActivity';
+import type { GardenDetails } from '../features/gardens/types';
+import { useGardensState } from '../features/gardens/store';
 import { useNavbarVisibilityOnScroll } from '../hooks/useNavbarVisibilityOnScroll';
 
-function GardenCard({ garden }: { garden: GardenSummary }) {
+function GardenCard({ garden }: { garden: GardenDetails }) {
   const router = useRouter();
   return (
     <Pressable accessibilityRole="button"
@@ -26,28 +26,17 @@ function GardenCard({ garden }: { garden: GardenSummary }) {
         </View>
         <Ionicons name="chevron-forward" size={20} color="#476644" />
       </View>
-      {garden.alert ? <Text style={[styles.alert, garden.alert.tone === 'danger' && styles.dangerAlert]}>{garden.alert.label}</Text> : null}
-      {garden.vitality === null && garden.metrics.every(metric => metric.value === null) ? (
-        <View style={styles.localNote}>
-          <Ionicons name="leaf-outline" size={18} color="#476644" />
-          <Text style={styles.noteText}>{garden.plantCount ? 'Sem análise · os cuidados já podem ser registrados.' : 'Seu jardim está pronto para receber a primeira planta.'}</Text>
-        </View>
-      ) : (
-        <View style={styles.analysis}>
-          <Text style={styles.secondary}>Estimativas da IA</Text>
-          <View style={styles.metricRow}>
-            <Text style={styles.metric}>Vitalidade {formatPercent(garden.vitality)}</Text>
-            {garden.metrics.map(metric => <Text key={metric.kind} style={styles.metric}>{metric.label} {formatPercent(metric.value)}</Text>)}
-          </View>
-        </View>
-      )}
+      <View style={styles.localNote}>
+        <Ionicons name="water-outline" size={18} color="#476644" />
+        <Text style={styles.noteText}>{garden.plantCount ? gardenCareCount(garden) + (gardenCareCount(garden) === 1 ? ' cuidado registrado' : ' cuidados registrados') + ' · acompanhe suas plantas' : 'Seu jardim está pronto para receber a primeira planta.'}</Text>
+      </View>
     </Pressable>
   );
 }
 
 export default function HomeScreen() {
   const router = useRouter();
-  const gardens = useGardenSummaries();
+  const { gardens } = useGardensState();
   const plants = gardens.reduce((total, garden) => total + garden.plantCount, 0);
   const { navbarHidden, handleNavbarScroll } = useNavbarVisibilityOnScroll();
   return (
@@ -67,7 +56,7 @@ export default function HomeScreen() {
         </View>
         <View style={styles.sectionHeader}>
           <Text accessibilityRole="header" style={styles.sectionTitle}>Meus jardins</Text>
-          {gardens.length ? <Pressable accessibilityRole="button" onPress={() => router.push('/gardens/new')} style={styles.newButton}>
+          {gardens.length ? <Pressable accessibilityRole="button" accessibilityLabel="Criar jardim" onPress={() => router.push('/gardens/new')} style={styles.newButton}>
             <Ionicons name="add" size={20} color="#17361d" /><Text style={styles.newButtonText}>Novo jardim</Text>
           </Pressable> : null}
         </View>
@@ -76,7 +65,7 @@ export default function HomeScreen() {
             <Image source={require('../public/nogardenicon.png')} style={styles.emptyImage} resizeMode="contain" />
             <Text style={styles.emptyTitle}>Tudo começa com um jardim</Text>
             <Text style={styles.emptyText}>Escolha um nome, adicione plantas pelo catálogo e registre regas e adubações.</Text>
-            <Pressable accessibilityRole="button" onPress={() => router.push('/gardens/new')} style={({ pressed }) => [styles.primaryButton, pressed && styles.pressed]}>
+            <Pressable accessibilityRole="button" accessibilityLabel="Criar meu primeiro jardim" onPress={() => router.push('/gardens/new')} style={({ pressed }) => [styles.primaryButton, pressed && styles.pressed]}>
               <Ionicons name="add" size={22} color="#ffffff" /><Text style={styles.primaryButtonText}>Criar meu primeiro jardim</Text>
             </Pressable>
           </View>

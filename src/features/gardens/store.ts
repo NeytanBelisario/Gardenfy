@@ -17,6 +17,7 @@ export const updatePlantCare = store.updatePlantCare;
 export const deletePlantCare = store.deletePlantCare;
 export const deletePlant = store.deletePlant;
 export const addPlantToGarden = store.addPlantToGarden;
+export const savePlantIdentification = store.savePlantIdentification;
 export const addAnalyzedPlantToGarden = store.addAnalyzedPlantToGarden;
 export const updatePlantAnalysis = store.updatePlantAnalysis;
 

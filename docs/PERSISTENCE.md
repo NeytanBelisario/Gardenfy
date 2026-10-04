@@ -4,17 +4,19 @@ A entrega de persistência usa [AsyncStorage compatível com Expo 55](https://do
 
 ## Formato e carregamento
 
-A chave `@gardenfy/gardens` contém um JSON com `version: 3` e `gardens`. A validação verifica jardins, plantas, métricas, histórico, referências de fotos e IDs duplicados antes de carregar ou gravar.
+A chave `@gardenfy/gardens` contém um JSON com `version: 4` e `gardens`. A validação verifica jardins, plantas, espécie confirmada, métricas legadas, histórico, referências de fotos e IDs duplicados antes de carregar ou gravar.
 
 O store é carregado uma vez na abertura do app. `GardensBootstrap` mostra carregamento e libera as rotas quando a leitura termina. Sem dados salvos, o estado inicial é vazio. Falha de leitura, JSON inválido ou versão desconhecida mostra um erro com opção de tentar novamente; o conteúdo existente não é substituído por um estado vazio.
 
-Dados v1 são validados pelo formato original e migrados em memória: água/luz de plantas sem vitalidade (cadastro sem análise) tornam-se `null`; análises, inclusive zeros, fotos, nomes e datas permanecem. Os agregados são recalculados incluindo zeros conhecidos e excluindo valores desconhecidos. Dados v1/v2 recebem um histórico vazio ou um registro da última análise quando há data salva. Os formatos antigos só guardavam a última análise, portanto não é possível recuperar análises anteriores nem cuidados que nunca foram registrados. IDs desse registro migrado são determinísticos. A leitura não grava nada: o formato v3 é salvo na próxima operação bem-sucedida. Se essa gravação falhar, o JSON original permanece. Mudanças futuras de schema devem ter migração explícita e testes antes de alterar a versão. Dados incompatíveis/corrompidos ainda não têm ferramenta de reparo no app; a tentativa de leitura não apaga esses dados.
+Dados v1 são validados pelo formato original e migrados em memória: água/luz de plantas sem vitalidade (cadastro sem análise) tornam-se `null`; análises, inclusive zeros, fotos, nomes e datas permanecem. Os agregados são recalculados incluindo zeros conhecidos e excluindo valores desconhecidos. Dados v1/v2 recebem um histórico vazio ou um registro da última análise quando há data salva. Os formatos antigos só guardavam a última análise, portanto não é possível recuperar análises anteriores nem cuidados que nunca foram registrados. IDs desse registro migrado são determinísticos. A leitura não grava nada: o formato v4 é salvo na próxima operação bem-sucedida. Se essa gravação falhar, o JSON original permanece. Mudanças futuras de schema devem ter migração explícita e testes antes de alterar a versão. Dados incompatíveis/corrompidos ainda não têm ferramenta de reparo no app; a tentativa de leitura não apaga esses dados.
 
 ## Gravação
 
+Na migração v3 → v4, o histórico completo de cuidados e análises é preservado. A espécie é opcional para plantas antigas e obrigatória nos novos cadastros identificados. Cadastros pelo catálogo recebem a taxonomia disponível no catálogo. O schema aceita identificações (`kind: identification`) com espécie, origem, confiança e data validadas.
+
 As operações de criação de jardim, inclusão pelo catálogo, inclusão por foto, reanálise, edição, exclusão e registro/correção/exclusão de cuidados são assíncronas. Uma fila serializa mudanças, e a memória só é atualizada quando a gravação confirma sucesso. Falhas são apresentadas na tela e a operação pode ser repetida. Uma falha não impede as próximas operações da fila.
 
-A criação exige nome preenchido. O antigo `createMockGarden` foi substituído por `createGarden`; o catálogo estático não inicializa mais o store por efeito colateral. As telas aguardam o salvamento antes de navegar ou apresentar resultado salvo. A análise por foto exige revisão e confirmação explícita; descartar resultado, cancelar ou falhar na análise não grava nada. O nome revisado na inclusão é salvo na mesma operação, separado da identificação sugerida pela IA; ver [ANALYSIS.md](ANALYSIS.md).
+A criação exige nome preenchido. O antigo `createMockGarden` foi substituído por `createGarden`; o catálogo estático não inicializa mais o store por efeito colateral. As telas aguardam o salvamento antes de navegar ou apresentar resultado salvo. A identificação Pl@ntNet exige revisão e confirmação explícita; descartar resultado, cancelar ou falhar não grava nada. O nome pessoal é salvo na mesma operação, separado da espécie confirmada. Reidentificação preserva nome, descrição, cuidados e análises antigas; ver [ANALYSIS.md](ANALYSIS.md).
 
 Esse armazenamento é local, sem conta, sincronização ou backup em servidor. Os dados sobrevivem ao reinício normal do app; limpar dados, desinstalar ou perder o aparelho pode removê-los. AsyncStorage não é armazenamento criptografado de credenciais. O Git transfere o código entre PCs, não os jardins de quem usa o aplicativo.
 
@@ -40,21 +42,21 @@ Na tela de detalhes, as ações Editar/Excluir aparecem para o jardim e cada pla
 
 Excluir exige confirmação explícita, com opção de cancelar. Excluir um jardim remove suas plantas e análises; excluir uma planta recalcula contagens e agregados do jardim. A navegação volta à home após excluir o jardim. Salvamento/exclusão bloqueiam novas ações no diálogo e mostram falhas com opção de repetir.
 
-Os dados são gravados antes de limpar fotos que perderam todas as referências. Fotos compartilhadas, inclusive usadas na capa de outro jardim, são preservadas. Falha de gravação mantém dados e fotos anteriores; falha de limpeza após sucesso pode deixar uma foto órfã e não desfaz a exclusão. A fila rejeita ações para IDs já excluídos, evitando recriar registros por uma operação atrasada. As operações usam o schema v3 descrito acima, sem novas dependências.
+Os dados são gravados antes de limpar fotos que perderam todas as referências. Fotos compartilhadas, inclusive usadas na capa de outro jardim, são preservadas. Falha de gravação mantém dados e fotos anteriores; falha de limpeza após sucesso pode deixar uma foto órfã e não desfaz a exclusão. A fila rejeita ações para IDs já excluídos, evitando recriar registros por uma operação atrasada. As operações usam o schema v4 descrito acima, sem novas dependências.
 
 ## Métricas e ausência de análise
 
 Métricas de água/luz e agregados do jardim usam `null` para desconhecido. Vitalidade e crescimento da planta continuam opcionais quando não há análise. Zero é uma estimativa válida e participa da média; não equivale a ausência de informação. Um jardim vazio ou só com plantas sem análise tem agregados desconhecidos.
 
-Home e detalhes mostram “Sem análise”; os indicadores compactos da planta mostram “—” com texto explicativo e rótulos acessíveis. Crescimento conhecido de zero dias aparece como `0d`. Resultados e médias são identificados como estimativas da IA, e o detalhe informa quantas plantas foram analisadas. Cada média usa apenas os valores conhecidos daquele indicador; o catálogo estático não fabrica métricas.
+Na 1.0, home e jardim mostram contagens de plantas e cuidados efetivamente registrados. Detalhes mostram últimas regas/adubações e fichas locais da espécie. Estimativas antigas aparecem somente nos registros de análise do histórico, identificadas como legado do Gemini. Novas identificações não criam métricas; os valores antigos permanecem no schema para compatibilidade.
 
 ## Cuidados e histórico da planta
 
-Cada planta tem `history`, uma lista de registros com ID, tipo e instante ISO em UTC. Rega/adubação (`kind: care`) são registros feitos pelo usuário. Análises (`kind: analysis`) guardam um retrato de identificação, saúde, vitalidade, água/luz e crescimento estimado na data da análise. Uma reanálise adiciona outro registro sem sobrescrever resultados históricos; editar nome/descrição preserva o histórico.
+Cada planta tem `history`, uma lista de registros com ID, tipo e instante ISO em UTC. Rega/adubação (`kind: care`) são registros feitos pelo usuário. Identificações (`kind: identification`) guardam a espécie confirmada. Análises legadas (`kind: analysis`) guardam um retrato das estimativas antigas. Uma reidentificação adiciona outro registro sem sobrescrever resultados históricos; editar nome/descrição preserva o histórico.
 
 Regar/Adubar salva o instante atual, mostra sucesso após confirmação e bloqueia toques repetidos durante a gravação. Registrar, corrigir ou excluir cuidado não muda métricas, vitalidade, data da última análise, contagens ou fotos. Falhas de escrita preservam memória e armazenamento anteriores e permitem tentar novamente. Operações para plantas/jardins excluídos são rejeitadas.
 
-A tela de detalhes é acessível pelo botão “Ver detalhes e cuidados” no jardim. Ela mostra hidratação e luz como estimativas da IA, com data e estado sem análise, permite abrir a análise existente e apresenta histórico do mais recente para o mais antigo. Em instantes iguais, a inserção mais recente vem primeiro. Datas são exibidas no horário local do aparelho.
+A tela de detalhes é acessível ao tocar a planta no jardim e após confirmar um cadastro. Ela prioriza registro de cuidados, últimas datas e orientações da espécie. O histórico aparece do mais recente para o mais antigo. Em instantes iguais, a inserção mais recente vem primeiro. Datas são exibidas no horário local do aparelho.
 
 Cuidados permitem corrigir tipo, data e hora (`DD/MM/AAAA`, `HH:mm`) ou excluir com confirmação. Datas/horas inválidas são rejeitadas, e corrigir somente o tipo preserva os segundos do instante original. A posição no histórico acompanha a data corrigida. Registros de análise não são editáveis/excluíveis individualmente nesta entrega.
 

@@ -1,5 +1,5 @@
-import React, { useEffect, useRef } from 'react';
-import { Animated, Easing, Pressable, StyleSheet, Text, View } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { Animated, Easing, Keyboard, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { usePathname, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -15,8 +15,8 @@ const COLORS = {
 const navItems = [
   { label: 'Jardins', icon: 'sprout', route: '/', activeOn: ['/'] },
   { label: 'Criar', icon: 'add-circle-outline', route: '/gardens/new', activeOn: ['/gardens/new'] },
-  { label: 'AR', icon: 'cube-outline', route: '/preview', activeOn: ['/preview'] },
-  { label: 'Perfil', icon: 'person-outline', route: '/profile', activeOn: ['/profile'] },
+  { label: 'Foto', icon: 'camera-outline', route: '/scan', activeOn: ['/scan'] },
+  { label: 'Espaço', icon: 'person-outline', route: '/profile', activeOn: ['/profile'] },
 ] as const;
 
 function NavIcon({
@@ -44,9 +44,16 @@ export function AppNavbar({ hidden = false }: AppNavbarProps) {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { menuOpen } = useShellUi();
-  const shouldHide = hidden || menuOpen;
+  const [keyboardVisible, setKeyboardVisible] = useState(false);
+  const shouldHide = hidden || menuOpen || keyboardVisible;
   const translateY = useRef(new Animated.Value(0)).current;
   const opacity = useRef(new Animated.Value(1)).current;
+
+  useEffect(() => {
+    const show = Keyboard.addListener('keyboardDidShow', () => setKeyboardVisible(true));
+    const hide = Keyboard.addListener('keyboardDidHide', () => setKeyboardVisible(false));
+    return () => { show.remove(); hide.remove(); };
+  }, []);
 
   useEffect(() => {
     Animated.parallel([
@@ -68,6 +75,8 @@ export function AppNavbar({ hidden = false }: AppNavbarProps) {
   return (
     <Animated.View
       pointerEvents={shouldHide ? 'none' : 'auto'}
+      accessibilityElementsHidden={shouldHide}
+      importantForAccessibility={shouldHide ? 'no-hide-descendants' : 'auto'}
       style={[
         styles.navShell,
         {
@@ -88,14 +97,14 @@ export function AppNavbar({ hidden = false }: AppNavbarProps) {
               key={item.label}
               style={styles.navItem}
               accessibilityRole="button"
-              accessibilityLabel={item.label === 'AR' ? 'Visualizar planta em realidade aumentada' : item.label === 'Criar' ? 'Criar jardim' : item.label}
+              accessibilityLabel={item.label === 'Foto' ? 'Identificar planta por foto' : item.label === 'Criar' ? 'Criar jardim' : item.label}
               accessibilityState={{ selected: active }}
               onPress={() => { if (pathname !== item.route) router.push(item.route); }}
             >
               <View style={[styles.navChip, active && styles.navChipActive]}>
                 <NavIcon item={item} active={active} />
               </View>
-              <Text style={[styles.navLabel, active && styles.navLabelActive]}>
+              <Text numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8} style={[styles.navLabel, active && styles.navLabelActive]}>
                 {item.label}
               </Text>
             </Pressable>
@@ -153,6 +162,8 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(71, 102, 68, 0.12)',
   },
   navLabel: {
+    maxWidth: '100%',
+    textAlign: 'center',
     color: COLORS.secondary,
     fontSize: 11,
     fontWeight: '800',

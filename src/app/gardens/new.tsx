@@ -1,6 +1,8 @@
 import React, { useRef, useState } from 'react';
 import {
   Image,
+  KeyboardAvoidingView,
+  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -9,6 +11,7 @@ import {
   View,
 } from 'react-native';
 import { useRouter } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   Ionicons,
 } from '@expo/vector-icons';
@@ -20,6 +23,7 @@ import {
   GardenIconName,
   GardenIdentityIcon,
   gardenIconOptions,
+  gardenIconLabels,
 } from '../../features/gardens/icons';
 
 const COLORS = {
@@ -34,11 +38,6 @@ const COLORS = {
   white: '#ffffff',
 } as const;
 
-const iconLabels: Record<GardenIconName, string> = {
-  'potted-plant': 'Broto', psychology: 'Natureza', eco: 'Folha', 'wb-sunny': 'Sol',
-  'water-drop': 'Gota de água', 'energy-savings-leaf': 'Folha delicada', spa: 'Flor', 'filter-vintage': 'Flor ornamental',
-};
-
 function IdentityIcon({
   icon,
   active,
@@ -52,6 +51,7 @@ function IdentityIcon({
 
 export default function NewGardenScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const savingRef = useRef(false);
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
@@ -95,12 +95,12 @@ export default function NewGardenScreen() {
   };
 
   return (
-    <View style={styles.screen}>
+    <KeyboardAvoidingView style={styles.screen} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <AppHeader title="Criar jardim" mode="back" onPressLeading={handleBack} />
       <ScrollView
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={[styles.scrollContent, { paddingBottom: 32 + insets.bottom }]}
       >
         <View style={styles.hero}>
           <Image
@@ -124,7 +124,9 @@ export default function NewGardenScreen() {
             editable={!saving}
             placeholderTextColor={COLORS.textMuted}
             value={draft.name}
-            onChangeText={(name) => setDraft((current) => ({ ...current, name }))}
+            maxLength={120}
+            returnKeyType="done"
+            onChangeText={(name) => { setDraft((current) => ({ ...current, name })); setSaveError(null); }}
             style={styles.input}
           />
         </View>
@@ -198,7 +200,7 @@ export default function NewGardenScreen() {
                 <Pressable
                   key={icon}
                   accessibilityRole="button"
-                  accessibilityLabel={iconLabels[icon]}
+                  accessibilityLabel={gardenIconLabels[icon]}
                   accessibilityState={{ selected: isActive, disabled: saving }}
                   disabled={saving}
                   style={[styles.iconButton, isActive && styles.iconButtonActive]}
@@ -215,7 +217,7 @@ export default function NewGardenScreen() {
 
         <View style={styles.actions}>
           {saveError ? <Text accessibilityRole="alert" style={{ color: '#ba1a1a' }}>{saveError}</Text> : null}
-          <Pressable accessibilityRole="button" accessibilityState={{ disabled: saving, busy: saving }} style={[styles.primaryButton, saving && { opacity: 0.6 }]} onPress={handleCreateGarden} disabled={saving}>
+          <Pressable accessibilityRole="button" accessibilityLabel="Criar jardim" accessibilityState={{ disabled: saving, busy: saving }} style={[styles.primaryButton, saving && { opacity: 0.6 }]} onPress={handleCreateGarden} disabled={saving}>
             <Text style={styles.primaryButtonText}>{saving ? 'Salvando...' : 'Criar jardim'}</Text>
           </Pressable>
 
@@ -224,7 +226,7 @@ export default function NewGardenScreen() {
           </Pressable>
         </View>
       </ScrollView>
-    </View>
+    </KeyboardAvoidingView>
   );
 }
 
@@ -240,10 +242,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingTop: 12,
     paddingBottom: 40,
-    gap: 30,
+    gap: 20,
   },
   hero: {
-    minHeight: 220,
+    minHeight: 148,
     borderRadius: 28,
     backgroundColor: COLORS.primary,
     overflow: 'hidden',
@@ -264,9 +266,9 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(23, 54, 29, 0.32)',
   },
   heroCopy: {
-    minHeight: 220,
+    minHeight: 148,
     justifyContent: 'flex-end',
-    padding: 28,
+    padding: 20,
     gap: 8,
   },
   heroStep: {
@@ -274,12 +276,12 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '800',
     textTransform: 'uppercase',
-    letterSpacing: 3,
+    letterSpacing: 1.5,
   },
   heroTitle: {
     color: COLORS.white,
-    fontSize: 30,
-    lineHeight: 36,
+    fontSize: 26,
+    lineHeight: 32,
     fontWeight: '900',
   },
   formSection: {
@@ -293,8 +295,9 @@ const styles = StyleSheet.create({
   input: {
     backgroundColor: COLORS.surfaceLow,
     borderRadius: 24,
-    paddingHorizontal: 24,
-    paddingVertical: 22,
+    minHeight: 56,
+    paddingHorizontal: 16,
+    paddingVertical: 16,
     color: COLORS.primary,
     fontSize: 18,
     fontWeight: '500',
@@ -346,10 +349,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
-    gap: 14,
+    gap: 12,
   },
   iconButton: {
-    width: '22%',
+    width: '21%',
     aspectRatio: 1,
     minWidth: 56,
     borderRadius: 24,

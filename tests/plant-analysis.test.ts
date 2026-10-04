@@ -68,6 +68,14 @@ test('image normalization strips data URI and whitespace and infers its mime typ
   }
 });
 
+test('image normalization uses encoded bytes when Android retains a PNG source MIME after JPEG compression', () => {
+  const jpeg = '/9j/4AAQSkZJRg==';
+  assert.equal(normalizeAnalysisPhoto({ uri: 'file:///cache/cropped.png', base64: jpeg, mimeType: 'image/png' }).mimeType, 'image/jpeg');
+  for (const png of ['iVBORw0KGgo=', 'iVBORw0KGgqA', 'iVBORw0KGgrA']) {
+    assert.equal(normalizeAnalysisPhoto({ uri: photo.uri, base64: png, mimeType: 'image/jpeg' }).mimeType, 'image/png');
+  }
+});
+
 test('one transport call returns the shared parsed result and receives cancellation signal', async () => {
   let calls = 0;
   const analyze = createPlantAnalysisService(async (received, signal) => {

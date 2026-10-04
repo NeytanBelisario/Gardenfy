@@ -1,18 +1,21 @@
 # Gardenfy
 
-Aplicativo de jardins e cuidados com plantas feito com Expo, React Native e TypeScript. Já inclui criação, edição e exclusão de jardins e plantas, catálogo de plantas, detalhes da planta, registros de rega/adubação com histórico, análise por foto com Gemini e visualização em realidade aumentada.
+Aplicativo Expo / React Native / TypeScript para manter jardins e acompanhar os cuidados com plantas. A primeira versão estável, 1.0, está em preparação na branch `feat/release-v1`.
 
-O projeto está em desenvolvimento: jardins, plantas e análises têm persistência local; métricas sem análise são desconhecidas e os resultados são identificados como estimativas da IA. O perfil mostra contagens reais e atalhos para jardins, sem conta ou edição de nome. A home e o catálogo priorizam os cuidados locais; ações sem implementação e conquistas fictícias foram retiradas. A persistência teve validação básica em dispositivo; o roteiro completo e os ajustes visuais mais recentes aguardam conferência no aparelho. A existência das telas não significa que o MVP esteja pronto.
+A experiência inclui criação, edição e exclusão de jardins/plantas, catálogo, fichas locais de cuidados e histórico persistente de rega/adubação. A identificação por foto usa Pl@ntNet via Supabase e exige confirmação da espécie antes de salvar. AR aparece como **Em breve**, sem módulo nativo de realidade aumentada.
+
+Os dados ficam neste aparelho, sem conta ou sincronização. Orientações de luz/rega são informações da espécie, não medições da foto. Análises antigas do Gemini são preservadas no histórico; novas fotos não geram percentuais de água, luz, vitalidade ou prazo exato de crescimento.
 
 ## Documentação
 
-- [Roadmap do MVP](docs/ROADMAP.md): estado atual, prioridades propostas e critérios de aceite.
-- [Guia de desenvolvimento](docs/DEVELOPMENT.md): instalação, ambiente, branches, PRs e troca de PC.
-- [Instruções para agentes](AGENTS.md): regras obrigatórias de trabalho e commits.
-- [Análise por foto](docs/ANALYSIS.md): fluxo compartilhado, revisão, falhas e limites do uso local.
-- [Persistência local](docs/PERSISTENCE.md): armazenamento, fotos e recuperação de falhas.
-- [Validação e testes](docs/TESTING.md): checks automatizados e roteiro manual.
-- [Continuidade entre sessões](docs/HANDOFF.md): estado do trabalho e próximo passo.
+- [Preparação da versão 1.0](docs/RELEASE_1.0.md): escopo aprovado e critérios de liberação.
+- [Roadmap](docs/ROADMAP.md): decisões atuais e histórico das entregas.
+- [Desenvolvimento](docs/DEVELOPMENT.md): ambiente, comandos, branches e troca de PC.
+- [Instruções para agentes](AGENTS.md): regras de trabalho e commits.
+- [Identificação por foto](docs/ANALYSIS.md): Pl@ntNet, configuração e limites.
+- [Persistência local](docs/PERSISTENCE.md): schema, fotos e recuperação de falhas.
+- [Validação](docs/TESTING.md): checks e roteiro da versão 1.0.
+- [Continuidade](docs/HANDOFF.md): resultados, pendências e próximo passo.
 
 ## Começar
 
@@ -24,8 +27,8 @@ cp .env.example .env
 npm start
 ```
 
-Leia o guia para preparar builds nativos. O recurso AR exige módulos nativos e não roda no Expo Go. Para continuar sem Gemini, crie um jardim, adicione plantas pelo catálogo e registre cuidados nos detalhes da planta. Esses fluxos usam armazenamento local e dispensam configuração Supabase/Gemini; imagens remotas do catálogo dependem de rede. Água/luz permanecem “Sem análise” e registrar um cuidado não altera essas estimativas.
+Jardins, cadastro pelo catálogo, fichas de cuidados e histórico funcionam sem Supabase/Pl@ntNet. Imagens remotas do catálogo dependem de rede e têm fallback. Para usar fotos, configure apenas URL/chave pública Supabase no app e `PLANTNET_API_KEY` nos secrets do servidor, conforme [o passo a passo](docs/ANALYSIS.md#configurar-plantnet).
 
-A análise por foto usa uma Edge Function Supabase, com a credencial Gemini somente no servidor. A primeira requisição real recebeu HTTP 402; por decisão do usuário, a análise e a regularização do faturamento ficam adiadas. As telas de análise continuam disponíveis e podem retornar erro de configuração ao serem usadas. Build debug Android, cadastro pelo catálogo, cuidados e recuperação após recarregar JavaScript foram validados no aparelho; o roteiro nativo completo continua pendente.
+APK Android autônomo instalado como atualização, identificação real por galeria, cuidados offline, persistência e revisão visual foram validados em Samsung Android 13. Captura nova de planta pela câmera, jornada com TalkBack e assinatura de distribuição ainda precisam de aceite. Consulte o handoff para evidências e limites; a versão estável ainda não foi publicada.
 
-O fluxo de trabalho usa branches a partir de `develop`, commits frequentes por etapas no formato `🌱 | feat: mensagem` e PR para `develop` ao finalizar cada feature. As ideias anteriores de moedas, ranks, cards da planta, regar, adubar e histórico foram preservadas no roadmap.
+Commits por etapas são publicados na branch de preparação, com PR para `develop`. Após integração e aceite, a promoção será `develop` → `main`; merge e publicação exigem instrução específica.

@@ -7,14 +7,18 @@ export type AnalysisTransport = (photo: AnalysisPhoto, signal: AbortSignal) => P
 export function normalizeAnalysisPhoto(photo: { uri?: string; base64?: string | null; mimeType?: string | null }): AnalysisPhoto {
   const dataUrl = photo.base64?.match(/^data:(image\/[\w.+-]+);base64,/);
   const base64 = photo.base64?.replace(/^data:image\/[\w.+-]+;base64,/, '').replace(/\s/g, '') ?? '';
-  const mimeType = photo.mimeType ?? dataUrl?.[1] ?? 'image/jpeg';
+  // Android's image picker compresses PNGs to JPEG but retains the source MIME.
+  // Send the type of the actual bytes so the server can validate the signature.
+  const encodedMime = base64.startsWith('/9j/') ? 'image/jpeg'
+    : /^iVBORw0KGg[opqr]/.test(base64) ? 'image/png' : undefined;
+  const mimeType = encodedMime ?? photo.mimeType ?? dataUrl?.[1] ?? 'image/jpeg';
   if (!photo.uri || !base64 || !/^[A-Za-z0-9+/]+={0,2}$/.test(base64) || base64.length % 4 !== 0 || !/^image\/[\w.+-]+$/.test(mimeType)) {
     throw new PlantAnalysisError('image');
   }
   return { uri: photo.uri, base64, mimeType };
 }
 
-export function createPlantAnalysisService(transport: AnalysisTransport, timeoutMs = 30_000) {
+export function createPhotoRequestService<T>(transport: (photo: AnalysisPhoto, signal: AbortSignal) => Promise<T>, timeoutMs = 30_000) {
   return async (photo: AnalysisPhoto, signal?: AbortSignal) => {
     if (signal?.aborted) throw new PlantAnalysisError('cancelled');
     const controller = new AbortController();
@@ -31,7 +35,7 @@ export function createPlantAnalysisService(transport: AnalysisTransport, timeout
         return transport(photo, controller.signal);
       }), interrupted]);
       if (controller.signal.aborted) throw new PlantAnalysisError('cancelled');
-      return parseGeminiAnalysisResponse(response);
+      return response;
     } catch (error) {
       throw normalizeAnalysisError(error);
     } finally {
@@ -39,4 +43,9 @@ export function createPlantAnalysisService(transport: AnalysisTransport, timeout
       signal?.removeEventListener('abort', abort);
     }
   };
+}
+
+export function createPlantAnalysisService(transport: AnalysisTransport, timeoutMs = 30_000) {
+  const request = createPhotoRequestService(transport, timeoutMs);
+  return async (photo: AnalysisPhoto, signal?: AbortSignal) => parseGeminiAnalysisResponse(await request(photo, signal));
 }

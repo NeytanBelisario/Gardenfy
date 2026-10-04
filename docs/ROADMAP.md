@@ -1,27 +1,35 @@
-# Roadmap — Gardenfy MVP
+# Roadmap — Gardenfy
+
+## Escopo vigente: versão 1.0 estável
+
+Decisão de 04/10/2026: priorizar manutenção de jardins/plantas e uma experiência fluida no Android, com armazenamento local. Identificação por foto migra para Pl@ntNet com fichas locais de cuidados. AR fica em **Em breve**; perfil editável, gamificação, login, sincronização e IA generativa ficam para depois.
+
+O plano e os critérios de lançamento estão em [RELEASE_1.0.md](RELEASE_1.0.md). A preparação usa `feat/release-v1`, commits por etapas publicados e PR para `develop`; a promoção para `main` só ocorre após validação e instrução de integração. M3/M4 abaixo registram a proposta anterior e não obrigam incluir Gemini ou AR na 1.0.
+
+## Histórico do MVP inicial
 
 Referência inicial: 01/10/2026. Este documento separa o que existe no código das entregas propostas. Prioridades e funcionalidades adicionais podem mudar conforme os próximos detalhes do produto; nenhuma escolha de backend ou regra de pontuação está fechada.
 
 ## Objetivo
 
-Permitir que uma pessoa crie seus jardins, cadastre plantas, consulte informações e registre cuidados no dia a dia, sem perder os dados ao fechar o aplicativo. A análise por foto complementa esse fluxo. A experiência AR existente deve continuar acessível em aparelhos compatíveis.
+Permitir que uma pessoa crie seus jardins, cadastre plantas, consulte informações e registre cuidados no dia a dia, sem perder os dados ao fechar o aplicativo. A identificação por foto complementa esse fluxo. AR foi adiada para depois da versão 1.0.
 
 Proposta inicial: um MVP de uso individual, com persistência local e Android como primeira plataforma de validação. Login, sincronização entre dispositivos do usuário e publicação em lojas precisam de definição de escopo. Trocar de PC para desenvolver é resolvido pelo fluxo Git e pelo guia de ambiente; isso não sincroniza os dados de quem usa o app.
 
-Prioridade combinada em 03/10/2026: continuar usando jardins, plantas do catálogo e cuidados sem Gemini. A validação de sucesso da análise e a regularização de faturamento ficam adiadas; M3 permanece parcial. Seguir o roteiro local de `TESTING.md`; esta decisão não conclui M3/M5 nem amplia o escopo para novas features.
+Histórico de 03/10/2026: continuar pelo catálogo e cuidados sem Gemini. Em 04/10, a alternativa escolhida foi Pl@ntNet + fichas locais; o roteiro vigente está no início de `TESTING.md`. Resultados manuais anteriores continuam como histórico, não comprovam o aceite das telas novas.
 
-## Estado atual observado no código
+## Estado atual — preparação da 1.0
 
 | Área | O que já existe | Limitação / próximo trabalho |
 | --- | --- | --- |
-| Navegação | Expo Router, home, menu, perfil, scan e preview. Barra inferior com Jardins/Criar/AR/Perfil; aba sem rota removida. | Validar jornada completa, leitura com texto ampliado e navegação no aparelho. |
-| Jardins | Criação, edição, exclusão, listagem e detalhes com persistência local versionada. Criação/listagem validadas em Samsung Android 13. | Edição/exclusão, encerramento/reabertura completos e cenários de falha ainda pendentes no aparelho. |
-| Plantas | Catálogo estático, inclusão e análise persistidas, com fotos guardadas fora do cache no app nativo. Inclusão pelo catálogo, detalhes, cuidados/histórico e recuperação após recarregar JavaScript validados no aparelho. | Fotos duráveis, edição/exclusão e demais cenários nativos ainda pendentes. |
-| Análise | Foto/câmera, integração Gemini, adição e reanálise de plantas nas rotas de jardins. | Serviço/parser e tela compartilhados; Edge Function e segredo configurados. Primeira requisição real recebeu HTTP 402 do Gemini; faturamento/créditos, sucesso da análise e validação em aparelho pendentes. |
-| Métricas | Vitalidade e indicadores de água/luz, com agregação no jardim. | São estimativas/valores do modelo, não sensores; valores desconhecidos são distintos de zero; validação visual em aparelho pendente. |
-| AR | Modelo GLB, posicionamento em plano, rotação, escala e reposicionamento. Fallback web separado do módulo nativo; export web aprovado. | Precisa de build nativo e aparelho compatível; interação/execução AR não validada nesta revisão. |
-| Perfil | Resumo com contagens derivadas dos jardins/plantas e atalhos úteis. Nome/e-mail fictícios, rank/conquistas estáticos e ações sem handler removidos da interface. | Perfil local editável ainda não implementado; interação e contagens na interface aguardam validação. |
-| Qualidade | TypeScript, lint, testes de persistência e CI com export Android. Build debug e jornada local básica validados em Samsung Android 13. | Roteiro manual completo e análise bem-sucedida ainda pendentes; build debug depende de Metro. |
+| Navegação | Home, menu, espaço local, foto e AR Em breve validados no Android. Teclado, fonte ampliada, larguras lógicas 320/390/768 e contraste revisados. | Jornada com TalkBack e navegação por gestos ainda não comprovadas. |
+| Jardins | Criação/edição/exclusão, persistência e reabertura validadas em Samsung Android 13. Jardim de teste removido, preservando dados anteriores. | Falhas de gravação cobertas em testes automatizados; dados ficam neste aparelho. |
+| Plantas/cuidados | Schema v4, catálogo, identificação, fotos duráveis, cuidados, histórico, edição/exclusão e uso offline validados no celular. | Não há sincronização entre dispositivos; fichas locais cobrem quatro espécies. |
+| Identificação | Secret configurado, reconhecimento real pela galeria, baixa confiança, espécie sem ficha, erro sem rede/foto sem planta e cancelamentos validados. | Captura nova de planta pela câmera não executada; abertura/cancelamento/negativa testados. Gemini permanece como compatibilidade legada. |
+| Orientações | Quatro fichas locais com fontes; estimativas Gemini antigas preservadas no histórico, sem novos percentuais da foto. | Espécies sem ficha têm estado explícito de ausência de orientações. |
+| AR | Tela Em breve com retorno aos jardins, em todas as plataformas. Viro removido do app. | Funcionalidade adiada para depois da 1.0; sem requisito AR no Android atual. |
+| Perfil | Resumo e atalhos com contagens reais validados; dados fictícios e ações sem handler removidos. | Perfil editável fora do escopo 1.0. |
+| Qualidade | 112 testes, TypeScript, lint, Deno e exports aprovados. APK autônomo atualizado preserva dados. Correções compatíveis e triagem de dependências feitas. | Assinatura/distribuição de produção pendentes. Restam 23 alertas de ferramentas sem patch publicado, documentados em TESTING.md. |
 
 Fontes principais: `src/features/gardens/store.ts`, `types.ts` e `catalog.ts`; `src/features/plant-analysis`; `src/features/ar/PlantArScreen.tsx`; `src/app/profile.tsx`; `package.json`.
 

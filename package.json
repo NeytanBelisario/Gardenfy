@@ -3,6 +3,7 @@
   "main": "expo-router/entry",
   "version": "1.0.0",
   "scripts": {
+    "postinstall": "node scripts/patch-query-string.cjs",
     "start": "expo start",
     "reset-project": "node ./scripts/reset-project.js",
     "android": "expo run:android",
@@ -20,7 +21,6 @@
     "@react-navigation/bottom-tabs": "^7.15.5",
     "@react-navigation/elements": "^2.9.10",
     "@react-navigation/native": "^7.1.33",
-    "@reactvision/react-viro": "^2.54.0",
     "expo": "~55.0.31",
     "expo-constants": "~55.0.14",
     "expo-device": "~55.0.21",
@@ -30,6 +30,7 @@
     "expo-image": "~55.0.11",
     "expo-image-picker": "~55.0.24",
     "expo-linking": "~55.0.17",
+    "expo-navigation-bar": "~55.0.17",
     "expo-router": "~55.0.18",
     "expo-splash-screen": "~55.0.25",
     "expo-status-bar": "~55.0.6",
@@ -56,7 +57,9 @@
     "typescript": "~5.9.2"
   },
   "overrides": {
-    "react": "19.2.0"
+    "react": "19.2.0",
+    "decode-uri-component": "0.5.0",
+    "xcode": { "uuid": "11.1.1" }
   },
   "private": true,
   "engines": {

@@ -7,6 +7,7 @@ import { AppHeader } from '../../../../components/shell/AppHeader';
 import { plantCatalog } from '../../../../features/gardens/catalog';
 import type { PlantCatalogCategory, PlantCatalogItem } from '../../../../features/gardens/types';
 import { addPlantToGarden, useGardenDetails } from '../../../../features/gardens/store';
+import { normalizePlantName } from '../../../../features/gardens/careProfiles';
 
 const categories: { label: string; value: PlantCatalogCategory }[] = [
   { label: 'Todas', value: 'all' },
@@ -49,9 +50,9 @@ export default function AddPlantsScreen() {
   const [query, setQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<PlantCatalogCategory>('all');
   const filteredPlants = useMemo(() => plantCatalog.filter(item => {
-    const normalizedQuery = query.trim().toLowerCase();
+    const normalizedQuery = normalizePlantName(query);
     return (selectedCategory === 'all' || item.category === selectedCategory) &&
-      (!normalizedQuery || item.name.toLowerCase().includes(normalizedQuery) || item.subtitle.toLowerCase().includes(normalizedQuery));
+      (!normalizedQuery || normalizePlantName([item.name, item.subtitle, item.scientificName ?? ''].join(' ')).includes(normalizedQuery));
   }), [query, selectedCategory]);
 
   const handleAdd = async (item: PlantCatalogItem) => {
@@ -60,8 +61,8 @@ export default function AddPlantsScreen() {
     setSaving(true);
     setSaveError(null);
     try {
-      await addPlantToGarden(id, item);
-      router.back();
+      const plant = await addPlantToGarden(id, item);
+      router.replace({ pathname: '/gardens/[id]/plants/[plantId]', params: { id, plantId: plant.id } });
     } catch (error) {
       setSaveError(error instanceof Error ? error.message : 'Não foi possível salvar a planta.');
     } finally {
@@ -72,7 +73,7 @@ export default function AddPlantsScreen() {
 
   return (
     <View style={styles.screen}>
-      <AppHeader title="Adicionar plantas" mode="back" onPressLeading={() => router.back()} />
+      <AppHeader title="Adicionar plantas" mode="back" onPressLeading={() => { if (!savingRef.current) { if (garden) router.replace({ pathname: '/gardens/[id]', params: { id: garden.id } }); else router.replace('/'); } }} />
       <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled" contentContainerStyle={styles.content}>
         <Text style={styles.gardenLabel}>{garden?.name ?? 'Jardim não encontrado'}</Text>
         <View style={styles.intro}>
@@ -113,12 +114,12 @@ export default function AddPlantsScreen() {
             singleColumn={width < 380 || fontScale > 1.3} onAdd={() => handleAdd(item)} />)}
         </View>
         <View style={styles.analysisNote}>
-          <Text style={styles.sectionTitle}>Análise por foto</Text>
-          <Text style={styles.text}>Recurso opcional que depende do serviço de IA. Você pode cuidar das plantas sem uma análise.</Text>
+          <Text style={styles.sectionTitle}>Não encontrou sua planta?</Text>
+          <Text style={styles.text}>Identifique por foto com Pl@ntNet e confirme a espécie antes de adicionar. Requer internet.</Text>
           <Pressable accessibilityRole="button" disabled={saving || !garden} accessibilityState={{ disabled: saving || !garden }}
             style={[styles.textButton, (saving || !garden) && styles.disabled]}
             onPress={() => { if (id && garden) router.push({ pathname: '/gardens/[id]/plants/scan', params: { id } }); }}>
-            <Ionicons name="camera-outline" size={18} color="#17361d" /><Text style={styles.buttonText}>Abrir análise por foto</Text>
+            <Ionicons name="camera-outline" size={18} color="#17361d" /><Text style={styles.buttonText}>Identificar por foto</Text>
           </Pressable>
         </View>
       </ScrollView>

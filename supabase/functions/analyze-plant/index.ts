@@ -1,12 +1,10 @@
 import '@supabase/functions-js/edge-runtime.d.ts';
 import { withSupabase } from '@supabase/server';
-import { createClient } from '@supabase/supabase-js';
+import { consumeQuota } from '../_shared/quota.ts';
 
 import {
   FunctionError,
   extractGeminiText,
-  getClientAddress,
-  hashQuotaKey,
   mapGeminiStatus,
   parseAnalysisRequest,
 } from './core.ts';
@@ -29,44 +27,6 @@ const corsHeaders = {
 
 function json(body: unknown, status = 200, headers: Record<string, string> = {}) {
   return Response.json(body, { status, headers: { ...corsHeaders, ...headers } });
-}
-
-function getSecretKey() {
-  const namedKeys = Deno.env.get('SUPABASE_SECRET_KEYS');
-  if (namedKeys) {
-    try {
-      const keys = Object.values(JSON.parse(namedKeys));
-      if (typeof keys[0] === 'string' && keys[0]) return keys[0];
-    } catch {
-      // The configuration error below is intentionally generic.
-    }
-  }
-  return Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
-}
-
-async function consumeQuota(request: Request, salt: string) {
-  const url = Deno.env.get('SUPABASE_URL');
-  const secretKey = getSecretKey();
-  if (!url || !secretKey) throw new FunctionError('configuration', 500);
-  const clientHash = await hashQuotaKey(getClientAddress(request), salt);
-  const admin = createClient(url, secretKey, {
-    auth: { persistSession: false, autoRefreshToken: false },
-  });
-  const { data, error } = await admin.rpc('consume_analysis_quota', {
-    p_client_hash: clientHash,
-    p_limit: 10,
-    p_window_seconds: 3600,
-  });
-  if (error) {
-    console.error('Analysis quota check failed', error.code);
-    throw new FunctionError('unavailable', 503);
-  }
-  const result = Array.isArray(data) ? data[0] : data;
-  if (!result || typeof result.allowed !== 'boolean') throw new FunctionError('unavailable', 503);
-  if (!result.allowed) {
-    const retryAfter = Number.isInteger(result.retry_after_seconds) ? result.retry_after_seconds : 3600;
-    throw new FunctionError('rate-limit', 429, Math.max(1, retryAfter));
-  }
 }
 
 async function callGemini(base64: string, mimeType: string, apiKey: string, model: string, requestSignal: AbortSignal) {

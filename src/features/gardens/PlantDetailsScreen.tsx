@@ -1,78 +1,42 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import React, { useRef, useState } from 'react';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AppHeader } from '../../components/shell/AppHeader';
+import { PlantPhoto } from '../../components/PlantPhoto';
 import { formatPercent } from './metricPresentation';
 import { careLabels, formatHistoryDate, sortPlantHistory } from './plantHistory';
 import { PlantCareDialog, type PlantCareAction } from './PlantCareDialog';
+import { GardenManagementDialog, type GardenManagementAction } from './GardenManagementDialog';
+import { PlantCareInstructions } from './PlantCareInstructions';
+import { formatCareDay, lastPlantCare } from './careActivity';
 import { recordPlantCare, useGardenDetails } from './store';
-import type { GardenPlant, PlantCareType, PlantHistoryEntry } from './types';
-
-function PlantPhoto({ uri }: { uri: string }) {
-  const [failed, setFailed] = useState(false);
-  useEffect(() => { setFailed(false); }, [uri]);
-  return uri && !failed ? (
-    <Image source={{ uri }} style={styles.photo} onError={() => setFailed(true)} accessibilityLabel="Foto da planta" />
-  ) : (
-    <View style={[styles.photo, styles.photoFallback]}>
-      <Ionicons name="leaf-outline" size={64} color="#476644" />
-      <Text style={styles.caption}>Foto indisponível</Text>
-    </View>
-  );
-}
-
-function EstimateCard({ plant, kind }: { plant: GardenPlant; kind: 'water' | 'light' }) {
-  const value = plant.metrics.find((metric) => metric.kind === kind)?.value;
-  return (
-    <View style={styles.metricCard}>
-      <Ionicons name={kind === 'water' ? 'water-outline' : 'sunny-outline'} size={28} color="#476644" />
-      <Text style={styles.label}>{kind === 'water' ? 'Hidratação' : 'Luz'}</Text>
-      <Text style={styles.metricValue}>{formatPercent(value)}</Text>
-      <Text style={styles.caption}>
-        {typeof value === 'number' ? 'Estimativa da IA a partir da foto' : 'Analise uma foto para obter uma estimativa.'}
-      </Text>
-      {typeof value === 'number' && plant.lastAnalyzedAt ? <Text style={styles.caption}>{formatHistoryDate(plant.lastAnalyzedAt)}</Text> : null}
-    </View>
-  );
-}
+import type { PlantCareType, PlantHistoryEntry } from './types';
 
 function HistoryItem({ entry, disabled, onManage }: { entry: PlantHistoryEntry; disabled: boolean; onManage: (action: PlantCareAction) => void }) {
   return (
     <View style={styles.historyCard}>
-      <Text style={styles.label}>{entry.kind === 'care' ? careLabels[entry.careType] : 'Análise por foto'}</Text>
+      <View style={styles.historyHeader}><Ionicons name={entry.kind === 'care' ? entry.careType === 'water' ? 'water-outline' : 'leaf-outline' : 'camera-outline'} size={22} color="#476644" /><Text style={styles.label}>{entry.kind === 'care' ? careLabels[entry.careType] : entry.kind === 'identification' ? 'Espécie identificada' : 'Análise antiga'}</Text></View>
       <Text style={styles.caption}>{formatHistoryDate(entry.occurredAt)}</Text>
-      {entry.kind === 'care' ? (
-        <>
-          <Text style={styles.text}>Registrado por você</Text>
-          <View style={styles.actions}>
-            <Pressable accessibilityRole="button" accessibilityLabel={`Corrigir ${careLabels[entry.careType]} de ${formatHistoryDate(entry.occurredAt)}`} disabled={disabled} onPress={() => onManage({ mode: 'edit', record: entry })} style={styles.secondaryButton}>
-              <Text style={styles.label}>Corrigir</Text>
-            </Pressable>
-            <Pressable accessibilityRole="button" accessibilityLabel={`Excluir ${careLabels[entry.careType]} de ${formatHistoryDate(entry.occurredAt)}`} disabled={disabled} onPress={() => onManage({ mode: 'delete', record: entry })} style={styles.secondaryButton}>
-              <Text style={styles.error}>Excluir</Text>
-            </Pressable>
-          </View>
-        </>
-      ) : (
-        <>
-          <Text style={styles.text}>{entry.snapshot.plantName} · {entry.snapshot.health}</Text>
-          <Text style={styles.caption}>Estimativas da IA</Text>
-          <Text style={styles.text}>
-            Vitalidade: {formatPercent(entry.snapshot.vitality)}
-            {'\n'}Água: {formatPercent(entry.snapshot.metrics.find((metric) => metric.kind === 'water')?.value)}
-            {'\n'}Luz: {formatPercent(entry.snapshot.metrics.find((metric) => metric.kind === 'light')?.value)}
-            {'\n'}Crescimento estimado: {typeof entry.snapshot.growthDays === 'number' ? `${entry.snapshot.growthDays} dias` : 'Sem estimativa'}
-          </Text>
-        </>
-      )}
+      {entry.kind === 'care' ? <>
+        <Text style={styles.caption}>Cuidado registrado por você</Text>
+        <View style={styles.actions}>
+          <Pressable accessibilityRole="button" accessibilityLabel={'Corrigir ' + careLabels[entry.careType] + ' de ' + formatHistoryDate(entry.occurredAt)} disabled={disabled} onPress={() => onManage({ mode: 'edit', record: entry })} style={styles.historyAction}><Text style={styles.label}>Corrigir</Text></Pressable>
+          <Pressable accessibilityRole="button" accessibilityLabel={'Excluir ' + careLabels[entry.careType] + ' de ' + formatHistoryDate(entry.occurredAt)} disabled={disabled} onPress={() => onManage({ mode: 'delete', record: entry })} style={styles.historyAction}><Text style={styles.errorText}>Excluir</Text></Pressable>
+        </View>
+      </> : entry.kind === 'identification' ? <><Text style={styles.text}>{entry.species.commonName}</Text><Text style={styles.caption}>{entry.species.scientificName} · Pl@ntNet</Text><Text style={styles.caption}>Espécie confirmada por você; sem avaliação de saúde.</Text></> : <>
+        <Text style={styles.text}>{entry.snapshot.plantName} · {entry.snapshot.health}</Text>
+        <Text style={styles.caption}>Estimativas antigas do Gemini, preservadas como histórico. Não são medições atuais.</Text>
+        <Text style={styles.caption}>Vitalidade {formatPercent(entry.snapshot.vitality)} · Água {formatPercent(entry.snapshot.metrics.find((metric) => metric.kind === 'water')?.value)} · Luz {formatPercent(entry.snapshot.metrics.find((metric) => metric.kind === 'light')?.value)}</Text>
+      </>}
     </View>
   );
 }
 
 export default function PlantDetailsScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const params = useLocalSearchParams<{ id?: string | string[]; plantId?: string | string[] }>();
   const id = Array.isArray(params.id) ? params.id[0] : params.id;
   const plantId = Array.isArray(params.plantId) ? params.plantId[0] : params.plantId;
@@ -83,114 +47,77 @@ export default function PlantDetailsScreen() {
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [action, setAction] = useState<PlantCareAction | null>(null);
-
-  const back = () => {
-    if (router.canGoBack()) router.back();
-    else if (garden) router.replace({ pathname: '/gardens/[id]', params: { id: garden.id } });
-    else router.replace('/');
-  };
+  const [management, setManagement] = useState<GardenManagementAction | null>(null);
+  const back = () => { if (!busyRef.current) { if (garden) router.replace({ pathname: '/gardens/[id]', params: { id: garden.id } }); else router.replace('/'); } };
   const record = async (careType: PlantCareType) => {
-    if (!garden || !plant || busyRef.current || action) return;
-    busyRef.current = true;
-    setBusy(true);
-    setError(null);
-    setNotice(null);
-    try {
-      await recordPlantCare(garden.id, plant.id, careType);
-      setNotice(`${careLabels[careType]} registrada.`);
-    } catch (cause) {
-      setError(cause instanceof Error ? cause.message : 'Não foi possível registrar o cuidado. Tente novamente.');
-    } finally {
-      busyRef.current = false;
-      setBusy(false);
-    }
+    if (!garden || !plant || busyRef.current || action || management) return;
+    busyRef.current = true; setBusy(true); setError(null); setNotice(null);
+    try { await recordPlantCare(garden.id, plant.id, careType); setNotice(careLabels[careType] + ' registrada. Seu histórico foi atualizado.'); }
+    catch (cause) { setError(cause instanceof Error ? cause.message : 'Não foi possível registrar. Tente novamente.'); }
+    finally { busyRef.current = false; setBusy(false); }
   };
-  const openAction = (next: PlantCareAction) => {
-    if (busyRef.current) return;
-    setNotice(null);
-    setAction(next);
-  };
-
   return (
     <View style={styles.screen}>
-      <AppHeader title="Planta" mode="back" onPressLeading={back} />
-      <ScrollView contentContainerStyle={styles.content}>
-        {garden && plant ? (
-          <>
-            <PlantPhoto uri={plant.imageUrl} />
-            <Text style={styles.caption}>{garden.name}</Text>
-            <Text accessibilityRole="header" style={styles.title}>{plant.name}</Text>
-            {plant.subtitle ? <Text style={styles.text}>{plant.subtitle}</Text> : null}
-            <View style={styles.summary}>
-              <Text style={styles.label}>Vitalidade: {formatPercent(plant.vitality)}</Text>
-              <Text style={styles.text}>{plant.status.label}</Text>
-              <Text style={styles.caption}>{plant.lastAnalyzedAt ? `Estimativa da IA · ${formatHistoryDate(plant.lastAnalyzedAt)}` : 'Nenhuma análise registrada.'}</Text>
-            </View>
-            <View style={styles.metrics}>
-              <EstimateCard plant={plant} kind="water" />
-              <EstimateCard plant={plant} kind="light" />
-            </View>
-            <Pressable accessibilityRole="button" disabled={busy} accessibilityState={{ disabled: busy }} onPress={() => router.push({ pathname: '/gardens/[id]/plants/[plantId]/scan', params: { id: garden.id, plantId: plant.id } })} style={styles.secondaryButton}>
-              <Text style={styles.label}>{plant.lastAnalyzedAt ? 'Analisar novamente' : 'Analisar por foto'}</Text>
-            </Pressable>
-            <Text accessibilityRole="header" style={styles.heading}>Cuidados</Text>
-            <Text style={styles.caption}>Registre o que você fez. Regar e adubar não alteram as estimativas de água, luz ou vitalidade.</Text>
-            <View style={styles.actions}>
-              {(['water', 'fertilize'] as const).map((careType) => (
-                <Pressable key={careType} accessibilityRole="button" disabled={busy || !!action} accessibilityState={{ disabled: busy || !!action, busy }} onPress={() => record(careType)} style={[styles.primaryButton, busy && styles.disabled]}>
-                  <Ionicons name={careType === 'water' ? 'water-outline' : 'leaf-outline'} size={20} color="#fff" />
-                  <Text style={styles.primaryText}>{careType === 'water' ? 'Regar' : 'Adubar'}</Text>
-                </Pressable>
-              ))}
-            </View>
+      <AppHeader title={plant?.name ?? 'Planta'} mode="back" onPressLeading={back} />
+      <ScrollView contentContainerStyle={[styles.content, { paddingBottom: 32 + insets.bottom }]}>
+        {garden && plant ? <>
+          <PlantPhoto uri={plant.imageUrl} style={styles.photo} label={'Foto de ' + plant.name} />
+          <Text style={styles.caption}>{garden.name}</Text>
+          <Text accessibilityRole="header" style={styles.title}>{plant.name}</Text>
+          {plant.species ? <Text style={styles.species}>{plant.species.scientificName}</Text> : null}
+          {plant.subtitle ? <Text style={styles.text}>{plant.subtitle}</Text> : null}
+          <View style={styles.careCard}>
+            <Text accessibilityRole="header" style={styles.heading}>O cuidado de hoje</Text>
+            <Text style={styles.text}>Já cuidou da sua planta? Registre para lembrar quando foi.</Text>
+            <View style={styles.lastCareRow}>{(['water', 'fertilize'] as const).map((type) => {
+              const last = lastPlantCare(plant, type);
+              return <View key={type} style={styles.lastCare}><Text style={styles.label}>{type === 'water' ? 'Última rega' : 'Última adubação'}</Text><Text style={styles.caption}>{last ? formatCareDay(last.occurredAt) : 'Ainda sem registro'}</Text></View>;
+            })}</View>
+            <View style={styles.actions}>{(['water', 'fertilize'] as const).map((careType) => <Pressable key={careType} accessibilityRole="button" accessibilityLabel={careType === 'water' ? 'Registrar rega' : 'Registrar adubação'} disabled={busy || !!action || !!management} accessibilityState={{ disabled: busy || !!action || !!management, busy }} onPress={() => record(careType)} style={[styles.primary, busy && styles.disabled]}>
+              <Ionicons name={careType === 'water' ? 'water-outline' : 'leaf-outline'} size={20} color="#fff" /><Text style={styles.primaryText}>{careType === 'water' ? 'Registrar rega' : 'Registrar adubação'}</Text>
+            </Pressable>)}</View>
             {busy ? <Text accessibilityLiveRegion="polite" style={styles.caption}>Salvando cuidado...</Text> : null}
-            {error ? <Text accessibilityRole="alert" style={styles.error}>{error}</Text> : null}
-            {notice ? <Text accessibilityLiveRegion="polite" style={styles.text}>{notice}</Text> : null}
-            <Text accessibilityRole="header" style={styles.heading}>Histórico</Text>
-            <Text style={styles.caption}>Mais recente primeiro · horário do aparelho</Text>
-            {plant.history.length ? sortPlantHistory(plant.history).map((entry) => (
-              <HistoryItem key={entry.id} entry={entry} disabled={busy} onManage={openAction} />
-            )) : (
-              <View style={styles.historyCard}>
-                <Text style={styles.label}>Nenhum registro ainda</Text>
-                <Text style={styles.caption}>Registre um cuidado ou analise uma foto para começar o histórico.</Text>
-              </View>
-            )}
-          </>
-        ) : (
-          <View style={styles.historyCard}>
-            <Text style={styles.heading}>Planta não encontrada</Text>
-            <Text style={styles.text}>Esta planta não está disponível. Volte ao jardim para continuar.</Text>
-            <Pressable accessibilityRole="button" onPress={back} style={styles.secondaryButton}><Text style={styles.label}>Voltar</Text></Pressable>
+            {error ? <Text accessibilityRole="alert" style={styles.errorText}>{error}</Text> : null}
+            {notice ? <Text accessibilityLiveRegion="polite" style={styles.success}>{notice}</Text> : null}
           </View>
-        )}
+          <PlantCareInstructions plant={plant} />
+          <Pressable accessibilityRole="button" disabled={busy} onPress={() => router.push({ pathname: '/gardens/[id]/plants/[plantId]/scan', params: { id: garden.id, plantId: plant.id } })} style={styles.secondary}><Ionicons name="camera-outline" size={20} color="#476644" /><Text style={styles.label}>{plant.species ? 'Revisar espécie por foto' : 'Identificar por foto'}</Text></Pressable>
+          <Text accessibilityRole="header" style={styles.heading}>Seu histórico</Text>
+          <Text style={styles.caption}>Mais recente primeiro · horário do aparelho</Text>
+          {plant.history.length ? sortPlantHistory(plant.history).map((entry) => <HistoryItem key={entry.id} entry={entry} disabled={busy} onManage={(next) => { if (!busyRef.current) { setNotice(null); setAction(next); } }} />) : <View style={styles.historyCard}><Text style={styles.label}>Cada cuidado conta</Text><Text style={styles.text}>Registre sua primeira rega ou adubação. Os próximos cuidados aparecem aqui.</Text></View>}
+          <View style={styles.actions}>
+            <Pressable accessibilityRole="button" disabled={busy} onPress={() => setManagement({ mode: 'edit', plant })} style={styles.secondary}><Ionicons name="create-outline" size={20} color="#476644" /><Text style={styles.label}>Editar planta</Text></Pressable>
+            <Pressable accessibilityRole="button" disabled={busy} onPress={() => setManagement({ mode: 'delete', plant })} style={styles.secondary}><Text style={styles.errorText}>Excluir planta</Text></Pressable>
+          </View>
+        </> : <View style={styles.historyCard}><Text style={styles.heading}>Planta não encontrada</Text><Text style={styles.text}>Volte ao jardim para continuar com suas plantas.</Text><Pressable accessibilityRole="button" onPress={back} style={styles.secondary}><Text style={styles.label}>Voltar ao jardim</Text></Pressable></View>}
       </ScrollView>
-      {garden && plant && action ? (
-        <PlantCareDialog key={`${action.mode}-${action.record.id}`} gardenId={garden.id} plantId={plant.id} action={action} onClose={() => setAction(null)} />
-      ) : null}
+      {garden && plant && action ? <PlantCareDialog key={action.mode + '-' + action.record.id} gardenId={garden.id} plantId={plant.id} action={action} onClose={() => setAction(null)} /> : null}
+      {garden && plant && management ? <GardenManagementDialog key={management.mode} garden={garden} action={management} onClose={() => setManagement(null)} onGardenDeleted={() => router.replace('/')} onPlantDeleted={back} /> : null}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: '#fbf9f5' },
-  content: { padding: 24, paddingBottom: 48, gap: 12 },
-  title: { color: '#17361d', fontSize: 32, fontWeight: '900' },
-  heading: { color: '#17361d', fontSize: 24, fontWeight: '800', marginTop: 12 },
-  text: { color: '#17361d', fontSize: 16, lineHeight: 24 },
-  label: { color: '#17361d', fontSize: 16, fontWeight: '700' },
-  caption: { color: '#424841', fontSize: 13, lineHeight: 20 },
-  photo: { width: '100%', height: 220, borderRadius: 24, backgroundColor: '#eae8e4' },
-  photoFallback: { alignItems: 'center', justifyContent: 'center', gap: 12 },
-  summary: { backgroundColor: '#eae8e4', padding: 20, borderRadius: 20, gap: 8 },
-  metrics: { flexDirection: 'row', flexWrap: 'wrap', gap: 12 },
-  metricCard: { flex: 1, minWidth: 140, backgroundColor: '#fff', borderRadius: 20, padding: 16, gap: 8 },
-  metricValue: { color: '#17361d', fontSize: 22, fontWeight: '800' },
-  actions: { flexDirection: 'row', flexWrap: 'wrap', gap: 12 },
-  primaryButton: { flex: 1, minWidth: 120, flexDirection: 'row', gap: 8, backgroundColor: '#17361d', borderRadius: 16, padding: 18, justifyContent: 'center', alignItems: 'center' },
-  primaryText: { color: '#fff', fontWeight: '800', fontSize: 16 },
-  secondaryButton: { borderColor: '#c2c8bf', borderWidth: 1, borderRadius: 12, padding: 14, alignItems: 'center' },
-  historyCard: { padding: 20, borderRadius: 20, backgroundColor: '#fff', gap: 8 },
-  error: { color: '#93000a', fontSize: 16 },
-  disabled: { opacity: 0.6 },
+  content: { width: '100%', maxWidth: 720, alignSelf: 'center', padding: 20, gap: 14 },
+  photo: { height: 220, width: '100%', borderRadius: 24 },
+  title: { color: '#17361d', fontSize: 32, fontWeight: '800' },
+  species: { color: '#476644', fontSize: 15, fontStyle: 'italic' },
+  heading: { color: '#17361d', fontSize: 22, fontWeight: '800' },
+  text: { color: '#586653', fontSize: 15, lineHeight: 24 },
+  label: { color: '#17361d', fontSize: 15, fontWeight: '700', flexShrink: 1 },
+  caption: { color: '#586653', fontSize: 13, lineHeight: 21 },
+  careCard: { borderRadius: 24, padding: 20, backgroundColor: '#eef2e8', gap: 16 },
+  actions: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
+  primary: { minHeight: 52, minWidth: 140, flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, borderRadius: 16, padding: 16, backgroundColor: '#17361d' },
+  primaryText: { color: '#fff', fontSize: 15, fontWeight: '700', textAlign: 'center', flexShrink: 1 },
+  secondary: { minHeight: 52, flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'center', gap: 8, borderRadius: 16, padding: 16, borderWidth: 1, borderColor: '#c2c8bf' },
+  lastCareRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 12 },
+  lastCare: { flex: 1, minWidth: 120, gap: 5 },
+  historyCard: { borderRadius: 20, padding: 20, backgroundColor: '#fff', borderWidth: 1, borderColor: '#e7e9e0', gap: 10 },
+  historyHeader: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  historyAction: { minHeight: 44, padding: 12, borderRadius: 12, backgroundColor: '#f5f3ef' },
+  errorText: { color: '#93000a', fontSize: 14, lineHeight: 22 },
+  success: { color: '#17361d', fontSize: 14, lineHeight: 22, fontWeight: '700' },
+  disabled: { opacity: 0.5 },
 });

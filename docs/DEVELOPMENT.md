@@ -4,7 +4,9 @@
 
 O projeto usa Expo 55, React Native 0.83, React 19 e TypeScript estrito, conforme `package.json`. O gerenciador é npm, com `package-lock.json` versionado.
 
-A versão de Node em `.nvmrc` é `22.22.2`, com npm `10.9.7` registrado em `package.json`. A instalação limpa foi verificada em Linux/WSL2. A validação de compilação nativa ainda exige uma máquina com Android SDK/JDK; não confunda export do bundle com geração de APK.
+O `postinstall` adapta o import CommonJS de `query-string` 7.1 ao decoder ESM `decode-uri-component` 0.5.0, corrigido para entradas malformadas. Use `npm ci` com scripts habilitados: `--ignore-scripts` deixa esse consumidor incompatível. O adapter é idempotente e interrompe a instalação se o import ou a versão esperada mudar; revise-o ao atualizar Expo Router/React Navigation. O override `xcode` → `uuid` 11.1.1 mantém o import CommonJS e a API `v4` usados pelo prebuild. Não alterar as versões principais de Expo/React Native com `npm audit fix --force`.
+
+A versão de Node em `.nvmrc` é `22.22.2`, com npm `10.9.7` registrado em `package.json`. A instalação limpa foi verificada em Linux/WSL2 e no CI. APK de avaliação da 1.0 foi compilado no Windows com JDK 17/SDK 36; não confunda export do bundle, compilação do APK e execução no aparelho.
 
 ```bash
 git clone https://github.com/NeytanBelisario/Gardenfy.git
@@ -19,19 +21,15 @@ Se não usar nvm, instale a versão indicada em `.nvmrc` pelo seu gerenciador de
 
 ## Ambiente e execução
 
-### Continuar sem Gemini
+### Trabalhar na primeira versão estável
 
-O fluxo local não exige os valores de Supabase nem o segredo Gemini: criação/edição/exclusão de jardins e plantas do catálogo, detalhes e registros/correções/exclusões de cuidados usam AsyncStorage. Não é necessário alterar o `.env` existente ou remover secrets remotos para trabalhar nesses fluxos.
+O escopo vigente está em [RELEASE_1.0.md](RELEASE_1.0.md). Usar `feat/release-v1` para a preparação, com commits por etapas publicados, PR para `develop` e aceite antes da promoção para `main`. AR fica em breve; manutenção local e identificação Pl@ntNet são a prioridade.
 
-Abra um jardim, use a inclusão pelo catálogo e entre em “Ver detalhes e cuidados” para regar/adubar. Evite scan, inclusão por foto e reanálise enquanto a integração estiver adiada. As telas de análise permanecem expostas; esta decisão não introduz um bloqueio de chamadas no código. As imagens do catálogo são remotas e podem exibir fallback sem rede. Os dados são deste aparelho, sem conta ou sincronização.
+Jardins, catálogo, fichas de cuidados e histórico usam armazenamento local e funcionam sem configurar serviço externo. Imagens remotas têm fallback sem rede. Após adicionar uma planta, o app abre seus detalhes para registrar cuidados; edição/exclusão da planta fica nessa tela. Não há conta ou sincronização entre dispositivos.
 
-Use o [roteiro local em TESTING.md](TESTING.md#continuar-a-validação-sem-gemini) para as próximas verificações. O build debug ainda precisa de Metro e conexão com o computador.
+### Configurar identificação por foto
 
-### Configurar análise quando for retomada
-
-A análise no app lê `EXPO_PUBLIC_SUPABASE_URL` e `EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, em `src/constants/env.ts`. Preencha esses valores no `.env`; ambos identificam o backend público e não concedem privilégios administrativos. Sem eles, a tela informa que o serviço está indisponível. Veja [ANALYSIS.md](ANALYSIS.md) para o fluxo, timeout, revisão, cota e limites ainda pendentes.
-
-A credencial Gemini fica apenas nos secrets da Edge Function. Nunca use uma chave secreta em variável `EXPO_PUBLIC_*`. `.env.example` contém somente nomes de variáveis públicas; em outro PC, recupere os valores pelo ambiente de desenvolvimento autorizado.
+Preencha `EXPO_PUBLIC_SUPABASE_URL` e `EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY` no `.env`. Ambos são valores públicos do backend. Configure `PLANTNET_API_KEY` somente nos secrets do Supabase, conforme [ANALYSIS.md](ANALYSIS.md#configurar-plantnet). Nenhuma credencial Gemini é exigida pelo fluxo novo. Cadastro pelo catálogo continua disponível quando identificação está indisponível.
 
 Comandos existentes:
 
@@ -49,7 +47,7 @@ Comandos existentes:
 | `npx expo install --check` | Conferir compatibilidade de versões com o SDK instalado. |
 | `npx expo export --platform android` | Gerar bundle JS/assets em `dist/`; não compila APK. |
 
-A visualização AR usa `@reactvision/react-viro`, um modelo GLB e módulos nativos. O próprio código exige build nativo compatível e dispositivo com suporte; Expo Go não executa esse recurso. A tela tem fallback para indisponibilidade, mas isso não comprova que todo o app funciona na web. As pastas `android/` e `ios/` são geradas e ignoradas pelo Git.
+AR na 1.0 é uma tela Em breve, sem Viro ou suporte AR exigido. As pastas `android/` e `ios/` são geradas e ignoradas pelo Git.
 
 Os dados e fotos de plantas são locais; veja [PERSISTENCE.md](PERSISTENCE.md) para formato, comportamento em falhas e necessidade de reconstruir o app após instalar as dependências nativas de armazenamento.
 
@@ -68,16 +66,23 @@ npx supabase link --project-ref ukqsiclooawiqmttdobu
 
 O projeto remoto precisa estar ativo para concluir o vínculo. Não versione o token, a senha do banco ou segredos usados por Edge Functions.
 
-A função `analyze-plant` aceita a chave publicável do projeto e limita cada origem a 10 tentativas por janela de uma hora. O IP é transformado em hash com salt antes de ser persistido; clientes públicos ainda podem extrair a chave publicável, portanto essa proteção limita abuso, mas não identifica uma pessoa. Autenticação individual exigirá Supabase Auth numa etapa futura.
+A função `identify-plant` aceita a chave publicável do projeto e limita cada origem a 10 tentativas por janela de uma hora. O IP é transformado em hash com salt antes de ser persistido; clientes públicos ainda podem extrair a chave publicável, portanto essa proteção limita abuso, mas não identifica uma pessoa. Autenticação individual exigirá Supabase Auth numa etapa futura. `analyze-plant` permanece como endpoint legado, sem chamadas nas rotas da 1.0.
 
-Configure os secrets diretamente no projeto remoto, sem prefixo `EXPO_PUBLIC_`:
+A função `identify-plant` reutiliza a proteção por origem e acrescenta orçamento de 450 tentativas/dia UTC para o app inteiro. Configure a chave pelo painel, conforme [ANALYSIS.md](ANALYSIS.md), e implante código/migrações com:
 
 ```bash
-npx supabase secrets set GEMINI_API_KEY=<valor> GEMINI_MODEL=gemini-3.5-flash-lite
-npx supabase functions deploy analyze-plant --use-api
+npx supabase db push --linked
+npx supabase functions deploy identify-plant --use-api
+npx supabase migration list --linked
 ```
 
-Não passe o valor real por chat, documentação, commit ou histórico do shell compartilhado. A migração de quota fica em `supabase/migrations`; aplique-a com `npx supabase db push --linked` e confira `npx supabase migration list --linked`.
+Não passe secrets por chat ou histórico compartilhado do shell. Para validar o runtime da função:
+
+```bash
+npx --yes deno@2.9.6 check --frozen --config supabase/functions/identify-plant/deno.json supabase/functions/identify-plant/index.ts
+```
+
+Os imports do runtime ficam fixados em `deno.json`/`deno.lock`. TypeScript e lint do app não verificam os arquivos com APIs Deno; o CI executa o check separado.
 
 ## Preparar Android
 
@@ -92,7 +97,7 @@ adb devices
 npm run android
 ```
 
-Use um aparelho físico compatível para validar AR. A compilação gera `android/`, ignorado pelo Git. Mudanças em plugins/dependências nativas exigem novo build; reiniciar Metro sozinho não atualiza os módulos instalados. Use `npm start` para iniciar Metro nas sessões seguintes, com o build nativo instalado.
+Use um aparelho físico para validar armazenamento, fotos, teclado e permissões. A compilação gera `android/`, ignorado pelo Git. Mudanças em plugins/dependências nativas exigem novo build; reiniciar Metro sozinho não atualiza os módulos instalados. Use `npm start` para iniciar Metro nas sessões seguintes, com o build nativo instalado.
 
 No WSL2, não presuma acesso automático a SDK, JDK ou USB do Windows. Configure todas as ferramentas no ambiente em que executará a compilação, ou execute o projeto no host já preparado.
 
@@ -120,13 +125,28 @@ npm.cmd run android -- --device --no-bundler
 
 Consulte [TESTING.md](TESTING.md) para os checks, roteiro manual e limites do que foi validado.
 
+### Gerar APK autônomo para avaliação
+
+Com SDK/JDK preparados, gere o projeto nativo e compile a variante release:
+
+```powershell
+npx.cmd expo prebuild --platform android --no-install
+Set-Location android
+.\gradlew.bat assembleRelease --no-daemon --max-workers 2
+Set-Location ..
+```
+
+O APK fica em `android/app/build/outputs/apk/release/app-release.apk`, ignorado pelo Git, com JavaScript embarcado e sem Metro. A configuração gerada usa assinatura debug para avaliação; assinatura própria de distribuição e testes no aparelho continuam necessários antes de publicar. O identificador Android existente foi preservado para manter compatibilidade de atualização.
+
+Ao remover um plugin nativo, prebuild incremental pode conservar alterações antigas. Preserve a pasta nativa em um backup antes de regenerar a partir de uma pasta nova; não apague customizações. Nesta sessão, a pasta antiga foi movida para `%LOCALAPPDATA%/Gardenfy/native-backups` antes da geração sem Viro. Uma geração limpa deve ser usada no ambiente de avaliação.
+
 ### Preview do front sem celular
 
 ```powershell
 npm.cmd run web -- --port 8082
 ```
 
-Abra `http://localhost:8082` no navegador. O módulo de AR tem um arquivo `.web.tsx` com orientação e retorno aos jardins; o bundle web não importa o Viro nativo. Os dados do navegador ficam separados dos dados do Android. Esse preview permite revisar as telas locais, mas não substitui testes de câmera, permissões, armazenamento nativo, teclado ou AR no aparelho.
+Abra `http://localhost:8082` no navegador. AR mostra a mesma tela Em breve em todas as plataformas, sem importar módulos nativos. Os dados do navegador ficam separados dos dados do Android. Esse preview permite revisar as telas locais, mas não substitui testes de câmera, permissões, armazenamento nativo e teclado no aparelho.
 
 Na sessão de ajustes visuais, o export web estático passou; o navegador de automação não estava disponível, portanto não houve inspeção visual ou interação no navegador. A compatibilidade web completa continua pendente.
 
