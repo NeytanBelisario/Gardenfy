@@ -12,6 +12,7 @@ import { useRouter } from 'expo-router';
 import {
   Ionicons,
 } from '@expo/vector-icons';
+import { AppHeader } from '../../components/shell/AppHeader';
 
 import { CreateGardenDraft, GardenEnvironment } from '../../features/gardens/types';
 import { createGarden } from '../../features/gardens/store';
@@ -32,6 +33,11 @@ const COLORS = {
   textMuted: '#737971',
   white: '#ffffff',
 } as const;
+
+const iconLabels: Record<GardenIconName, string> = {
+  'potted-plant': 'Broto', psychology: 'Natureza', eco: 'Folha', 'wb-sunny': 'Sol',
+  'water-drop': 'Gota de água', 'energy-savings-leaf': 'Folha delicada', spa: 'Flor', 'filter-vintage': 'Flor ornamental',
+};
 
 function IdentityIcon({
   icon,
@@ -63,6 +69,12 @@ export default function NewGardenScreen() {
     setDraft((current) => ({ ...current, icon }));
   };
 
+  const handleBack = () => {
+    if (savingRef.current) return;
+    if (router.canGoBack()) router.back();
+    else router.replace('/');
+  };
+
   const handleCreateGarden = async () => {
     if (savingRef.current) return;
     savingRef.current = true;
@@ -84,7 +96,9 @@ export default function NewGardenScreen() {
 
   return (
     <View style={styles.screen}>
+      <AppHeader title="Criar jardim" mode="back" onPressLeading={handleBack} />
       <ScrollView
+        keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
@@ -97,15 +111,17 @@ export default function NewGardenScreen() {
           />
           <View style={styles.heroOverlay} />
           <View style={styles.heroCopy}>
-            <Text style={styles.heroStep}>Step 1 of 2</Text>
-            <Text style={styles.heroTitle}>Curate Your Space</Text>
+            <Text style={styles.heroStep}>SEU NOVO COMEÇO</Text>
+            <Text style={styles.heroTitle}>Dê um lugar ao seu verde.</Text>
           </View>
         </View>
 
         <View style={styles.formSection}>
-          <Text style={styles.sectionLabel}>Garden Name</Text>
+          <Text style={styles.sectionLabel}>Nome do jardim</Text>
           <TextInput
-            placeholder="e.g., The Sun-Drenched Balcony"
+            placeholder="Ex.: Varanda ensolarada"
+            accessibilityLabel="Nome do jardim"
+            editable={!saving}
             placeholderTextColor={COLORS.textMuted}
             value={draft.name}
             onChangeText={(name) => setDraft((current) => ({ ...current, name }))}
@@ -114,9 +130,12 @@ export default function NewGardenScreen() {
         </View>
 
         <View style={styles.formSection}>
-          <Text style={styles.sectionLabel}>Environment</Text>
+          <Text style={styles.sectionLabel}>Ambiente</Text>
           <View style={styles.segmentedControl}>
             <Pressable
+              accessibilityRole="button"
+              accessibilityState={{ selected: draft.environment === 'indoor', disabled: saving }}
+              disabled={saving}
               style={[
                 styles.segmentButton,
                 draft.environment === 'indoor' && styles.segmentButtonActive,
@@ -134,11 +153,14 @@ export default function NewGardenScreen() {
                   draft.environment === 'indoor' && styles.segmentTextActive,
                 ]}
               >
-                Indoor
+                Interno
               </Text>
             </Pressable>
 
             <Pressable
+              accessibilityRole="button"
+              accessibilityState={{ selected: draft.environment === 'outdoor', disabled: saving }}
+              disabled={saving}
               style={[
                 styles.segmentButton,
                 draft.environment === 'outdoor' && styles.segmentButtonActive,
@@ -156,7 +178,7 @@ export default function NewGardenScreen() {
                   draft.environment === 'outdoor' && styles.segmentTextActive,
                 ]}
               >
-                Outdoor
+                Externo
               </Text>
             </Pressable>
           </View>
@@ -164,8 +186,8 @@ export default function NewGardenScreen() {
 
         <View style={styles.formSection}>
           <View style={styles.iconSectionHeader}>
-            <Text style={styles.sectionLabel}>Identity Icon</Text>
-            <Text style={styles.iconCount}>24 styles</Text>
+            <Text style={styles.sectionLabel}>Ícone do jardim</Text>
+            <Text style={styles.iconCount}>{gardenIconOptions.length} opções</Text>
           </View>
 
           <View style={styles.iconGrid}>
@@ -175,6 +197,10 @@ export default function NewGardenScreen() {
               return (
                 <Pressable
                   key={icon}
+                  accessibilityRole="button"
+                  accessibilityLabel={iconLabels[icon]}
+                  accessibilityState={{ selected: isActive, disabled: saving }}
+                  disabled={saving}
                   style={[styles.iconButton, isActive && styles.iconButtonActive]}
                   onPress={() => setIcon(icon)}
                 >
@@ -189,12 +215,12 @@ export default function NewGardenScreen() {
 
         <View style={styles.actions}>
           {saveError ? <Text accessibilityRole="alert" style={{ color: '#ba1a1a' }}>{saveError}</Text> : null}
-          <Pressable style={[styles.primaryButton, saving && { opacity: 0.6 }]} onPress={handleCreateGarden} disabled={saving}>
+          <Pressable accessibilityRole="button" accessibilityState={{ disabled: saving, busy: saving }} style={[styles.primaryButton, saving && { opacity: 0.6 }]} onPress={handleCreateGarden} disabled={saving}>
             <Text style={styles.primaryButtonText}>{saving ? 'Salvando...' : 'Criar jardim'}</Text>
           </Pressable>
 
-          <Pressable style={styles.secondaryButton} onPress={() => router.back()} disabled={saving}>
-            <Text style={styles.secondaryButtonText}>Discard Draft</Text>
+          <Pressable accessibilityRole="button" accessibilityState={{ disabled: saving }} style={styles.secondaryButton} onPress={handleBack} disabled={saving}>
+            <Text style={styles.secondaryButtonText}>Cancelar</Text>
           </Pressable>
         </View>
       </ScrollView>
@@ -208,14 +234,18 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.background,
   },
   scrollContent: {
+    width: '100%',
+    maxWidth: 720,
+    alignSelf: 'center',
     paddingHorizontal: 24,
     paddingTop: 12,
     paddingBottom: 40,
     gap: 30,
   },
   hero: {
-    height: 330,
-    borderRadius: 40,
+    minHeight: 220,
+    borderRadius: 28,
+    backgroundColor: COLORS.primary,
     overflow: 'hidden',
     position: 'relative',
     shadowColor: '#17361d',
@@ -225,6 +255,7 @@ const styles = StyleSheet.create({
     elevation: 8,
   },
   heroImage: {
+    ...StyleSheet.absoluteFillObject,
     width: '100%',
     height: '100%',
   },
@@ -233,10 +264,9 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(23, 54, 29, 0.32)',
   },
   heroCopy: {
-    position: 'absolute',
-    left: 28,
-    right: 28,
-    bottom: 28,
+    minHeight: 220,
+    justifyContent: 'flex-end',
+    padding: 28,
     gap: 8,
   },
   heroStep: {
@@ -271,6 +301,7 @@ const styles = StyleSheet.create({
   },
   segmentedControl: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     padding: 6,
     borderRadius: 999,
     backgroundColor: COLORS.surfaceLow,
@@ -278,6 +309,7 @@ const styles = StyleSheet.create({
   },
   segmentButton: {
     flex: 1,
+    minWidth: 110,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
@@ -298,11 +330,13 @@ const styles = StyleSheet.create({
   },
   iconSectionHeader: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
     alignItems: 'center',
     justifyContent: 'space-between',
   },
   iconCount: {
-    color: '#97a592',
+    color: COLORS.secondary,
     fontSize: 12,
     fontWeight: '800',
     textTransform: 'uppercase',
@@ -317,7 +351,7 @@ const styles = StyleSheet.create({
   iconButton: {
     width: '22%',
     aspectRatio: 1,
-    minWidth: 70,
+    minWidth: 56,
     borderRadius: 24,
     backgroundColor: COLORS.surfaceHigh,
   },
@@ -352,6 +386,7 @@ const styles = StyleSheet.create({
     fontWeight: '900',
   },
   secondaryButton: {
+    minHeight: 44,
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: 10,

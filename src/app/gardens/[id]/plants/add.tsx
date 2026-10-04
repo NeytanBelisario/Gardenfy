@@ -1,83 +1,37 @@
 import React, { useMemo, useRef, useState } from 'react';
-import {
-  Image,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
+import { Image, Pressable, ScrollView, StyleSheet, Text, TextInput, View, useWindowDimensions } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { Ionicons, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
+import { Ionicons } from '@expo/vector-icons';
 
 import { AppHeader } from '../../../../components/shell/AppHeader';
 import { plantCatalog } from '../../../../features/gardens/catalog';
-import { PlantCatalogCategory, PlantCatalogItem } from '../../../../features/gardens/types';
+import type { PlantCatalogCategory, PlantCatalogItem } from '../../../../features/gardens/types';
 import { addPlantToGarden, useGardenDetails } from '../../../../features/gardens/store';
 
-const COLORS = {
-  background: '#fbf9f5',
-  primary: '#17361d',
-  primarySoft: '#2e4d32',
-  secondary: '#476644',
-  tertiarySoft: '#ffb783',
-  tertiaryText: '#301400',
-  surfaceLow: '#f5f3ef',
-  surfaceHigh: '#eae8e4',
-  surfaceVariant: '#e4e2de',
-  textMuted: '#737971',
-  white: '#ffffff',
-} as const;
-
-const categoryOptions: { label: string; value: PlantCatalogCategory }[] = [
+const categories: { label: string; value: PlantCatalogCategory }[] = [
   { label: 'Todas', value: 'all' },
-  { label: 'Samambaias', value: 'ferns' },
-  { label: 'Suculentas', value: 'succulents' },
   { label: 'Folhagens', value: 'foliage' },
-  { label: 'Arvoretas', value: 'small-trees' },
+  { label: 'Resistentes', value: 'resilient' },
 ];
 
-function CatalogCard({
-  item,
-  onAdd,
-  disabled,
-}: {
-  item: PlantCatalogItem;
-  onAdd: () => void;
-  disabled: boolean;
+function CatalogCard({ item, disabled, singleColumn, onAdd }: {
+  item: PlantCatalogItem; disabled: boolean; singleColumn: boolean; onAdd: () => void;
 }) {
-  if (item.featured) {
-    return (
-      <View style={styles.featuredCard}>
-        <View style={styles.featuredImageWrap}>
-          <Image source={{ uri: item.imageUrl }} style={styles.featuredImage} />
-          <Pressable style={styles.featuredAddButton} onPress={onAdd} disabled={disabled} accessibilityLabel={`Adicionar ${item.name}`}>
-            <Ionicons name="add" size={24} color={COLORS.tertiaryText} />
-          </Pressable>
-        </View>
-        <View style={styles.featuredBody}>
-          <Text style={styles.featuredEyebrow}>{item.categoryLabel}</Text>
-          <Text style={styles.featuredTitle}>{item.name}</Text>
-          <Text style={styles.featuredSubtitle}>{item.subtitle}</Text>
-        </View>
-      </View>
-    );
-  }
-
+  const [imageFailed, setImageFailed] = useState(false);
   return (
-    <View style={styles.gridCard}>
-      <View style={styles.gridImageWrap}>
-        <Image source={{ uri: item.imageUrl }} style={styles.gridImage} />
-        <Pressable style={styles.gridAddButton} onPress={onAdd} disabled={disabled} accessibilityLabel={`Adicionar ${item.name}`}>
-          <Ionicons name="add" size={18} color={COLORS.primary} />
-        </Pressable>
+    <View style={[styles.card, (item.featured || singleColumn) && styles.wideCard]}>
+      <View style={[styles.photo, item.featured && styles.featuredPhoto]}>
+        <Ionicons name="leaf-outline" size={42} color="#476644" />
+        {!imageFailed ? <Image source={{ uri: item.imageUrl }} style={StyleSheet.absoluteFill} onError={() => setImageFailed(true)} /> : null}
       </View>
-      <View style={styles.gridBody}>
-        <Text style={styles.gridTitle}>{item.name}</Text>
-        <Text style={styles.gridSubtitle} numberOfLines={2}>
-          {item.subtitle}
-        </Text>
+      <View style={styles.cardBody}>
+        <Text style={styles.categoryLabel}>{item.categoryLabel}</Text>
+        <Text style={styles.plantName}>{item.name}</Text>
+        <Text style={styles.plantSubtitle}>{item.subtitle}</Text>
+        <Pressable accessibilityRole="button" accessibilityLabel={'Adicionar ' + item.name} accessibilityState={{ disabled }}
+          disabled={disabled} onPress={onAdd} style={({ pressed }) => [styles.addButton, disabled && styles.disabled, pressed && styles.pressed]}>
+          <Ionicons name="add" size={20} color="#17361d" /><Text style={styles.addText}>Adicionar</Text>
+        </Pressable>
       </View>
     </View>
   );
@@ -85,6 +39,7 @@ function CatalogCard({
 
 export default function AddPlantsScreen() {
   const router = useRouter();
+  const { width, fontScale } = useWindowDimensions();
   const params = useLocalSearchParams<{ id?: string | string[] }>();
   const id = Array.isArray(params.id) ? params.id[0] : params.id;
   const garden = useGardenDetails(id);
@@ -93,25 +48,13 @@ export default function AddPlantsScreen() {
   const [saveError, setSaveError] = useState<string | null>(null);
   const [query, setQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<PlantCatalogCategory>('all');
+  const filteredPlants = useMemo(() => plantCatalog.filter(item => {
+    const normalizedQuery = query.trim().toLowerCase();
+    return (selectedCategory === 'all' || item.category === selectedCategory) &&
+      (!normalizedQuery || item.name.toLowerCase().includes(normalizedQuery) || item.subtitle.toLowerCase().includes(normalizedQuery));
+  }), [query, selectedCategory]);
 
-  const filteredPlants = useMemo(() => {
-    return plantCatalog.filter((item) => {
-      const matchesCategory =
-        selectedCategory === 'all' || item.category === selectedCategory;
-      const normalizedQuery = query.trim().toLowerCase();
-      const matchesQuery =
-        normalizedQuery.length === 0 ||
-        item.name.toLowerCase().includes(normalizedQuery) ||
-        item.subtitle.toLowerCase().includes(normalizedQuery);
-
-      return matchesCategory && matchesQuery;
-    });
-  }, [query, selectedCategory]);
-
-  const featuredPlant = filteredPlants.find((item) => item.featured);
-  const gridPlants = filteredPlants.filter((item) => !item.featured);
-
-  const handleAddPlant = async (item: PlantCatalogItem) => {
+  const handleAdd = async (item: PlantCatalogItem) => {
     if (!id || !garden || savingRef.current) return;
     savingRef.current = true;
     setSaving(true);
@@ -129,99 +72,54 @@ export default function AddPlantsScreen() {
 
   return (
     <View style={styles.screen}>
-      <AppHeader title="Adicionar Plantas" mode="back" onPressLeading={() => router.back()} />
-
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContent}
-      >
+      <AppHeader title="Adicionar plantas" mode="back" onPressLeading={() => router.back()} />
+      <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled" contentContainerStyle={styles.content}>
         <Text style={styles.gardenLabel}>{garden?.name ?? 'Jardim não encontrado'}</Text>
-
-        {saveError ? <Text accessibilityRole="alert" style={{ color: '#ba1a1a' }}>{saveError}</Text> : null}
-        {saving ? <Text style={styles.gardenLabel}>Salvando planta...</Text> : null}
-
-        <View style={styles.hero}>
-          <View style={styles.heroPlantGhost}>
-            <MaterialCommunityIcons name="sprout" size={120} color="rgba(255,255,255,0.06)" />
-          </View>
-
-          <View style={styles.heroIconWrap}>
-            <MaterialIcons name="auto-awesome" size={34} color={COLORS.tertiarySoft} />
-          </View>
-
-          <Text style={styles.heroTitle}>Identificacao Inteligente</Text>
-          <Text style={styles.heroSubtitle}>
-            Tire uma foto para descobrir a especie e como cuidar dela
-            instantaneamente.
-          </Text>
-
-          <Pressable
-            style={styles.scanButton}
-            disabled={saving || !garden}
-            onPress={() => {
-              if (!id) {
-                return;
-              }
-
-              router.push({
-                pathname: '/gardens/[id]/plants/scan',
-                params: { id },
-              });
-            }}
-          >
-            <Ionicons name="camera" size={22} color={COLORS.tertiaryText} />
-            <Text style={styles.scanButtonText}>Escanear Planta</Text>
-          </Pressable>
+        <View style={styles.intro}>
+          <Text accessibilityRole="header" style={styles.title}>Encontre sua próxima planta</Text>
+          <Text style={styles.text}>Escolha no catálogo para adicionar ao jardim. Depois, acompanhe regas e adubações nos detalhes da planta.</Text>
         </View>
-
-        <View style={styles.searchWrap}>
-          <Ionicons name="search" size={20} color={COLORS.textMuted} />
-          <TextInput
-            value={query}
-            onChangeText={setQuery}
-            placeholder="Ou busque manualmente por especie..."
-            placeholderTextColor="#9aa099"
-            style={styles.searchInput}
-          />
+        {saveError ? <Text accessibilityRole="alert" style={styles.error}>{saveError}</Text> : null}
+        {saving ? <Text accessibilityLiveRegion="polite" style={styles.text}>Salvando planta...</Text> : null}
+        <View style={styles.search}>
+          <Ionicons name="search-outline" size={20} color="#586653" />
+          <TextInput value={query} onChangeText={setQuery} placeholder="Buscar nome ou espécie" accessibilityLabel="Buscar plantas no catálogo"
+            placeholderTextColor="#586653" style={styles.searchInput} />
+          {query ? <Pressable accessibilityRole="button" accessibilityLabel="Limpar busca" onPress={() => setQuery('')} style={styles.clearSearch}>
+            <Ionicons name="close-circle" size={20} color="#586653" />
+          </Pressable> : null}
         </View>
-
         <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>Curadoria de Verao</Text>
-          <View style={styles.countBadge}>
-            <Text style={styles.countBadgeText}>124 especies</Text>
-          </View>
+          <Text style={styles.sectionTitle}>Catálogo de plantas</Text>
+          <Text style={styles.count}>{filteredPlants.length} de {plantCatalog.length}</Text>
         </View>
-
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.categoryRow}
-        >
-          {categoryOptions.map((category) => {
-            const active = selectedCategory === category.value;
-
-            return (
-              <Pressable
-                key={category.value}
-                style={[styles.categoryChip, active && styles.categoryChipActive]}
-                onPress={() => setSelectedCategory(category.value)}
-              >
-                <Text
-                  style={[styles.categoryChipText, active && styles.categoryChipTextActive]}
-                >
-                  {category.label}
-                </Text>
-              </Pressable>
-            );
-          })}
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.categories}>
+          {categories.map(category => <Pressable key={category.value} accessibilityRole="button"
+            accessibilityState={{ selected: selectedCategory === category.value }}
+            style={[styles.chip, selectedCategory === category.value && styles.activeChip]} onPress={() => setSelectedCategory(category.value)}>
+            <Text style={[styles.chipText, selectedCategory === category.value && styles.activeChipText]}>{category.label}</Text>
+          </Pressable>)}
         </ScrollView>
-
-        {featuredPlant ? <CatalogCard item={featuredPlant} onAdd={() => handleAddPlant(featuredPlant)} disabled={saving || !garden} /> : null}
-
-        <View style={styles.gridRow}>
-          {gridPlants.map((item) => (
-            <CatalogCard key={item.id} item={item} onAdd={() => handleAddPlant(item)} disabled={saving || !garden} />
-          ))}
+        {filteredPlants.length === 0 ? <View style={styles.empty}>
+          <Ionicons name="search-outline" size={32} color="#476644" />
+          <Text style={styles.sectionTitle}>Nenhuma planta encontrada</Text>
+          <Text style={styles.text}>Tente outro nome ou escolha outra categoria.</Text>
+          <Pressable accessibilityRole="button" style={styles.textButton} onPress={() => { setQuery(''); setSelectedCategory('all'); }}>
+            <Text style={styles.buttonText}>Limpar filtros</Text>
+          </Pressable>
+        </View> : null}
+        <View style={styles.grid}>
+          {filteredPlants.map(item => <CatalogCard key={item.id} item={item} disabled={saving || !garden}
+            singleColumn={width < 380 || fontScale > 1.3} onAdd={() => handleAdd(item)} />)}
+        </View>
+        <View style={styles.analysisNote}>
+          <Text style={styles.sectionTitle}>Análise por foto</Text>
+          <Text style={styles.text}>Recurso opcional que depende do serviço de IA. Você pode cuidar das plantas sem uma análise.</Text>
+          <Pressable accessibilityRole="button" disabled={saving || !garden} accessibilityState={{ disabled: saving || !garden }}
+            style={[styles.textButton, (saving || !garden) && styles.disabled]}
+            onPress={() => { if (id && garden) router.push({ pathname: '/gardens/[id]/plants/scan', params: { id } }); }}>
+            <Ionicons name="camera-outline" size={18} color="#17361d" /><Text style={styles.buttonText}>Abrir análise por foto</Text>
+          </Pressable>
         </View>
       </ScrollView>
     </View>
@@ -229,241 +127,39 @@ export default function AddPlantsScreen() {
 }
 
 const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: COLORS.background,
-  },
-  scrollContent: {
-    paddingTop: 8,
-    paddingHorizontal: 24,
-    paddingBottom: 40,
-    gap: 18,
-  },
-  gardenLabel: {
-    marginTop: -6,
-    color: `${COLORS.secondary}aa`,
-    fontSize: 11,
-    fontWeight: '800',
-    textAlign: 'center',
-    textTransform: 'uppercase',
-    letterSpacing: 1.8,
-  },
-  hero: {
-    position: 'relative',
-    overflow: 'hidden',
-    borderRadius: 38,
-    backgroundColor: COLORS.primary,
-    paddingHorizontal: 30,
-    paddingVertical: 34,
-    alignItems: 'center',
-    shadowColor: '#17361d',
-    shadowOpacity: 0.18,
-    shadowRadius: 22,
-    shadowOffset: { width: 0, height: 12 },
-    elevation: 8,
-  },
-  heroPlantGhost: {
-    position: 'absolute',
-    top: 10,
-    right: 8,
-  },
-  heroIconWrap: {
-    width: 84,
-    height: 84,
-    borderRadius: 42,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.18)',
-    backgroundColor: 'rgba(255,255,255,0.08)',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 20,
-  },
-  heroTitle: {
-    color: COLORS.white,
-    fontSize: 28,
-    lineHeight: 34,
-    fontWeight: '900',
-    textAlign: 'center',
-  },
-  heroSubtitle: {
-    marginTop: 12,
-    color: 'rgba(255,255,255,0.78)',
-    fontSize: 16,
-    lineHeight: 29,
-    fontWeight: '500',
-    textAlign: 'center',
-    maxWidth: 260,
-  },
-  scanButton: {
-    marginTop: 22,
-    width: '100%',
-    borderRadius: 22,
-    backgroundColor: COLORS.tertiarySoft,
-    paddingVertical: 18,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 12,
-  },
-  scanButtonText: {
-    color: COLORS.tertiaryText,
-    fontSize: 18,
-    fontWeight: '900',
-  },
-  searchWrap: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-    backgroundColor: COLORS.surfaceLow,
-    borderRadius: 20,
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-  },
-  searchInput: {
-    flex: 1,
-    color: COLORS.primary,
-    fontSize: 15,
-    fontWeight: '500',
-  },
-  sectionHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  sectionTitle: {
-    color: COLORS.primary,
-    fontSize: 20,
-    fontWeight: '900',
-    letterSpacing: -0.8,
-  },
-  countBadge: {
-    backgroundColor: 'rgba(200, 236, 193, 0.4)',
-    borderRadius: 10,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-  },
-  countBadgeText: {
-    color: '#9abd9b',
-    fontSize: 10,
-    fontWeight: '900',
-    textTransform: 'uppercase',
-    letterSpacing: 1.1,
-  },
-  categoryRow: {
-    gap: 12,
-    paddingRight: 18,
-  },
-  categoryChip: {
-    borderRadius: 999,
-    backgroundColor: COLORS.surfaceHigh,
-    paddingHorizontal: 22,
-    paddingVertical: 12,
-  },
-  categoryChipActive: {
-    backgroundColor: COLORS.primary,
-  },
-  categoryChipText: {
-    color: COLORS.textMuted,
-    fontSize: 15,
-    fontWeight: '700',
-  },
-  categoryChipTextActive: {
-    color: COLORS.white,
-  },
-  featuredCard: {
-    overflow: 'hidden',
-    borderRadius: 30,
-    backgroundColor: COLORS.surfaceLow,
-    borderWidth: 1,
-    borderColor: 'rgba(228, 226, 222, 0.6)',
-  },
-  featuredImageWrap: {
-    position: 'relative',
-    height: 250,
-  },
-  featuredImage: {
-    width: '100%',
-    height: '100%',
-  },
-  featuredAddButton: {
-    position: 'absolute',
-    top: 16,
-    right: 16,
-    width: 54,
-    height: 54,
-    borderRadius: 27,
-    backgroundColor: COLORS.tertiarySoft,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  featuredBody: {
-    padding: 18,
-  },
-  featuredEyebrow: {
-    color: COLORS.secondary,
-    fontSize: 11,
-    fontWeight: '800',
-    textTransform: 'uppercase',
-    letterSpacing: 1.3,
-  },
-  featuredTitle: {
-    marginTop: 8,
-    color: COLORS.primary,
-    fontSize: 22,
-    fontWeight: '900',
-  },
-  featuredSubtitle: {
-    marginTop: 4,
-    color: COLORS.textMuted,
-    fontSize: 15,
-    fontStyle: 'italic',
-  },
-  gridRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 14,
-    justifyContent: 'space-between',
-  },
-  gridCard: {
-    width: '47%',
-    overflow: 'hidden',
-    borderRadius: 24,
-    backgroundColor: COLORS.surfaceLow,
-    borderWidth: 1,
-    borderColor: 'rgba(228, 226, 222, 0.6)',
-  },
-  gridImageWrap: {
-    position: 'relative',
-    height: 190,
-  },
-  gridImage: {
-    width: '100%',
-    height: '100%',
-  },
-  gridAddButton: {
-    position: 'absolute',
-    top: 12,
-    right: 12,
-    width: 34,
-    height: 34,
-    borderRadius: 17,
-    backgroundColor: 'rgba(251, 249, 245, 0.88)',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  gridBody: {
-    padding: 14,
-  },
-  gridTitle: {
-    color: COLORS.primary,
-    fontSize: 15,
-    lineHeight: 20,
-    fontWeight: '800',
-  },
-  gridSubtitle: {
-    marginTop: 6,
-    color: COLORS.textMuted,
-    fontSize: 13,
-    lineHeight: 18,
-  },
+  screen: { flex: 1, backgroundColor: '#fbf9f5' },
+  content: { width: '100%', maxWidth: 720, alignSelf: 'center', padding: 20, paddingBottom: 40, gap: 18 },
+  gardenLabel: { color: '#476644', fontSize: 12, fontWeight: '700' },
+  intro: { gap: 10 },
+  title: { color: '#17361d', fontSize: 28, lineHeight: 34, fontWeight: '800', letterSpacing: -0.6 },
+  text: { color: '#586653', fontSize: 14, lineHeight: 22 },
+  error: { color: '#ba1a1a', fontSize: 14, lineHeight: 22 },
+  search: { flexDirection: 'row', alignItems: 'center', gap: 10, minHeight: 54, backgroundColor: '#ffffff', borderWidth: 1, borderColor: '#dce3d5', borderRadius: 16, paddingHorizontal: 14 },
+  searchInput: { flex: 1, minWidth: 0, fontSize: 15, color: '#17361d', paddingVertical: 14 },
+  clearSearch: { width: 44, minHeight: 44, alignItems: 'center', justifyContent: 'center' },
+  sectionHeader: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: 10 },
+  sectionTitle: { color: '#17361d', fontSize: 20, fontWeight: '800' },
+  count: { color: '#476644', fontSize: 12, fontWeight: '700', backgroundColor: '#e9efe4', paddingHorizontal: 12, paddingVertical: 7, borderRadius: 10 },
+  categories: { gap: 10 },
+  chip: { borderRadius: 24, minHeight: 44, paddingHorizontal: 20, paddingVertical: 12, backgroundColor: '#e9efe4' },
+  activeChip: { backgroundColor: '#17361d' },
+  chipText: { color: '#476644', fontSize: 14, fontWeight: '700' },
+  activeChipText: { color: '#ffffff' },
+  grid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', gap: 16 },
+  card: { width: '47%', borderRadius: 22, overflow: 'hidden', backgroundColor: '#ffffff', borderWidth: 1, borderColor: '#e7e9e0' },
+  wideCard: { width: '100%' },
+  photo: { height: 170, alignItems: 'center', justifyContent: 'center', backgroundColor: '#e9efe4' },
+  featuredPhoto: { height: 220 },
+  cardBody: { padding: 16, gap: 7 },
+  categoryLabel: { color: '#476644', fontSize: 11, fontWeight: '700' },
+  plantName: { color: '#17361d', fontSize: 18, lineHeight: 24, fontWeight: '800' },
+  plantSubtitle: { color: '#586653', fontSize: 13, lineHeight: 20 },
+  addButton: { minHeight: 44, paddingHorizontal: 10, paddingVertical: 10, borderRadius: 12, backgroundColor: '#e9efe4', flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'center', gap: 6, marginTop: 5 },
+  addText: { color: '#17361d', fontSize: 14, fontWeight: '700' },
+  empty: { padding: 22, borderRadius: 22, backgroundColor: '#ffffff', gap: 12 },
+  analysisNote: { padding: 20, borderRadius: 22, backgroundColor: '#eef2e8', gap: 10 },
+  textButton: { minHeight: 44, paddingVertical: 12, flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 8 },
+  buttonText: { color: '#17361d', fontSize: 14, fontWeight: '700' },
+  disabled: { opacity: 0.5 },
+  pressed: { opacity: 0.75 },
 });

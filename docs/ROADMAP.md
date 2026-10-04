@@ -14,13 +14,13 @@ Prioridade combinada em 03/10/2026: continuar usando jardins, plantas do catálo
 
 | Área | O que já existe | Limitação / próximo trabalho |
 | --- | --- | --- |
-| Navegação | Expo Router, home, menu, perfil, scan e preview. | Validar jornada completa e padronizar textos. |
+| Navegação | Expo Router, home, menu, perfil, scan e preview. Barra inferior com Jardins/Criar/AR/Perfil; aba sem rota removida. | Validar jornada completa, leitura com texto ampliado e navegação no aparelho. |
 | Jardins | Criação, edição, exclusão, listagem e detalhes com persistência local versionada. Criação/listagem validadas em Samsung Android 13. | Edição/exclusão, encerramento/reabertura completos e cenários de falha ainda pendentes no aparelho. |
 | Plantas | Catálogo estático, inclusão e análise persistidas, com fotos guardadas fora do cache no app nativo. Inclusão pelo catálogo, detalhes, cuidados/histórico e recuperação após recarregar JavaScript validados no aparelho. | Fotos duráveis, edição/exclusão e demais cenários nativos ainda pendentes. |
 | Análise | Foto/câmera, integração Gemini, adição e reanálise de plantas nas rotas de jardins. | Serviço/parser e tela compartilhados; Edge Function e segredo configurados. Primeira requisição real recebeu HTTP 402 do Gemini; faturamento/créditos, sucesso da análise e validação em aparelho pendentes. |
 | Métricas | Vitalidade e indicadores de água/luz, com agregação no jardim. | São estimativas/valores do modelo, não sensores; valores desconhecidos são distintos de zero; validação visual em aparelho pendente. |
-| AR | Modelo GLB, posicionamento em plano, rotação, escala e reposicionamento. | Precisa de build nativo e aparelho compatível; execução não validada nesta revisão. |
-| Perfil | Tela, contagens derivadas de jardins/plantas e conquistas visuais. | Usuário fixo; configurações e sair sem handlers; rank/conquistas estáticos. |
+| AR | Modelo GLB, posicionamento em plano, rotação, escala e reposicionamento. Fallback web separado do módulo nativo; export web aprovado. | Precisa de build nativo e aparelho compatível; interação/execução AR não validada nesta revisão. |
+| Perfil | Resumo com contagens derivadas dos jardins/plantas e atalhos úteis. Nome/e-mail fictícios, rank/conquistas estáticos e ações sem handler removidos da interface. | Perfil local editável ainda não implementado; interação e contagens na interface aguardam validação. |
 | Qualidade | TypeScript, lint, testes de persistência e CI com export Android. Build debug e jornada local básica validados em Samsung Android 13. | Roteiro manual completo e análise bem-sucedida ainda pendentes; build debug depende de Metro. |
 
 Fontes principais: `src/features/gardens/store.ts`, `types.ts` e `catalog.ts`; `src/features/plant-analysis`; `src/features/ar/PlantArScreen.tsx`; `src/app/profile.tsx`; `package.json`.
@@ -84,6 +84,8 @@ Aceite: sucesso salva análise e data; falhas têm feedback e permitem tentar no
 - [ ] Padronizar idioma e identidade Gardenfy, incluindo textos restantes de “Folium & Fern”.
 - [ ] Revisar navegação, teclado, estados vazios, acessibilidade básica e dispositivos pequenos.
 - [ ] Validar AR em dispositivo compatível e fallback/retorno em dispositivo sem suporte.
+
+Etapa de front em 03/10/2026: home, catálogo e perfil revisados para uso local; cadastro de jardim e textos dos detalhes em português; botões sem ação e a rota inexistente de tarefas removidos. Catálogo tem contagem real, estado de busca vazia, fallback de fotos e uma coluna em telas estreitas/texto ampliado. Análise permanece acessível como opção secundária. Perfil editável, conferência visual, acessibilidade com leitor de tela e validação nativa continuam pendentes; M4 permanece parcial.
 
 Aceite: perfil salvo sobrevive ao reinício; todas as ações expostas têm comportamento útil; indisponibilidade de AR não impede cuidar do jardim.
 
