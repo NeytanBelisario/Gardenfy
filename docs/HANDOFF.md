@@ -135,11 +135,12 @@ Atualize este arquivo ao encerrar sessões que mudem o estado do projeto. Não a
 ## Sessão de 03/10/2026 — continuidade sem Gemini
 
 - **Branch:** `docs/local-work-continuation`, criada de `develop` atualizado em `56749e2`, após confirmar o merge do PR #11.
+- **PR:** [#12 — continuidade pelo catálogo e cuidados sem Gemini](https://github.com/NeytanBelisario/Gardenfy/pull/12), aberto para `develop`; integração pendente.
 - **Decisão do usuário:** continuar sem Gemini. Usar catálogo e cuidados locais; análise por foto e faturamento ficam adiados, com M3 ainda parcial. Nenhuma nova chamada ao provedor ou alteração de secrets/configuração realizada nesta retomada.
 - **Entrega:** README e guia explicam o uso local; roteiro prioriza edição/exclusão, correção de cuidados, encerramento/reabertura e uso sem rede. As telas de análise continuam disponíveis, sem bloqueio novo no código.
-- **Checks:** `npm run check` aprovado na base integrada: TypeScript, lint sem avisos e 94 testes. Metro respondeu em `/status`; ADB não encontrou aparelho conectado. Nenhum novo teste nativo realizado.
+- **Checks:** `npm run check` aprovado na base integrada: TypeScript, lint sem avisos e 94 testes. Os 13 links locais, a âncora do roteiro e `git diff --check` passaram. Metro respondeu em `/status`; ADB não encontrou aparelho conectado. Nenhum novo teste nativo realizado.
 - **Próximo passo:** com aparelho conectado, seguir “Continuar a validação sem Gemini” em `TESTING.md`. Escolha de nova feature permanece aberta; o roadmap não autoriza implementá-la automaticamente.
-- **Backup:** documentação será publicada nesta branch e submetida em PR para `develop`; registrar o número no encerramento.
+- **Backup:** `3d0fd79` (roteiro e decisão de uso local) publicado em `origin/docs/local-work-continuation`; este registro do PR também será publicado no encerramento.
 
 ## Modelo para próximas sessões
 
