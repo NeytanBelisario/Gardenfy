@@ -14,8 +14,8 @@ const COLORS = {
 
 const navItems = [
   { label: 'Jardins', icon: 'sprout', route: '/', activeOn: ['/'] },
-  { label: 'Scan', icon: 'camera-outline', route: '/scan', activeOn: ['/scan'] },
-  { label: 'Tarefas', icon: 'list-outline', route: '/tasks', activeOn: ['/tasks'] },
+  { label: 'Criar', icon: 'add-circle-outline', route: '/gardens/new', activeOn: ['/gardens/new'] },
+  { label: 'AR', icon: 'cube-outline', route: '/preview', activeOn: ['/preview'] },
   { label: 'Perfil', icon: 'person-outline', route: '/profile', activeOn: ['/profile'] },
 ] as const;
 
@@ -26,7 +26,7 @@ function NavIcon({
   item: (typeof navItems)[number];
   active: boolean;
 }) {
-  const color = active ? COLORS.primary : `${COLORS.secondary}99`;
+  const color = active ? COLORS.primary : COLORS.secondary;
 
   if (item.label === 'Jardins') {
     return <MaterialCommunityIcons name="sprout" size={20} color={color} />;
@@ -78,20 +78,19 @@ export function AppNavbar({ hidden = false }: AppNavbarProps) {
       ]}
     >
       <View style={styles.navBar}>
-        {navItems.slice(0, 2).map((item) => {
-          const active = item.activeOn.includes(pathname as never);
+        {navItems.map((item) => {
+          const active = item.route === '/'
+            ? pathname === '/' || (pathname.startsWith('/gardens/') && pathname !== '/gardens/new')
+            : item.activeOn.includes(pathname as never);
 
           return (
             <Pressable
               key={item.label}
               style={styles.navItem}
-              onPress={() => {
-                if (item.route === '/tasks' || item.route === '/profile') {
-                  return;
-                }
-
-                router.push(item.route as never);
-              }}
+              accessibilityRole="button"
+              accessibilityLabel={item.label === 'AR' ? 'Visualizar planta em realidade aumentada' : item.label === 'Criar' ? 'Criar jardim' : item.label}
+              accessibilityState={{ selected: active }}
+              onPress={() => { if (pathname !== item.route) router.push(item.route); }}
             >
               <View style={[styles.navChip, active && styles.navChipActive]}>
                 <NavIcon item={item} active={active} />
@@ -103,28 +102,6 @@ export function AppNavbar({ hidden = false }: AppNavbarProps) {
           );
         })}
 
-        <Pressable style={styles.centerAction} onPress={() => router.push('/preview')}>
-          <Ionicons name="scan" size={22} color={COLORS.white} />
-        </Pressable>
-
-        {navItems.slice(2).map((item) => {
-          const active = item.activeOn.includes(pathname as never);
-
-          return (
-            <Pressable
-              key={item.label}
-              style={styles.navItem}
-              onPress={() => router.push(item.route as never)}
-            >
-              <View style={[styles.navChip, active && styles.navChipActive]}>
-                <NavIcon item={item} active={active} />
-              </View>
-              <Text style={[styles.navLabel, active && styles.navLabelActive]}>
-                {item.label}
-              </Text>
-            </Pressable>
-          );
-        })}
       </View>
     </Animated.View>
   );
@@ -140,6 +117,7 @@ const styles = StyleSheet.create({
   },
   navBar: {
     width: '92%',
+    maxWidth: 680,
     borderRadius: 30,
     paddingHorizontal: 10,
     paddingTop: 10,
@@ -147,7 +125,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'flex-end',
     justifyContent: 'space-between',
-    backgroundColor: 'rgba(251, 249, 245, 0.92)',
+    backgroundColor: '#ffffff',
+    borderWidth: 1,
+    borderColor: '#e7e9e0',
     shadowColor: '#17361d',
     shadowOpacity: 0.14,
     shadowRadius: 18,
@@ -158,6 +138,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'flex-end',
     minWidth: 52,
+    flex: 1,
+    minHeight: 52,
     gap: 4,
   },
   navChip: {
@@ -171,27 +153,13 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(71, 102, 68, 0.12)',
   },
   navLabel: {
-    color: `${COLORS.secondary}99`,
-    fontSize: 9,
+    color: COLORS.secondary,
+    fontSize: 11,
     fontWeight: '800',
     textTransform: 'uppercase',
     letterSpacing: 0.9,
   },
   navLabelActive: {
     color: COLORS.primary,
-  },
-  centerAction: {
-    width: 54,
-    height: 54,
-    marginTop: -18,
-    borderRadius: 27,
-    backgroundColor: COLORS.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#17361d',
-    shadowOpacity: 0.24,
-    shadowRadius: 14,
-    shadowOffset: { width: 0, height: 8 },
-    elevation: 12,
   },
 });

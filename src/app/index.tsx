@@ -1,451 +1,123 @@
 import React from 'react';
-import {
-  Image,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Feather, Ionicons } from '@expo/vector-icons';
+import { Ionicons } from '@expo/vector-icons';
 
 import { AppHeader } from '../components/shell/AppHeader';
 import { AppNavbar } from '../components/shell/AppNavbar';
 import { GardenIdentityIcon } from '../features/gardens/icons';
 import { formatPercent } from '../features/gardens/metricPresentation';
-import { GardenMetric, GardenSummary } from '../features/gardens/types';
+import type { GardenSummary } from '../features/gardens/types';
 import { useGardenSummaries } from '../features/gardens/store';
 import { useNavbarVisibilityOnScroll } from '../hooks/useNavbarVisibilityOnScroll';
 
-const COLORS = {
-  background: '#fbf9f5',
-  primary: '#17361d',
-  secondary: '#476644',
-  surface: '#f5f3ef',
-  surfaceHigh: '#eae8e4',
-  surfaceVariant: '#e4e2de',
-  textMuted: '#424841',
-  textSoft: '#8ea086',
-  tertiaryDark: '#6a3200',
-  alertBg: '#ffdad6',
-  alertText: '#93000a',
-  white: '#ffffff',
-} as const;
-
-const EMPTY_GARDENS_ART = require('../public/nogardenicon.png');
-
-function ProgressBar({
-  value,
-  color,
-  trackColor,
-}: {
-  value: number | null;
-  color: string;
-  trackColor: string;
-}) {
-  return (
-    <View style={[styles.progressTrack, { backgroundColor: trackColor }]}>
-      {value !== null ? <View style={[styles.progressFill, { width: `${value}%`, backgroundColor: color }]} /> : null}
-    </View>
-  );
-}
-
-function MetricCard({ metric }: { metric: GardenMetric }) {
-  return (
-    <View style={styles.metricItem}>
-      <View style={styles.metricIconWrap}>
-        {metric.kind === 'light' ? (
-          <Feather name="sun" size={18} color={COLORS.primary} />
-        ) : (
-          <Ionicons name="water-outline" size={18} color={COLORS.secondary} />
-        )}
-      </View>
-      <View>
-        <Text style={styles.metricLabel}>{metric.label}</Text>
-        <Text style={[styles.metricValue, metric.value === null && styles.unknownValue]}>{formatPercent(metric.value)}</Text>
-      </View>
-    </View>
-  );
-}
-
 function GardenCard({ garden }: { garden: GardenSummary }) {
   const router = useRouter();
-  const badgeColors =
-    garden.alert?.tone === 'warning'
-      ? { backgroundColor: '#ffb783', color: '#4f2500' }
-      : { backgroundColor: COLORS.alertBg, color: COLORS.alertText };
-
   return (
-    <Pressable
-      style={styles.lightCard}
-      onPress={() =>
-        router.push({
-          pathname: '/gardens/[id]',
-          params: { id: garden.id },
-        })
-      }
-    >
-      <View style={styles.cardTopRow}>
-        <View style={styles.thumbImageWrap}>
-          <GardenIdentityIcon icon={garden.icon} size={42} color={COLORS.primary} />
+    <Pressable accessibilityRole="button"
+      accessibilityLabel={'Abrir ' + garden.name + ', ' + garden.plantCount + (garden.plantCount === 1 ? ' planta' : ' plantas')}
+      style={({ pressed }) => [styles.card, pressed && styles.pressed]}
+      onPress={() => router.push({ pathname: '/gardens/[id]', params: { id: garden.id } })}>
+      <View style={styles.cardHeader}>
+        <View style={styles.gardenIcon}><GardenIdentityIcon icon={garden.icon} size={30} color="#17361d" /></View>
+        <View style={styles.cardCopy}>
+          <Text style={styles.gardenName}>{garden.name}</Text>
+          <Text style={styles.secondary}>{garden.label} · {garden.plantCount} {garden.plantCount === 1 ? 'planta' : 'plantas'}</Text>
         </View>
-
-        <View style={styles.lightCardContent}>
-          <View style={styles.lightCardHeader}>
-            <View style={styles.titleWrap}>
-              <Text style={styles.cardTitle}>{garden.name}</Text>
-              <Text style={styles.cardPlants}>
-                {garden.plantCount} plant{garden.plantCount === 1 ? '' : 's'}
-              </Text>
-            </View>
-
-            {garden.alert ? (
-              <View
-                style={[styles.badge, { backgroundColor: badgeColors.backgroundColor }]}
-              >
-                <Text style={[styles.badgeText, { color: badgeColors.color }]}>
-                  {garden.alert.label}
-                </Text>
-              </View>
-            ) : null}
+        <Ionicons name="chevron-forward" size={20} color="#476644" />
+      </View>
+      {garden.alert ? <Text style={styles.alert}>{garden.alert.label}</Text> : null}
+      {garden.vitality === null ? (
+        <View style={styles.localNote}>
+          <Ionicons name="leaf-outline" size={18} color="#476644" />
+          <Text style={styles.noteText}>{garden.plantCount ? 'Sem análise · os cuidados já podem ser registrados.' : 'Seu jardim está pronto para receber a primeira planta.'}</Text>
+        </View>
+      ) : (
+        <View style={styles.analysis}>
+          <Text style={styles.secondary}>Estimativas da IA</Text>
+          <View style={styles.metricRow}>
+            <Text style={styles.metric}>Vitalidade {formatPercent(garden.vitality)}</Text>
+            {garden.metrics.map(metric => <Text key={metric.kind} style={styles.metric}>{metric.label} {formatPercent(metric.value)}</Text>)}
           </View>
         </View>
-      </View>
-
-      <View style={styles.vitalitySection}>
-        <View style={styles.vitalityHeader}>
-          <Text style={styles.vitalityLabel}>Vitalidade</Text>
-          <Text style={[styles.vitalityValue, garden.vitality === null && styles.unknownValue]}>{formatPercent(garden.vitality)}</Text>
-        </View>
-        <ProgressBar
-          value={garden.vitality}
-          color={COLORS.primary}
-          trackColor={COLORS.surfaceVariant}
-        />
-      </View>
-
-      <Text style={styles.estimateText}>
-        {garden.vitality === null
-          ? 'Adicione uma planta e analise uma foto para obter estimativas.'
-          : 'Estimativas da IA · médias das plantas analisadas'}
-      </Text>
-      <View style={styles.metricsRow}>
-        {garden.metrics.map((metric) => (
-          <MetricCard key={metric.label} metric={metric} />
-        ))}
-      </View>
+      )}
     </Pressable>
   );
 }
 
 export default function HomeScreen() {
   const router = useRouter();
-  const { navbarHidden, handleNavbarScroll } = useNavbarVisibilityOnScroll();
   const gardens = useGardenSummaries();
-  const hasGardens = gardens.length > 0;
-
+  const plants = gardens.reduce((total, garden) => total + garden.plantCount, 0);
+  const { navbarHidden, handleNavbarScroll } = useNavbarVisibilityOnScroll();
   return (
     <View style={styles.screen}>
       <AppHeader mode="menu" />
-
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        scrollEventThrottle={16}
-        onScroll={(event) => handleNavbarScroll(event.nativeEvent.contentOffset.y)}
-        contentContainerStyle={styles.scrollContent}
-      >
-        <View style={styles.heroCopy}>
-          <Text style={styles.heading}>Meus Jardins</Text>
+      <ScrollView showsVerticalScrollIndicator={false} scrollEventThrottle={16}
+        onScroll={event => handleNavbarScroll(event.nativeEvent.contentOffset.y)} contentContainerStyle={styles.content}>
+        <View style={styles.hero}>
+          <Text style={styles.eyebrow}>UM POUCO DE VERDE, TODOS OS DIAS</Text>
+          <Text style={styles.heroTitle}>Seu espaço para cultivar.</Text>
+          <Text style={styles.heroText}>Reúna suas plantas e acompanhe cada cuidado, no seu ritmo.</Text>
+          <View style={styles.summary}>
+            <Text style={styles.summaryText}>{gardens.length} {gardens.length === 1 ? 'jardim' : 'jardins'}</Text>
+            <View style={styles.summaryDot} />
+            <Text style={styles.summaryText}>{plants} {plants === 1 ? 'planta' : 'plantas'}</Text>
+          </View>
         </View>
-
-        {hasGardens ? (
-          gardens.map((garden) => <GardenCard key={garden.id} garden={garden} />)
-        ) : (
-          <View style={styles.emptyState}>
-            <View style={styles.emptyStateIllustrationWrap}>
-              <Image
-                source={EMPTY_GARDENS_ART}
-                style={styles.emptyStateIllustration}
-                resizeMode="contain"
-              />
-            </View>
-
-            <View style={styles.emptyStateCopy}>
-              <Text style={styles.emptyStateTitle}>Ainda não há jardins cadastrados</Text>
-              <Text style={styles.emptyStateText}>
-                Crie seu primeiro jardim e comece a cuidar dos seus espacos vivos.
-              </Text>
-            </View>
-
-            <Pressable
-              style={styles.emptyStateButton}
-              onPress={() => router.push('/gardens/new')}
-            >
-              <Ionicons name="add" size={26} color={COLORS.white} />
-              <Text style={styles.emptyStateButtonText}>Criar meu jardim</Text>
+        <View style={styles.sectionHeader}>
+          <Text accessibilityRole="header" style={styles.sectionTitle}>Meus jardins</Text>
+          {gardens.length ? <Pressable accessibilityRole="button" onPress={() => router.push('/gardens/new')} style={styles.newButton}>
+            <Ionicons name="add" size={20} color="#17361d" /><Text style={styles.newButtonText}>Novo jardim</Text>
+          </Pressable> : null}
+        </View>
+        {gardens.length ? gardens.map(garden => <GardenCard key={garden.id} garden={garden} />) : (
+          <View style={styles.empty}>
+            <Image source={require('../public/nogardenicon.png')} style={styles.emptyImage} resizeMode="contain" />
+            <Text style={styles.emptyTitle}>Tudo começa com um jardim</Text>
+            <Text style={styles.emptyText}>Escolha um nome, adicione plantas pelo catálogo e registre regas e adubações.</Text>
+            <Pressable accessibilityRole="button" onPress={() => router.push('/gardens/new')} style={({ pressed }) => [styles.primaryButton, pressed && styles.pressed]}>
+              <Ionicons name="add" size={22} color="#ffffff" /><Text style={styles.primaryButtonText}>Criar meu primeiro jardim</Text>
             </Pressable>
-
-            <View style={styles.emptyStateSecondaryButton}>
-              <Ionicons name="leaf-outline" size={18} color={COLORS.textSoft} />
-              <Text style={styles.emptyStateSecondaryText}>Saiba como funciona</Text>
-            </View>
           </View>
         )}
       </ScrollView>
-
-      {hasGardens ? (
-        <Pressable style={styles.fab} onPress={() => router.push('/gardens/new')}>
-          <Ionicons name="add" size={34} color={COLORS.white} />
-        </Pressable>
-      ) : null}
-
       <AppNavbar hidden={navbarHidden} />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  unknownValue: { fontSize: 16 },
-  estimateText: {
-    color: COLORS.textMuted,
-    fontSize: 12,
-    marginVertical: 8,
-  },
-  screen: {
-    flex: 1,
-    backgroundColor: COLORS.background,
-  },
-  scrollContent: {
-    paddingHorizontal: 24,
-    paddingTop: 8,
-    paddingBottom: 110,
-    gap: 12,
-  },
-  heroCopy: {
-    width: '100%',
-    marginTop: 2,
-    marginBottom: 6,
-  },
-  heading: {
-    color: COLORS.primary,
-    fontSize: 28,
-    lineHeight: 32,
-    fontWeight: '900',
-    letterSpacing: -0.6,
-  },
-  lightCard: {
-    backgroundColor: COLORS.surface,
-    borderRadius: 28,
-    padding: 20,
-    gap: 18,
-  },
-  cardTopRow: {
-    flexDirection: 'row',
-    gap: 18,
-    alignItems: 'flex-start',
-  },
-  thumbImageWrap: {
-    width: 106,
-    height: 106,
-    borderRadius: 24,
-    flexShrink: 0,
-    backgroundColor: COLORS.surfaceHigh,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  lightCardContent: {
-    flex: 1,
-    minWidth: 0,
-  },
-  lightCardHeader: {
-    flexDirection: 'column',
-    alignItems: 'flex-start',
-    gap: 12,
-  },
-  titleWrap: {
-    flex: 1,
-    gap: 6,
-    minWidth: 0,
-  },
-  cardTitle: {
-    color: COLORS.primary,
-    fontSize: 24,
-    lineHeight: 31,
-    fontWeight: '800',
-  },
-  cardPlants: {
-    color: COLORS.secondary,
-    fontSize: 14,
-    fontWeight: '700',
-    textTransform: 'uppercase',
-    letterSpacing: 2,
-  },
-  badge: {
-    alignSelf: 'flex-start',
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: 999,
-    maxWidth: '100%',
-  },
-  badgeText: {
-    fontSize: 10,
-    fontWeight: '900',
-    textTransform: 'uppercase',
-  },
-  vitalitySection: {
-    gap: 10,
-  },
-  vitalityHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-end',
-  },
-  vitalityLabel: {
-    color: COLORS.textMuted,
-    fontSize: 12,
-    fontWeight: '700',
-    textTransform: 'uppercase',
-    letterSpacing: 1.5,
-  },
-  vitalityValue: {
-    color: COLORS.primary,
-    fontSize: 26,
-    fontWeight: '900',
-  },
-  progressTrack: {
-    height: 7,
-    borderRadius: 999,
-    overflow: 'hidden',
-  },
-  progressFill: {
-    height: '100%',
-    borderRadius: 999,
-  },
-  metricsRow: {
-    flexDirection: 'row',
-    gap: 24,
-    flexWrap: 'wrap',
-  },
-  metricItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-  },
-  metricIconWrap: {
-    width: 42,
-    height: 42,
-    borderRadius: 14,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: COLORS.surfaceHigh,
-  },
-  metricLabel: {
-    color: COLORS.textMuted,
-    fontSize: 11,
-    textTransform: 'uppercase',
-  },
-  metricValue: {
-    color: COLORS.primary,
-    fontSize: 18,
-    fontWeight: '800',
-  },
-  emptyState: {
-    backgroundColor: COLORS.white,
-    borderRadius: 26,
-    paddingHorizontal: 18,
-    paddingTop: 20,
-    paddingBottom: 22,
-    minHeight: 500,
-    alignItems: 'center',
-    gap: 12,
-    shadowColor: '#17361d',
-    shadowOpacity: 0.05,
-    shadowRadius: 18,
-    shadowOffset: { width: 0, height: 8 },
-    elevation: 4,
-  },
-  emptyStateIllustrationWrap: {
-    width: '100%',
-    minHeight: 150,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: COLORS.white,
-  },
-  emptyStateIllustration: {
-    width: '100%',
-    maxWidth: 230,
-    height: 138,
-  },
-  emptyStateCopy: {
-    alignItems: 'center',
-    gap: 6,
-  },
-  emptyStateTitle: {
-    color: COLORS.primary,
-    fontSize: 18,
-    lineHeight: 22,
-    fontWeight: '900',
-    textAlign: 'center',
-    maxWidth: 190,
-  },
-  emptyStateText: {
-    color: COLORS.textMuted,
-    fontSize: 13,
-    lineHeight: 18,
-    textAlign: 'center',
-    maxWidth: 210,
-  },
-  emptyStateButton: {
-    minHeight: 44,
-    paddingHorizontal: 16,
-    borderRadius: 14,
-    backgroundColor: COLORS.primary,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 10,
-    alignSelf: 'center',
-    marginTop: 14,
-    shadowColor: '#17361d',
-    shadowOpacity: 0.18,
-    shadowRadius: 18,
-    shadowOffset: { width: 0, height: 10 },
-    elevation: 8,
-  },
-  emptyStateButtonText: {
-    color: COLORS.white,
-    fontSize: 14,
-    fontWeight: '900',
-    textTransform: 'uppercase',
-  },
-  emptyStateSecondaryButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-    marginTop: 10,
-    paddingVertical: 0,
-  },
-  emptyStateSecondaryText: {
-    color: COLORS.textSoft,
-    fontSize: 13,
-    fontWeight: '600',
-  },
-  fab: {
-    position: 'absolute',
-    right: 24,
-    bottom: 96,
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: '#2f7a43',
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#301400',
-    shadowOpacity: 0.2,
-    shadowRadius: 16,
-    shadowOffset: { width: 0, height: 8 },
-    elevation: 8,
-  },
+  screen: { flex: 1, backgroundColor: '#fbf9f5' },
+  content: { width: '100%', maxWidth: 720, alignSelf: 'center', paddingHorizontal: 20, paddingTop: 12, paddingBottom: 140, gap: 16 },
+  hero: { backgroundColor: '#17361d', borderRadius: 28, padding: 26, gap: 12 },
+  eyebrow: { color: '#c4d9b9', fontSize: 10, fontWeight: '800', letterSpacing: 1.5 },
+  heroTitle: { color: '#ffffff', fontSize: 32, lineHeight: 38, fontWeight: '800', letterSpacing: -1 },
+  heroText: { color: '#d6e2d0', fontSize: 15, lineHeight: 23, maxWidth: 420 },
+  summary: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 12, marginTop: 10 },
+  summaryText: { color: '#ffffff', fontSize: 14, fontWeight: '700' },
+  summaryDot: { width: 4, height: 4, borderRadius: 2, backgroundColor: '#b8ceaf' },
+  sectionHeader: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: 8, marginTop: 8 },
+  sectionTitle: { fontSize: 22, fontWeight: '800', color: '#17361d' },
+  newButton: { minHeight: 44, flexDirection: 'row', alignItems: 'center', gap: 5, paddingHorizontal: 10, borderRadius: 14, backgroundColor: '#e9efe4' },
+  newButtonText: { color: '#17361d', fontSize: 13, fontWeight: '700' },
+  card: { backgroundColor: '#ffffff', borderRadius: 24, padding: 20, gap: 16, borderWidth: 1, borderColor: '#e7e9e0' },
+  cardHeader: { flexDirection: 'row', alignItems: 'center', gap: 14 },
+  gardenIcon: { width: 58, height: 58, borderRadius: 18, backgroundColor: '#eef2e8', alignItems: 'center', justifyContent: 'center' },
+  cardCopy: { flex: 1, minWidth: 0, gap: 5 },
+  gardenName: { color: '#17361d', fontSize: 20, lineHeight: 26, fontWeight: '800' },
+  secondary: { color: '#586653', fontSize: 13, lineHeight: 20 },
+  alert: { alignSelf: 'flex-start', color: '#6a3200', backgroundColor: '#ffead7', borderRadius: 10, paddingHorizontal: 10, paddingVertical: 6, fontSize: 12, fontWeight: '700' },
+  localNote: { flexDirection: 'row', alignItems: 'center', gap: 9, borderTopWidth: 1, borderColor: '#eef0e9', paddingTop: 14 },
+  noteText: { flex: 1, color: '#586653', fontSize: 13, lineHeight: 20 },
+  analysis: { gap: 8, borderTopWidth: 1, borderColor: '#eef0e9', paddingTop: 14 },
+  metricRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 12 },
+  metric: { color: '#17361d', fontSize: 14, fontWeight: '700' },
+  empty: { borderRadius: 24, backgroundColor: '#ffffff', borderWidth: 1, borderColor: '#e7e9e0', padding: 24, alignItems: 'center', gap: 14 },
+  emptyImage: { width: 180, height: 120 },
+  emptyTitle: { color: '#17361d', fontSize: 23, lineHeight: 29, fontWeight: '800', textAlign: 'center' },
+  emptyText: { color: '#586653', fontSize: 15, lineHeight: 23, textAlign: 'center', maxWidth: 340 },
+  primaryButton: { minHeight: 52, borderRadius: 16, backgroundColor: '#17361d', paddingHorizontal: 18, paddingVertical: 14, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, width: '100%', maxWidth: 350 },
+  primaryButtonText: { flexShrink: 1, color: '#ffffff', fontSize: 14, fontWeight: '700', textAlign: 'center' },
+  pressed: { opacity: 0.75 },
 });

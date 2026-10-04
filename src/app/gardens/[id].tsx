@@ -310,14 +310,14 @@ function GardenDetailsView({
 
       <Text style={styles.estimateText}>
         {garden.vitality === null
-          ? 'Analise uma foto de uma planta para obter estimativas.'
+          ? 'Sem análise. Você já pode registrar os cuidados de cada planta.'
           : `Estimativas da IA · ${garden.plants.filter((plant) => typeof plant.vitality === 'number').length} de ${garden.plantCount} plantas analisadas`}
       </Text>
       <View style={styles.statsGrid}>
         <StatsCard
           icon={<MaterialCommunityIcons name="sprout" size={24} color={COLORS.secondary} />}
           value={`${garden.plantCount}`}
-          label="Active Plants"
+          label="Plantas no jardim"
           iconColor={COLORS.secondary}
         />
         <StatsCard
@@ -329,7 +329,7 @@ function GardenDetailsView({
       </View>
 
       <View style={styles.collectionHeader}>
-        <Text style={styles.collectionTitle}>Current Collection</Text>
+        <Text style={styles.collectionTitle}>Minhas plantas</Text>
         <Pressable
           style={styles.inlineAddPlantButton}
           onPress={onAddPlant}
@@ -358,8 +358,7 @@ function GardenDetailsView({
           </View>
           <Text style={styles.emptyCollectionTitle}>Nenhuma planta adicionada ainda</Text>
           <Text style={styles.emptyCollectionText}>
-            Comece adicionando a primeira especie deste jardim via catalogo ou
-            escaneando uma planta.
+            Adicione a primeira planta pelo catálogo e comece a registrar seus cuidados.
           </Text>
         </View>
       )}

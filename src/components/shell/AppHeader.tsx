@@ -14,7 +14,6 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { currentUser, getUserInitial } from '../../features/user/profile';
 import { setShellMenuOpen, useShellUi } from './shellUiStore';
 
 const COLORS = {
@@ -35,9 +34,10 @@ type AppHeaderProps = {
 
 const menuItems = [
   { label: 'Meus jardins', icon: 'leaf-outline', route: '/' },
-  { label: 'Escanear planta', icon: 'scan-outline', route: '/scan' },
-  { label: 'Preview AR', icon: 'cube-outline', route: '/preview' },
   { label: 'Criar jardim', icon: 'add-circle-outline', route: '/gardens/new' },
+  { label: 'Meu espaço', icon: 'person-outline', route: '/profile' },
+  { label: 'Visualizar em AR', icon: 'cube-outline', route: '/preview' },
+  { label: 'Análise por foto', icon: 'scan-outline', route: '/scan' },
 ] as const;
 
 export function AppHeader({
@@ -50,7 +50,6 @@ export function AppHeader({
   const { width } = useWindowDimensions();
   const { menuOpen } = useShellUi();
   const [drawerVisible, setDrawerVisible] = useState(false);
-  const userInitial = useMemo(() => getUserInitial(currentUser.name), []);
   const drawerWidth = Math.min(width * 0.82, 340);
   const drawerTranslateX = useRef(new Animated.Value(-drawerWidth)).current;
   const overlayOpacity = useRef(new Animated.Value(0)).current;
@@ -225,7 +224,7 @@ export function AppHeader({
       >
         <View style={styles.modalRoot}>
           <Animated.View style={[styles.drawerBackdrop, { opacity: overlayOpacity }]}>
-            <Pressable style={StyleSheet.absoluteFill} onPress={handleCloseMenu} />
+            <Pressable accessibilityRole="button" accessibilityLabel="Fechar menu" style={StyleSheet.absoluteFill} onPress={handleCloseMenu} />
           </Animated.View>
           <Animated.View
             {...drawerPanResponder.panHandlers}
@@ -240,12 +239,11 @@ export function AppHeader({
           >
             <View style={styles.drawerProfileCard}>
               <View style={styles.drawerAvatar}>
-                <Text style={styles.drawerAvatarText}>{userInitial}</Text>
+                <Ionicons name="leaf-outline" size={26} color={COLORS.primary} />
               </View>
               <View style={styles.drawerCopy}>
-                <Text style={styles.drawerName}>{currentUser.name}</Text>
-                <Text style={styles.drawerRole}>{currentUser.role}</Text>
-                <Text style={styles.drawerEmail}>{currentUser.email}</Text>
+                <Text style={styles.drawerName}>Seu espaço verde</Text>
+                <Text style={styles.drawerRole}>Um cuidado de cada vez.</Text>
               </View>
             </View>
 
@@ -253,6 +251,7 @@ export function AppHeader({
               {menuItems.map((item) => (
                 <Pressable
                   key={item.route}
+                  accessibilityRole="button"
                   style={styles.drawerItem}
                   onPress={() => handleNavigate(item.route)}
                 >
@@ -265,9 +264,9 @@ export function AppHeader({
             </View>
 
             <View style={styles.drawerFooter}>
-              <Text style={styles.drawerFooterTitle}>Em breve</Text>
+              <Text style={styles.drawerFooterTitle}>Comece pelo catálogo</Text>
               <Text style={styles.drawerFooterText}>
-                Perfil, tarefas e ajustes do app entram no proximo passo.
+                Adicione plantas ao jardim e registre seus cuidados. Seus dados ficam neste aparelho.
               </Text>
             </View>
           </Animated.View>
@@ -284,7 +283,7 @@ export function AppHeader({
         ]}
       >
         <View style={styles.headerLeft}>
-          <Pressable style={styles.headerIconButton} onPress={handleLeadingPress}>
+          <Pressable accessibilityRole="button" accessibilityLabel={mode === 'back' ? 'Voltar' : 'Abrir menu'} style={styles.headerIconButton} onPress={handleLeadingPress}>
             <Ionicons
               name={mode === 'back' ? 'arrow-back' : 'menu'}
               size={24}
@@ -295,8 +294,8 @@ export function AppHeader({
           <Text style={styles.headerBrand}>{title}</Text>
         </View>
 
-        <Pressable style={styles.avatarWrap} onPress={handleProfilePress}>
-          <Text style={styles.avatarText}>{userInitial}</Text>
+        <Pressable accessibilityRole="button" accessibilityLabel="Abrir meu espaço" style={styles.avatarWrap} onPress={handleProfilePress}>
+          <Ionicons name="person-outline" size={20} color={COLORS.primary} />
         </Pressable>
       </View>
     </>
@@ -427,27 +426,30 @@ const styles = StyleSheet.create({
     opacity: 1,
   },
   headerLeft: {
+    flex: 1,
+    minWidth: 0,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
   },
   headerIconButton: {
-    width: 38,
-    height: 38,
+    width: 44,
+    height: 44,
     borderRadius: 19,
     alignItems: 'center',
     justifyContent: 'center',
   },
   headerBrand: {
+    flexShrink: 1,
     color: COLORS.primary,
     fontSize: 22,
     fontWeight: '900',
     letterSpacing: -0.8,
   },
   avatarWrap: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     borderWidth: 1.5,
     borderColor: COLORS.primary,
     backgroundColor: COLORS.surfaceHigh,
