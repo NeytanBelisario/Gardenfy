@@ -6,7 +6,7 @@
 - Tag anotada `v1.0.0-beta.1` no código do APK (`1a9190e`), da preparação integrada em `develop` pelo PR #14.
 - [Release antiga](https://github.com/NeytanBelisario/Gardenfy/releases/tag/app) identificada como histórica, com link para a beta. Seu APK e tag foram preservados.
 - [Milestone 1.0.0](https://github.com/NeytanBelisario/Gardenfy/milestone/1) e [issue #15](https://github.com/NeytanBelisario/Gardenfy/issues/15) acompanham câmera, TalkBack e assinatura de produção. Label `release` criada para organizar essas entregas.
-- README com três capturas reais preparado em `docs/mvp-beta-release`, com PR para `develop`. O README exibido na página inicial do repositório só muda após integração em `main`, que continua sendo a branch padrão.
+- README com três capturas reais preparado em `docs/mvp-beta-release`, no [PR #16](https://github.com/NeytanBelisario/Gardenfy/pull/16) para `develop`. O README exibido na página inicial do repositório só muda após integração em `main`, que continua sendo a branch padrão.
 
 ## About: alteração pelo administrador
 

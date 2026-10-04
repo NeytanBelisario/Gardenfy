@@ -11,7 +11,7 @@ Beta para Android 7 ou superior. O APK funciona sem Expo Go ou servidor de desen
 
 ## O aplicativo
 
-| Seus jardins | Suas plantas | Identificação por foto |
+| Seus jardins | Seu jardim | Identificação por foto |
 | :---: | :---: | :---: |
 | <img src="docs/images/jardins.png" alt="Início do Gardenfy com resumo e lista de jardins" width="220"> | <img src="docs/images/jardim.png" alt="Jardim com ações para adicionar plantas e acompanhar cuidados" width="220"> | <img src="docs/images/identificacao.png" alt="Sugestões de espécies com confirmação antes de salvar a planta" width="220"> |
 
@@ -48,4 +48,4 @@ npm start
 
 Jardins e cuidados funcionam sem configurar o serviço de fotos. Para identificação, siga o [setup Pl@ntNet](docs/ANALYSIS.md#configurar-plantnet); chaves privadas ficam somente no servidor.
 
-[Desenvolvimento](docs/DEVELOPMENT.md) · [Roadmap](docs/ROADMAP.md) · [Critérios da 1.0](docs/RELEASE_1.0.md) · [Continuidade](docs/HANDOFF.md) · [Regras do repositório](AGENTS.md)
+[Desenvolvimento](docs/DEVELOPMENT.md) · [Roadmap](docs/ROADMAP.md) · [Critérios da 1.0](docs/RELEASE_1.0.md) · [Distribuição no GitHub](docs/GITHUB_RELEASE.md) · [Continuidade](docs/HANDOFF.md) · [Regras do repositório](AGENTS.md)
