@@ -35,6 +35,14 @@
     "plugins": [
       "expo-router",
       [
+        "expo-image-picker",
+        {
+          "photosPermission": "O Gardenfy acessa a foto escolhida para identificar sua planta.",
+          "cameraPermission": "O Gardenfy usa a câmera para identificar suas plantas por foto.",
+          "microphonePermission": false
+        }
+      ],
+      [
         "expo-splash-screen",
         {
           "backgroundColor": "#17361d",

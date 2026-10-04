@@ -31,7 +31,7 @@ export default function GardenDetailsScreen() {
             <GardenIdentityIcon icon={garden.icon} size={42} color="#c4d9b9" />
             <Text style={styles.eyebrow}>{garden.label}</Text>
             <Text accessibilityRole="header" style={styles.title}>{garden.name}</Text>
-            <Text style={styles.heroText}>{garden.plantCount} {garden.plantCount === 1 ? 'planta' : 'plantas'} ? {gardenCareCount(garden)} cuidados registrados</Text>
+            <Text style={styles.heroText}>{garden.plantCount} {garden.plantCount === 1 ? 'planta' : 'plantas'} · {gardenCareCount(garden)} cuidados registrados</Text>
           </View>
           <View style={styles.actions}>
             <Pressable accessibilityRole="button" onPress={add} style={styles.primary}><Ionicons name="add" size={20} color="#fff" /><Text style={styles.primaryText}>Adicionar planta</Text></Pressable>
@@ -47,18 +47,18 @@ export default function GardenDetailsScreen() {
             const lastCare = lastPlantCare(plant);
             return <Pressable key={plant.id} accessibilityRole="button" accessibilityLabel={'Abrir cuidados de ' + plant.name} onPress={() => router.push({ pathname: '/gardens/[id]/plants/[plantId]', params: { id: garden.id, plantId: plant.id } })} style={({ pressed }) => [styles.plantCard, pressed && styles.pressed]}>
               <PlantPhoto uri={plant.imageUrl} compact style={styles.photo} />
-              <View style={styles.plantCopy}><Text style={styles.plantName}>{plant.name}</Text><Text style={styles.caption}>{plant.species?.scientificName ?? plant.subtitle}</Text><Text style={styles.caption}>{lastCare ? careLabels[lastCare.careType] + ' ? ' + formatCareDay(lastCare.occurredAt) : 'Pronta para o primeiro cuidado'}</Text><Text style={styles.open}>Ver planta e registrar cuidados</Text></View>
+              <View style={styles.plantCopy}><Text style={styles.plantName}>{plant.name}</Text><Text style={styles.caption}>{plant.species?.scientificName ?? plant.subtitle}</Text><Text style={styles.caption}>{lastCare ? careLabels[lastCare.careType] + ' · ' + formatCareDay(lastCare.occurredAt) : 'Pronta para o primeiro cuidado'}</Text><Text style={styles.open}>Ver planta e registrar cuidados</Text></View>
               <Ionicons name="chevron-forward" size={20} color="#476644" />
             </Pressable>;
           })}
           {!plants.length ? <View style={styles.empty}>
             <Ionicons name={garden.plantCount ? 'search-outline' : 'leaf-outline'} size={44} color="#476644" />
-            <Text style={styles.heading}>{garden.plantCount ? 'Nenhuma planta com esse nome' : 'Seu jardim est? pronto'}</Text>
-            <Text style={styles.text}>{garden.plantCount ? 'Tente buscar por outro nome ou pela esp?cie.' : 'Adicione sua primeira planta pelo cat?logo ou identifique por foto. Depois, registre os cuidados aqui.'}</Text>
+            <Text style={styles.heading}>{garden.plantCount ? 'Nenhuma planta com esse nome' : 'Seu jardim está pronto'}</Text>
+            <Text style={styles.text}>{garden.plantCount ? 'Tente buscar por outro nome ou pela espécie.' : 'Adicione sua primeira planta pelo catálogo ou identifique por foto. Depois, registre os cuidados aqui.'}</Text>
             <Pressable accessibilityRole="button" onPress={garden.plantCount ? () => setQuery('') : add} style={styles.secondary}><Text style={styles.label}>{garden.plantCount ? 'Limpar busca' : 'Escolher minha primeira planta'}</Text></Pressable>
           </View> : null}
           <Pressable accessibilityRole="button" accessibilityLabel="Excluir jardim e suas plantas" onPress={() => setAction({ mode: 'delete' })} style={styles.delete}><Text style={styles.deleteText}>Excluir jardim</Text></Pressable>
-        </> : <View style={styles.empty}><Text style={styles.heading}>Jardim n?o encontrado</Text><Text style={styles.text}>Ele pode ter sido exclu?do. Seus outros jardins continuam dispon?veis.</Text><Pressable accessibilityRole="button" onPress={() => router.replace('/')} style={styles.primary}><Text style={styles.primaryText}>Ver meus jardins</Text></Pressable></View>}
+        </> : <View style={styles.empty}><Text style={styles.heading}>Jardim não encontrado</Text><Text style={styles.text}>Ele pode ter sido excluído. Seus outros jardins continuam disponíveis.</Text><Pressable accessibilityRole="button" onPress={() => router.replace('/')} style={styles.primary}><Text style={styles.primaryText}>Ver meus jardins</Text></Pressable></View>}
       </ScrollView>
       {garden && action ? <GardenManagementDialog key={action.mode} garden={garden} action={action} onClose={() => setAction(null)} onGardenDeleted={() => router.replace('/')} /> : null}
     </View>

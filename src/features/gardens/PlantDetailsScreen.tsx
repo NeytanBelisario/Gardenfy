@@ -17,18 +17,18 @@ import type { PlantCareType, PlantHistoryEntry } from './types';
 function HistoryItem({ entry, disabled, onManage }: { entry: PlantHistoryEntry; disabled: boolean; onManage: (action: PlantCareAction) => void }) {
   return (
     <View style={styles.historyCard}>
-      <View style={styles.historyHeader}><Ionicons name={entry.kind === 'care' ? entry.careType === 'water' ? 'water-outline' : 'leaf-outline' : 'camera-outline'} size={22} color="#476644" /><Text style={styles.label}>{entry.kind === 'care' ? careLabels[entry.careType] : entry.kind === 'identification' ? 'Esp?cie identificada' : 'An?lise antiga'}</Text></View>
+      <View style={styles.historyHeader}><Ionicons name={entry.kind === 'care' ? entry.careType === 'water' ? 'water-outline' : 'leaf-outline' : 'camera-outline'} size={22} color="#476644" /><Text style={styles.label}>{entry.kind === 'care' ? careLabels[entry.careType] : entry.kind === 'identification' ? 'Espécie identificada' : 'Análise antiga'}</Text></View>
       <Text style={styles.caption}>{formatHistoryDate(entry.occurredAt)}</Text>
       {entry.kind === 'care' ? <>
-        <Text style={styles.caption}>Cuidado registrado por voc?</Text>
+        <Text style={styles.caption}>Cuidado registrado por você</Text>
         <View style={styles.actions}>
           <Pressable accessibilityRole="button" accessibilityLabel={'Corrigir ' + careLabels[entry.careType] + ' de ' + formatHistoryDate(entry.occurredAt)} disabled={disabled} onPress={() => onManage({ mode: 'edit', record: entry })} style={styles.historyAction}><Text style={styles.label}>Corrigir</Text></Pressable>
           <Pressable accessibilityRole="button" accessibilityLabel={'Excluir ' + careLabels[entry.careType] + ' de ' + formatHistoryDate(entry.occurredAt)} disabled={disabled} onPress={() => onManage({ mode: 'delete', record: entry })} style={styles.historyAction}><Text style={styles.errorText}>Excluir</Text></Pressable>
         </View>
-      </> : entry.kind === 'identification' ? <><Text style={styles.text}>{entry.species.commonName}</Text><Text style={styles.caption}>{entry.species.scientificName} ? Pl@ntNet</Text><Text style={styles.caption}>Esp?cie confirmada por voc?; sem avalia??o de sa?de.</Text></> : <>
-        <Text style={styles.text}>{entry.snapshot.plantName} ? {entry.snapshot.health}</Text>
-        <Text style={styles.caption}>Estimativas antigas do Gemini, preservadas como hist?rico. N?o s?o medi??es atuais.</Text>
-        <Text style={styles.caption}>Vitalidade {formatPercent(entry.snapshot.vitality)} ? ?gua {formatPercent(entry.snapshot.metrics.find((metric) => metric.kind === 'water')?.value)} ? Luz {formatPercent(entry.snapshot.metrics.find((metric) => metric.kind === 'light')?.value)}</Text>
+      </> : entry.kind === 'identification' ? <><Text style={styles.text}>{entry.species.commonName}</Text><Text style={styles.caption}>{entry.species.scientificName} · Pl@ntNet</Text><Text style={styles.caption}>Espécie confirmada por você; sem avaliação de saúde.</Text></> : <>
+        <Text style={styles.text}>{entry.snapshot.plantName} · {entry.snapshot.health}</Text>
+        <Text style={styles.caption}>Estimativas antigas do Gemini, preservadas como histórico. Não são medições atuais.</Text>
+        <Text style={styles.caption}>Vitalidade {formatPercent(entry.snapshot.vitality)} · Água {formatPercent(entry.snapshot.metrics.find((metric) => metric.kind === 'water')?.value)} · Luz {formatPercent(entry.snapshot.metrics.find((metric) => metric.kind === 'light')?.value)}</Text>
       </>}
     </View>
   );
@@ -52,8 +52,8 @@ export default function PlantDetailsScreen() {
   const record = async (careType: PlantCareType) => {
     if (!garden || !plant || busyRef.current || action || management) return;
     busyRef.current = true; setBusy(true); setError(null); setNotice(null);
-    try { await recordPlantCare(garden.id, plant.id, careType); setNotice(careLabels[careType] + ' registrada. Seu hist?rico foi atualizado.'); }
-    catch (cause) { setError(cause instanceof Error ? cause.message : 'N?o foi poss?vel registrar. Tente novamente.'); }
+    try { await recordPlantCare(garden.id, plant.id, careType); setNotice(careLabels[careType] + ' registrada. Seu histórico foi atualizado.'); }
+    catch (cause) { setError(cause instanceof Error ? cause.message : 'Não foi possível registrar. Tente novamente.'); }
     finally { busyRef.current = false; setBusy(false); }
   };
   return (
@@ -68,28 +68,28 @@ export default function PlantDetailsScreen() {
           {plant.subtitle ? <Text style={styles.text}>{plant.subtitle}</Text> : null}
           <View style={styles.careCard}>
             <Text accessibilityRole="header" style={styles.heading}>O cuidado de hoje</Text>
-            <Text style={styles.text}>J? cuidou da sua planta? Registre para lembrar quando foi.</Text>
+            <Text style={styles.text}>Já cuidou da sua planta? Registre para lembrar quando foi.</Text>
             <View style={styles.lastCareRow}>{(['water', 'fertilize'] as const).map((type) => {
               const last = lastPlantCare(plant, type);
-              return <View key={type} style={styles.lastCare}><Text style={styles.label}>{type === 'water' ? '?ltima rega' : '?ltima aduba??o'}</Text><Text style={styles.caption}>{last ? formatCareDay(last.occurredAt) : 'Ainda sem registro'}</Text></View>;
+              return <View key={type} style={styles.lastCare}><Text style={styles.label}>{type === 'water' ? 'Última rega' : 'Última adubação'}</Text><Text style={styles.caption}>{last ? formatCareDay(last.occurredAt) : 'Ainda sem registro'}</Text></View>;
             })}</View>
             <View style={styles.actions}>{(['water', 'fertilize'] as const).map((careType) => <Pressable key={careType} accessibilityRole="button" disabled={busy || !!action || !!management} accessibilityState={{ disabled: busy || !!action || !!management, busy }} onPress={() => record(careType)} style={[styles.primary, busy && styles.disabled]}>
-              <Ionicons name={careType === 'water' ? 'water-outline' : 'leaf-outline'} size={20} color="#fff" /><Text style={styles.primaryText}>{careType === 'water' ? 'Registrar rega' : 'Registrar aduba??o'}</Text>
+              <Ionicons name={careType === 'water' ? 'water-outline' : 'leaf-outline'} size={20} color="#fff" /><Text style={styles.primaryText}>{careType === 'water' ? 'Registrar rega' : 'Registrar adubação'}</Text>
             </Pressable>)}</View>
             {busy ? <Text accessibilityLiveRegion="polite" style={styles.caption}>Salvando cuidado...</Text> : null}
             {error ? <Text accessibilityRole="alert" style={styles.errorText}>{error}</Text> : null}
             {notice ? <Text accessibilityLiveRegion="polite" style={styles.success}>{notice}</Text> : null}
           </View>
           <PlantCareInstructions plant={plant} />
-          <Pressable accessibilityRole="button" disabled={busy} onPress={() => router.push({ pathname: '/gardens/[id]/plants/[plantId]/scan', params: { id: garden.id, plantId: plant.id } })} style={styles.secondary}><Ionicons name="camera-outline" size={20} color="#476644" /><Text style={styles.label}>{plant.species ? 'Revisar esp?cie por foto' : 'Identificar por foto'}</Text></Pressable>
-          <Text accessibilityRole="header" style={styles.heading}>Seu hist?rico</Text>
-          <Text style={styles.caption}>Mais recente primeiro ? hor?rio do aparelho</Text>
-          {plant.history.length ? sortPlantHistory(plant.history).map((entry) => <HistoryItem key={entry.id} entry={entry} disabled={busy} onManage={(next) => { if (!busyRef.current) { setNotice(null); setAction(next); } }} />) : <View style={styles.historyCard}><Text style={styles.label}>Cada cuidado conta</Text><Text style={styles.text}>Registre sua primeira rega ou aduba??o. Os pr?ximos cuidados aparecem aqui.</Text></View>}
+          <Pressable accessibilityRole="button" disabled={busy} onPress={() => router.push({ pathname: '/gardens/[id]/plants/[plantId]/scan', params: { id: garden.id, plantId: plant.id } })} style={styles.secondary}><Ionicons name="camera-outline" size={20} color="#476644" /><Text style={styles.label}>{plant.species ? 'Revisar espécie por foto' : 'Identificar por foto'}</Text></Pressable>
+          <Text accessibilityRole="header" style={styles.heading}>Seu histórico</Text>
+          <Text style={styles.caption}>Mais recente primeiro · horário do aparelho</Text>
+          {plant.history.length ? sortPlantHistory(plant.history).map((entry) => <HistoryItem key={entry.id} entry={entry} disabled={busy} onManage={(next) => { if (!busyRef.current) { setNotice(null); setAction(next); } }} />) : <View style={styles.historyCard}><Text style={styles.label}>Cada cuidado conta</Text><Text style={styles.text}>Registre sua primeira rega ou adubação. Os próximos cuidados aparecem aqui.</Text></View>}
           <View style={styles.actions}>
             <Pressable accessibilityRole="button" disabled={busy} onPress={() => setManagement({ mode: 'edit', plant })} style={styles.secondary}><Ionicons name="create-outline" size={20} color="#476644" /><Text style={styles.label}>Editar planta</Text></Pressable>
             <Pressable accessibilityRole="button" disabled={busy} onPress={() => setManagement({ mode: 'delete', plant })} style={styles.secondary}><Text style={styles.errorText}>Excluir planta</Text></Pressable>
           </View>
-        </> : <View style={styles.historyCard}><Text style={styles.heading}>Planta n?o encontrada</Text><Text style={styles.text}>Volte ao jardim para continuar com suas plantas.</Text><Pressable accessibilityRole="button" onPress={back} style={styles.secondary}><Text style={styles.label}>Voltar ao jardim</Text></Pressable></View>}
+        </> : <View style={styles.historyCard}><Text style={styles.heading}>Planta não encontrada</Text><Text style={styles.text}>Volte ao jardim para continuar com suas plantas.</Text><Pressable accessibilityRole="button" onPress={back} style={styles.secondary}><Text style={styles.label}>Voltar ao jardim</Text></Pressable></View>}
       </ScrollView>
       {garden && plant && action ? <PlantCareDialog key={action.mode + '-' + action.record.id} gardenId={garden.id} plantId={plant.id} action={action} onClose={() => setAction(null)} /> : null}
       {garden && plant && management ? <GardenManagementDialog key={management.mode} garden={garden} action={management} onClose={() => setManagement(null)} onGardenDeleted={() => router.replace('/')} onPlantDeleted={back} /> : null}

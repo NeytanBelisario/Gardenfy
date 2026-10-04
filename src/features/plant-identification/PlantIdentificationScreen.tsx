@@ -104,7 +104,8 @@ function IdentificationView({ mode, id, plantId }: { mode: Mode; id?: string; pl
           <View style={styles.card}><Text style={styles.heading}>{mode === 'update' ? 'Planta não encontrada' : 'Jardim não encontrado'}</Text><Pressable accessibilityRole="button" onPress={back} style={styles.secondary}><Text style={styles.label}>Voltar aos jardins</Text></Pressable></View>
         )}
         <Pressable accessibilityRole="link" onPress={() => { void Linking.openURL('https://my.plantnet.org/').catch(() => undefined); }} style={styles.credit}>
-          <Text style={styles.caption}>Identificação de espécies por Pl@ntNet · Conheça o projeto</Text>
+          <Image source={require('../../../assets/images/powered-by-plantnet.png')} style={styles.creditLogo} resizeMode="contain" accessibilityLabel="Powered by Pl@ntNet" />
+          <Text style={styles.caption}>Identificação de espécies baseada na API Pl@ntNet, atualizada regularmente. Conheça o projeto ↗</Text>
         </Pressable>
       </ScrollView>
       {mode === 'general' ? <AppNavbar /> : null}
@@ -136,6 +137,7 @@ const styles = StyleSheet.create({
   error: { color: '#93000a', backgroundColor: '#ffdad6', borderRadius: 16, padding: 16, fontSize: 15, lineHeight: 23 },
   warning: { color: '#684400', backgroundColor: '#fff1d6', borderRadius: 16, padding: 16, fontSize: 15, lineHeight: 23 },
   loading: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-  credit: { minHeight: 44, justifyContent: 'center' },
+  credit: { minHeight: 44, justifyContent: 'center', gap: 8 },
+  creditLogo: { width: 180, height: 48 },
   disabled: { opacity: 0.5 },
 });

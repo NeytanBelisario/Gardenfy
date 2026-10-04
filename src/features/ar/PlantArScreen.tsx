@@ -14,7 +14,7 @@ export function PlantArScreen() {
           <View style={styles.icon}><Ionicons name="cube-outline" size={52} color="#476644" /></View>
           <Text style={styles.badge}>EM BREVE</Text>
           <Text accessibilityRole="header" style={styles.title}>Um novo jeito de imaginar seu jardim</Text>
-          <Text style={styles.text}>A realidade aumentada chega em uma pr?xima vers?o. Por enquanto, seu espa?o j? est? pronto para guardar plantas e acompanhar os cuidados.</Text>
+          <Text style={styles.text}>A realidade aumentada chega em uma próxima versão. Por enquanto, seu espaço já está pronto para guardar plantas e acompanhar os cuidados.</Text>
           <Pressable accessibilityRole="button" onPress={() => router.replace('/')} style={styles.button}>
             <Text style={styles.buttonText}>Voltar aos meus jardins</Text>
           </Pressable>
