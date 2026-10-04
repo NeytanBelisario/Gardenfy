@@ -7,7 +7,7 @@ import test from 'node:test';
 
 import { parseCareDateFields, careDateFields, sortPlantHistory } from '../src/features/gardens/plantHistory';
 import { createGardensStore } from '../src/features/gardens/storeCore';
-import { deserializeGardens, GARDENS_STORAGE_KEY, serializeGardens, type GardensStorage } from '../src/features/gardens/persistence';
+import { deserializeGardens, GARDENS_SCHEMA_VERSION, GARDENS_STORAGE_KEY, serializeGardens, type GardensStorage } from '../src/features/gardens/persistence';
 import { createManagedPhotoStorage, type PlantPhotoStorage } from '../src/features/gardens/photoStorageCore';
 import type { PlantAnalysisResult, PlantCatalogItem, PlantCareType } from '../src/features/gardens/types';
 
@@ -134,7 +134,7 @@ test('a synchronously failing storage adapter can also retry hydration', async (
 
 for (const [name, raw] of [
   ['broken JSON', '{broken'],
-  ['future version', '{"version":4,"gardens":[]}'],
+  ['future version', JSON.stringify({ version: GARDENS_SCHEMA_VERSION + 1, gardens: [] })],
   ['missing schema', '{"gardens":[]}'],
   ['invalid garden', '{"version":1,"gardens":[{"id":"x"}]}'],
 ] as const) {
@@ -567,7 +567,7 @@ test('v1 migration clears placeholders, preserves analyses and photos, and recom
   assert.equal(memory.raw, raw);
   assert.equal(memory.writes, writes);
   await restarted.updateGarden(migrated.id, { ...draft, name: 'Migrado' });
-  assert.equal(JSON.parse(memory.raw!).version, 3);
+  assert.equal(JSON.parse(memory.raw!).version, GARDENS_SCHEMA_VERSION);
   const final = createGardensStore(storage, photos);
   await final.hydrate();
   assert.deepEqual(final.getSnapshot().gardens, restarted.getSnapshot().gardens);
@@ -583,7 +583,7 @@ test('failed save after migration preserves original v1 payload and supports ret
   assert.equal(memory.raw, raw);
   assert.equal(restarted.getSnapshot(), before);
   await restarted.updateGarden(before.gardens[0].id, draft);
-  assert.equal(JSON.parse(memory.raw!).version, 3);
+  assert.equal(JSON.parse(memory.raw!).version, GARDENS_SCHEMA_VERSION);
 });
 
 test('legacy empty gardens migrate to unknown aggregates and corrupted v1 metrics are rejected', async () => {
@@ -756,7 +756,7 @@ test('v2 migration recovers only the latest known analysis and no invented care,
   await assert.rejects(restarted.recordPlantCare(garden.id, migrated.plants[0].id, 'water'));
   assert.equal(memory.raw, raw);
   await restarted.recordPlantCare(garden.id, migrated.plants[0].id, 'water');
-  assert.equal(JSON.parse(memory.raw!).version, 3);
+  assert.equal(JSON.parse(memory.raw!).version, GARDENS_SCHEMA_VERSION);
 });
 
 test('invalid v3 history blocks hydration and never overwrites saved payload', async () => {

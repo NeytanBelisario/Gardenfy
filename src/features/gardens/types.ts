@@ -1,4 +1,5 @@
 import type { GardenIconName } from './iconNames';
+import type { PlantSpecies } from '../plant-identification/types';
 
 export type GardenMetricKind = 'light' | 'water';
 
@@ -16,6 +17,7 @@ export type GardenPlant = {
   subtitle: string;
   imageUrl: string;
   identifiedName?: string;
+  species?: PlantSpecies;
   vitality?: number;
   growthDays?: number;
   lastAnalyzedPhotoUri?: string;
@@ -59,7 +61,14 @@ export type PlantAnalysisRecord = {
   };
 };
 
-export type PlantHistoryEntry = PlantCareRecord | PlantAnalysisRecord;
+export type PlantIdentificationRecord = {
+  id: string;
+  kind: 'identification';
+  occurredAt: string;
+  species: PlantSpecies;
+};
+
+export type PlantHistoryEntry = PlantCareRecord | PlantAnalysisRecord | PlantIdentificationRecord;
 export type PlantCareDraft = Pick<PlantCareRecord, 'careType' | 'occurredAt'>;
 
 export type PlantCatalogCategory =
@@ -72,6 +81,7 @@ export type PlantCatalogCategory =
 
 export type PlantCatalogItem = {
   id: string;
+  scientificName?: string;
   name: string;
   subtitle: string;
   categoryLabel: string;

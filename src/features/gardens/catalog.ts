@@ -3,8 +3,9 @@ import type { PlantCatalogItem } from './types';
 export const plantCatalog: PlantCatalogItem[] = [
   {
     id: 'catalog-monstera-001',
+    scientificName: 'Monstera deliciosa',
     name: 'Monstera Deliciosa',
-    subtitle: 'Costela de Adao',
+    subtitle: 'Costela-de-adão',
     category: 'foliage',
     categoryLabel: 'Folhagem',
     imageUrl:
@@ -13,6 +14,7 @@ export const plantCatalog: PlantCatalogItem[] = [
   },
   {
     id: 'catalog-pilea-001',
+    scientificName: 'Pilea peperomioides',
     name: 'Pilea Peperomioides',
     subtitle: 'Planta Chinesa do Dinheiro',
     category: 'foliage',
@@ -22,6 +24,7 @@ export const plantCatalog: PlantCatalogItem[] = [
   },
   {
     id: 'catalog-calathea-001',
+    scientificName: 'Goeppertia orbifolia',
     name: 'Calathea Orbifolia',
     subtitle: 'Calathea de Folha Redonda',
     category: 'foliage',
@@ -31,8 +34,9 @@ export const plantCatalog: PlantCatalogItem[] = [
   },
   {
     id: 'catalog-sansevieria-001',
+    scientificName: 'Dracaena trifasciata',
     name: 'Sansevieria Trifasciata',
-    subtitle: 'Espada de Sao Jorge',
+    subtitle: 'Espada-de-são-jorge',
     category: 'resilient',
     categoryLabel: 'Resistente',
     imageUrl:

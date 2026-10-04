@@ -8,6 +8,7 @@ export function buildPlaceholderPlant(item: PlantCatalogItem): GardenPlant {
     name: item.name,
     subtitle: item.subtitle,
     imageUrl: item.imageUrl,
+    ...(item.scientificName ? { species: { scientificName: item.scientificName, commonName: item.subtitle, source: 'catalog' as const } } : {}),
     status: {
       label: 'Sem análise',
       tone: 'stable',

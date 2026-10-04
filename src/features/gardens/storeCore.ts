@@ -1,4 +1,5 @@
 import { createId } from './ids';
+import { isPlantCandidate, type PlantCandidate, type PlantSpecies } from '../plant-identification/types';
 import { normalizeCareDraft } from './plantHistory';
 import { buildAnalyzedPlant, buildPlaceholderPlant, recalculateGardenStats } from './models';
 import { deserializeGardens, GARDENS_STORAGE_KEY, serializeGardens, type GardensStorage } from './persistence';
@@ -209,6 +210,30 @@ export function createGardensStore(storage: GardensStorage, photos: PlantPhotoSt
         const garden = findGarden(gardenId);
         const plant = buildPlaceholderPlant(item);
         await commit(replaceGarden(recalculateGardenStats({ ...garden, plants: [...garden.plants, plant] })));
+        return plant;
+      });
+    },
+    savePlantIdentification(gardenId: string, candidate: PlantCandidate, photoUri: string, reviewedName: string, plantId?: string) {
+      return enqueue(async () => {
+        const garden = findGarden(gardenId);
+        const previous = plantId ? garden.plants.find((plant) => plant.id === plantId) : undefined;
+        if (plantId && !previous) throw new Error('Planta não encontrada.');
+        if (!isPlantCandidate(candidate)) throw new Error('Identificação inválida. Escolha outra foto.');
+        const name = reviewedName.trim();
+        if (!name) throw new Error('Informe um nome para a planta.');
+        const occurredAt = new Date().toISOString();
+        const species: PlantSpecies = { ...candidate, source: 'plantnet', identifiedAt: occurredAt };
+        const photo = await photos.save(photoUri);
+        const base = previous ?? buildPlaceholderPlant({
+          id: '', name, subtitle: candidate.commonName, category: 'all', categoryLabel: '', imageUrl: photo,
+        });
+        const plant: GardenPlant = {
+          ...base, name: previous?.name ?? name, imageUrl: photo, species,
+          history: [...base.history, { id: createId('identification'), kind: 'identification', occurredAt, species }],
+        };
+        const plants = previous ? garden.plants.map((item) => item.id === plantId ? plant : item) : [...garden.plants, plant];
+        await commit(replaceGarden(recalculateGardenStats({ ...garden, plants })), photo);
+        if (previous?.imageUrl && !photoInUse(previous.imageUrl)) await cleanupPhoto(previous.imageUrl);
         return plant;
       });
     },

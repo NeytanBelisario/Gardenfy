@@ -39,6 +39,14 @@ function EstimateCard({ plant, kind }: { plant: GardenPlant; kind: 'water' | 'li
 }
 
 function HistoryItem({ entry, disabled, onManage }: { entry: PlantHistoryEntry; disabled: boolean; onManage: (action: PlantCareAction) => void }) {
+  if (entry.kind === 'identification') return (
+    <View style={styles.historyCard}>
+      <Text style={styles.label}>Identificação por foto</Text>
+      <Text style={styles.caption}>{formatHistoryDate(entry.occurredAt)}</Text>
+      <Text style={styles.text}>{entry.species.scientificName}</Text>
+      <Text style={styles.caption}>Pl@ntNet · espécie confirmada por você</Text>
+    </View>
+  );
   return (
     <View style={styles.historyCard}>
       <Text style={styles.label}>{entry.kind === 'care' ? careLabels[entry.careType] : 'Análise por foto'}</Text>

@@ -3,9 +3,10 @@ import { recalculateGardenStats } from './models';
 import { gardenIconOptions } from './iconNames';
 import { isValidPhotoReference } from './photoStorageCore';
 import type { GardenDetails } from './types';
+import { isPlantCandidate } from '../plant-identification/types';
 
 export const GARDENS_STORAGE_KEY = '@gardenfy/gardens';
-export const GARDENS_SCHEMA_VERSION = 3;
+export const GARDENS_SCHEMA_VERSION = 4;
 
 export interface GardensStorage {
   getItem(key: string): Promise<string | null>;
@@ -47,6 +48,7 @@ function isHistory(value: unknown) {
   return Array.isArray(value) && value.every((entry) => {
     if (!isRecord(entry) || !isString(entry.id) || !entry.id || !isHistoryDate(entry.occurredAt)) return false;
     if (entry.kind === 'care') return entry.careType === 'water' || entry.careType === 'fertilize';
+    if (entry.kind === 'identification') return isSpecies(entry.species) && entry.species.source === 'plantnet' && entry.species.identifiedAt === entry.occurredAt;
     if (entry.kind !== 'analysis' || !isRecord(entry.snapshot)) return false;
     const snapshot = entry.snapshot;
     return isString(snapshot.plantName) && isString(snapshot.health) &&
@@ -55,10 +57,17 @@ function isHistory(value: unknown) {
   }) && hasUniqueIds(value);
 }
 
+function isSpecies(value: unknown): value is import('../plant-identification/types').PlantSpecies {
+  if (!isRecord(value) || !isString(value.scientificName) || !value.scientificName.trim() || !isString(value.commonName) || !value.commonName.trim()) return false;
+  if (value.source === 'catalog') return value.confidence === undefined && value.identifiedAt === undefined;
+  return value.source === 'plantnet' && isHistoryDate(value.identifiedAt) && isPlantCandidate(value);
+}
+
 function isPlant(value: unknown, nullable = true, historyRequired = true) {
   return isRecord(value) && isString(value.id) && value.id.length > 0 &&
     isString(value.name) && isString(value.subtitle) && isImage(value.imageUrl) &&
     optional(value.identifiedName, isString) &&
+    optional(value.species, isSpecies) &&
     optional(value.vitality, (number) => isNumber(number, 100)) &&
     optional(value.growthDays, isNumber) &&
     optional(value.lastAnalyzedPhotoUri, isImage) &&
@@ -98,10 +107,10 @@ export function deserializeGardens(raw: string | null): GardenDetails[] {
   } catch {
     throw new Error('Os dados salvos não puderam ser lidos. Eles foram preservados.');
   }
-  if (!isRecord(data) || (data.version !== 1 && data.version !== 2 && data.version !== GARDENS_SCHEMA_VERSION)) {
+  if (!isRecord(data) || ![1, 2, 3, GARDENS_SCHEMA_VERSION].includes(data.version as number)) {
     throw new Error('A versão dos dados salvos não é compatível com este app. Eles foram preservados.');
   }
-  if (!Array.isArray(data.gardens) || !data.gardens.every((garden) => isGarden(garden, data.version !== 1, data.version === GARDENS_SCHEMA_VERSION)) || !hasUniqueIds(data.gardens)) {
+  if (!Array.isArray(data.gardens) || !data.gardens.every((garden) => isGarden(garden, data.version !== 1, data.version === 3 || data.version === GARDENS_SCHEMA_VERSION)) || !hasUniqueIds(data.gardens)) {
     throw new Error('Os dados salvos estão incompletos ou inválidos. Eles foram preservados.');
   }
   let gardens = data.gardens;
@@ -122,7 +131,7 @@ export function deserializeGardens(raw: string | null): GardenDetails[] {
       })),
     }));
   }
-  if (data.version !== GARDENS_SCHEMA_VERSION) {
+  if (data.version === 1 || data.version === 2) {
     gardens = gardens.map((garden) => ({
       ...garden,
       plants: garden.plants.map((plant) => ({
