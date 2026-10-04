@@ -31,7 +31,7 @@ export default function GardenDetailsScreen() {
             <GardenIdentityIcon icon={garden.icon} size={42} color="#c4d9b9" />
             <Text style={styles.eyebrow}>{garden.label}</Text>
             <Text accessibilityRole="header" style={styles.title}>{garden.name}</Text>
-            <Text style={styles.heroText}>{garden.plantCount} {garden.plantCount === 1 ? 'planta' : 'plantas'} · {gardenCareCount(garden)} cuidados registrados</Text>
+            <Text style={styles.heroText}>{garden.plantCount} {garden.plantCount === 1 ? 'planta' : 'plantas'} · {gardenCareCount(garden)} {gardenCareCount(garden) === 1 ? 'cuidado registrado' : 'cuidados registrados'}</Text>
           </View>
           <View style={styles.actions}>
             <Pressable accessibilityRole="button" onPress={add} style={styles.primary}><Ionicons name="add" size={20} color="#fff" /><Text style={styles.primaryText}>Adicionar planta</Text></Pressable>

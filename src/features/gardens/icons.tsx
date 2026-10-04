@@ -9,6 +9,11 @@ import type { GardenIconName } from './iconNames';
 
 export { gardenIconOptions, type GardenIconName } from './iconNames';
 
+export const gardenIconLabels: Record<GardenIconName, string> = {
+  'potted-plant': 'Broto', psychology: 'Natureza', eco: 'Folha', 'wb-sunny': 'Sol',
+  'water-drop': 'Gota de água', 'energy-savings-leaf': 'Folha delicada', spa: 'Flor', 'filter-vintage': 'Flor ornamental',
+};
+
 export function GardenIdentityIcon({
   icon,
   color,

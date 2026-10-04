@@ -28,7 +28,7 @@ function GardenCard({ garden }: { garden: GardenDetails }) {
       </View>
       <View style={styles.localNote}>
         <Ionicons name="water-outline" size={18} color="#476644" />
-        <Text style={styles.noteText}>{garden.plantCount ? gardenCareCount(garden) + ' cuidados registrados · acompanhe suas plantas' : 'Seu jardim está pronto para receber a primeira planta.'}</Text>
+        <Text style={styles.noteText}>{garden.plantCount ? gardenCareCount(garden) + (gardenCareCount(garden) === 1 ? ' cuidado registrado' : ' cuidados registrados') + ' · acompanhe suas plantas' : 'Seu jardim está pronto para receber a primeira planta.'}</Text>
       </View>
     </Pressable>
   );

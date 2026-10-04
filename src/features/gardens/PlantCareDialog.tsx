@@ -46,7 +46,7 @@ export function PlantCareDialog({ gardenId, plantId, action, onClose }: {
 
   return (
     <Modal transparent animationType="fade" onRequestClose={dismiss}>
-      <KeyboardAvoidingView style={styles.overlay} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+      <KeyboardAvoidingView style={styles.overlay} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
         <View style={styles.dialog} accessibilityViewIsModal>
           <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.content}>
             <Text accessibilityRole="header" style={styles.title}>{deleting ? 'Excluir cuidado' : 'Corrigir cuidado'}</Text>
@@ -73,7 +73,7 @@ export function PlantCareDialog({ gardenId, plantId, action, onClose }: {
               </>
             )}
             {error ? <Text accessibilityRole="alert" style={styles.error}>{error}</Text> : null}
-            <Pressable accessibilityRole="button" disabled={busy} accessibilityState={{ disabled: busy, busy }} onPress={save} style={[styles.primary, deleting && styles.destructive, busy && styles.disabled]}>
+            <Pressable accessibilityRole="button" accessibilityLabel={deleting ? 'Confirmar exclusão' : 'Salvar correção'} disabled={busy} accessibilityState={{ disabled: busy, busy }} onPress={save} style={[styles.primary, deleting && styles.destructive, busy && styles.disabled]}>
               <Text style={styles.primaryText}>{busy ? 'Salvando...' : deleting ? 'Confirmar exclusão' : 'Salvar correção'}</Text>
             </Pressable>
             <Pressable accessibilityRole="button" disabled={busy} onPress={dismiss} style={styles.choice}>

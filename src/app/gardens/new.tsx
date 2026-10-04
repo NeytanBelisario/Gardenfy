@@ -23,6 +23,7 @@ import {
   GardenIconName,
   GardenIdentityIcon,
   gardenIconOptions,
+  gardenIconLabels,
 } from '../../features/gardens/icons';
 
 const COLORS = {
@@ -36,11 +37,6 @@ const COLORS = {
   textMuted: '#737971',
   white: '#ffffff',
 } as const;
-
-const iconLabels: Record<GardenIconName, string> = {
-  'potted-plant': 'Broto', psychology: 'Natureza', eco: 'Folha', 'wb-sunny': 'Sol',
-  'water-drop': 'Gota de água', 'energy-savings-leaf': 'Folha delicada', spa: 'Flor', 'filter-vintage': 'Flor ornamental',
-};
 
 function IdentityIcon({
   icon,
@@ -204,7 +200,7 @@ export default function NewGardenScreen() {
                 <Pressable
                   key={icon}
                   accessibilityRole="button"
-                  accessibilityLabel={iconLabels[icon]}
+                  accessibilityLabel={gardenIconLabels[icon]}
                   accessibilityState={{ selected: isActive, disabled: saving }}
                   disabled={saving}
                   style={[styles.iconButton, isActive && styles.iconButtonActive]}

@@ -1,5 +1,5 @@
-import React, { useEffect, useRef } from 'react';
-import { Animated, Easing, Pressable, StyleSheet, Text, View } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { Animated, Easing, Keyboard, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { usePathname, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -44,9 +44,16 @@ export function AppNavbar({ hidden = false }: AppNavbarProps) {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { menuOpen } = useShellUi();
-  const shouldHide = hidden || menuOpen;
+  const [keyboardVisible, setKeyboardVisible] = useState(false);
+  const shouldHide = hidden || menuOpen || keyboardVisible;
   const translateY = useRef(new Animated.Value(0)).current;
   const opacity = useRef(new Animated.Value(1)).current;
+
+  useEffect(() => {
+    const show = Keyboard.addListener('keyboardDidShow', () => setKeyboardVisible(true));
+    const hide = Keyboard.addListener('keyboardDidHide', () => setKeyboardVisible(false));
+    return () => { show.remove(); hide.remove(); };
+  }, []);
 
   useEffect(() => {
     Animated.parallel([
@@ -68,6 +75,8 @@ export function AppNavbar({ hidden = false }: AppNavbarProps) {
   return (
     <Animated.View
       pointerEvents={shouldHide ? 'none' : 'auto'}
+      accessibilityElementsHidden={shouldHide}
+      importantForAccessibility={shouldHide ? 'no-hide-descendants' : 'auto'}
       style={[
         styles.navShell,
         {
@@ -77,6 +86,7 @@ export function AppNavbar({ hidden = false }: AppNavbarProps) {
         },
       ]}
     >
+      <View pointerEvents="none" style={[styles.systemInset, { height: insets.bottom }]} />
       <View style={styles.navBar}>
         {navItems.map((item) => {
           const active = item.route === '/'
@@ -108,6 +118,7 @@ export function AppNavbar({ hidden = false }: AppNavbarProps) {
 }
 
 const styles = StyleSheet.create({
+  systemInset: { position: 'absolute', bottom: 0, left: 0, right: 0, backgroundColor: COLORS.background },
   navShell: {
     position: 'absolute',
     left: 0,
