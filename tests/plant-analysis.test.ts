@@ -80,7 +80,7 @@ test('one transport call returns the shared parsed result and receives cancellat
   assert.equal(calls, 1);
 });
 
-for (const [status, code] of [[400, 'configuration'], [401, 'configuration'], [403, 'configuration'], [404, 'configuration'], [429, 'rate-limit'], [503, 'unavailable']] as const) {
+for (const [status, code] of [[400, 'configuration'], [401, 'configuration'], [402, 'configuration'], [403, 'configuration'], [404, 'configuration'], [429, 'rate-limit'], [503, 'unavailable']] as const) {
   test(`service maps HTTP ${status} to safe ${code} feedback without retrying other models`, async () => {
     let calls = 0;
     const analyze = createPlantAnalysisService(async () => { calls++; throw { status, message: 'provider response and secret URL' }; });
@@ -244,4 +244,23 @@ test('client transport preserves safe server errors and rejects malformed respon
     createSupabaseAnalysisTransport({}, async () => Response.json({ text: response }))(photo, new AbortController().signal),
     errorCode('configuration'),
   );
+});
+
+test('provider payment failure reaches the client as configuration with no retry or private details', async () => {
+  const failure = mapGeminiStatus(402);
+  let requests = 0;
+  const service = createPlantAnalysisService(createSupabaseAnalysisTransport(
+    { url: 'https://gardenfy.supabase.co', publishableKey: 'public-key' },
+    async () => {
+      requests++;
+      return Response.json({ error: failure.code }, { status: failure.status });
+    },
+  ));
+  await assert.rejects(service(photo), (error) => {
+    assert.ok(error instanceof PlantAnalysisError);
+    assert.equal(error.code, 'configuration');
+    assert.match(error.message, /configuração do serviço/);
+    return true;
+  });
+  assert.equal(requests, 1);
 });

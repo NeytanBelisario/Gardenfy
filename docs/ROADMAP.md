@@ -13,13 +13,13 @@ Proposta inicial: um MVP de uso individual, com persistência local e Android co
 | Área | O que já existe | Limitação / próximo trabalho |
 | --- | --- | --- |
 | Navegação | Expo Router, home, menu, perfil, scan e preview. | Validar jornada completa e padronizar textos. |
-| Jardins | Criação, edição, exclusão, listagem e detalhes com persistência local versionada. | Validação em dispositivo pendente, incluindo confirmação de exclusão. |
-| Plantas | Catálogo estático, inclusão e análise persistidas, com fotos guardadas fora do cache no app nativo. | Edição/exclusão implementadas; detalhes, cuidados e histórico implementados; validação em dispositivo pendente. Adapters nativos aguardam teste em dispositivo. |
-| Análise | Foto/câmera, integração Gemini, adição e reanálise de plantas nas rotas de jardins. | Serviço/parser e tela compartilhados; Edge Function implantada com credencial protegida e cota. Segredo Gemini, chamada real e validação em aparelho ainda pendentes. |
+| Jardins | Criação, edição, exclusão, listagem e detalhes com persistência local versionada. Criação/listagem validadas em Samsung Android 13. | Edição/exclusão, encerramento/reabertura completos e cenários de falha ainda pendentes no aparelho. |
+| Plantas | Catálogo estático, inclusão e análise persistidas, com fotos guardadas fora do cache no app nativo. Inclusão pelo catálogo, detalhes, cuidados/histórico e recuperação após recarregar JavaScript validados no aparelho. | Fotos duráveis, edição/exclusão e demais cenários nativos ainda pendentes. |
+| Análise | Foto/câmera, integração Gemini, adição e reanálise de plantas nas rotas de jardins. | Serviço/parser e tela compartilhados; Edge Function e segredo configurados. Primeira requisição real recebeu HTTP 402 do Gemini; faturamento/créditos, sucesso da análise e validação em aparelho pendentes. |
 | Métricas | Vitalidade e indicadores de água/luz, com agregação no jardim. | São estimativas/valores do modelo, não sensores; valores desconhecidos são distintos de zero; validação visual em aparelho pendente. |
 | AR | Modelo GLB, posicionamento em plano, rotação, escala e reposicionamento. | Precisa de build nativo e aparelho compatível; execução não validada nesta revisão. |
 | Perfil | Tela, contagens derivadas de jardins/plantas e conquistas visuais. | Usuário fixo; configurações e sair sem handlers; rank/conquistas estáticos. |
-| Qualidade | TypeScript, lint, testes de persistência e CI com export Android. | Build e jornada em dispositivo ainda pendentes. |
+| Qualidade | TypeScript, lint, testes de persistência e CI com export Android. Build debug e jornada local básica validados em Samsung Android 13. | Roteiro manual completo e análise bem-sucedida ainda pendentes; build debug depende de Metro. |
 
 Fontes principais: `src/features/gardens/store.ts`, `types.ts` e `catalog.ts`; `src/features/plant-analysis`; `src/features/ar/PlantArScreen.tsx`; `src/app/profile.tsx`; `package.json`.
 
@@ -30,11 +30,11 @@ Cada item abaixo pode gerar uma ou mais branches/PRs pequenos. Dentro de cada fe
 ### M0 — Base para desenvolvimento reproduzível
 
 - [x] Validar instalação limpa com `npm ci` e registrar ambiente Android necessário. Evidência: sessão M0 em `docs/HANDOFF.md`.
-- [ ] Confirmar/ajustar a versão de Node de `.nvmrc` após instalação e build.
+- [x] Confirmar/ajustar a versão de Node de `.nvmrc` após instalação e build. Node `22.22.2` validado com checks e build debug Android no Windows em 03/10/2026.
 - [x] Configurar lint reproduzível, comando de typecheck e CI com checks adequados. Workflow versionado; execução remota registrada no PR.
 - [x] Documentar um roteiro de teste manual da jornada atual e registrar problemas encontrados. Ver `docs/TESTING.md`; execução em dispositivo ainda pendente.
 
-Aceite: outro PC consegue preparar o projeto seguindo o guia; checks executam sem configuração manual não documentada; limitações nativas ficam registradas. Instalação e export Android validados em Linux/WSL2; a etapa permanece parcialmente concluída até compilar e testar em dispositivo.
+Aceite: outro PC consegue preparar o projeto seguindo o guia; checks executam sem configuração manual não documentada; limitações nativas ficam registradas. Instalação e export Android validados em Linux/WSL2; build debug e jornada local básica validados no Windows/Android em 03/10/2026. Roteiro completo em dispositivo ainda pendente.
 
 ### M1 — Jardins e plantas que sobrevivem ao reinício
 
@@ -44,7 +44,7 @@ Aceite: outro PC consegue preparar o projeto seguindo o guia; checks executam se
 - [x] Permitir editar e excluir jardins e plantas com confirmação nas exclusões. Persistência e regressões testadas; interface aguarda validação no aparelho.
 - [x] Diferenciar ausência de análise de valor zero e remover referências a mock do fluxo real. Schema v2 com migração de v1; médias incluem zeros conhecidos; testes de regressão passaram. Interface aguarda validação em aparelho.
 
-Estado: a primeira entrega de M1 cobre persistência, hidratação e fotos. A segunda entrega adiciona edição/exclusão com confirmação. A terceira diferencia métricas desconhecidas de zero e identifica estimativas da IA. Validação em aparelho continua pendente.
+Estado: a primeira entrega de M1 cobre persistência, hidratação e fotos. A segunda entrega adiciona edição/exclusão com confirmação. A terceira diferencia métricas desconhecidas de zero e identifica estimativas da IA. Em 03/10/2026, criação/inclusão pelo catálogo e recuperação após recarregar JavaScript passaram no aparelho; fotos duráveis, encerramento completo e demais cenários continuam pendentes.
 
 Aceite: criar jardim, adicionar planta, reiniciar e recuperar dados/fotos; editar/excluir persiste; falhas não sobrescrevem silenciosamente dados válidos. Sem rede, o cadastro manual continua utilizável.
 
@@ -58,7 +58,7 @@ Preserva as ideias do README anterior: hidratação, luz, regar, adubar e histó
 - [x] Mostrar histórico persistente de cuidados e análises, com ordem cronológica e estado vazio. Reanálises preservam retratos anteriores; migração recupera somente a última análise conhecida com data.
 - [x] Permitir corrigir/remover um registro de cuidado lançado por engano. Tipo, data/hora e exclusão com confirmação; reinício e falhas testados.
 
-Estado: entrega funcional implementada, com 53 testes de domínio/persistência aprovados. Jornada, teclado, acessibilidade e adapters nativos ainda precisam de validação no aparelho. Histórico não mantém fotos antigas.
+Estado: entrega funcional implementada, com 94 testes acumulados aprovados. Detalhes, rega/adubação, ordenação do histórico e recuperação após recarregar JavaScript foram validados no aparelho em 03/10/2026. Correção/exclusão, encerramento completo, acessibilidade e demais cenários continuam pendentes. Histórico não mantém fotos antigas.
 
 Aceite: registrar rega/adubação, consultar histórico e reencontrá-lo após reinício. Registrar um cuidado não fabrica uma nova medição de hidratação ou vitalidade.
 
@@ -71,7 +71,7 @@ Aceite: registrar rega/adubação, consultar histórico e reencontrá-lo após r
 - [x] Explicar envio da foto ao serviço de IA e apresentar resultados como estimativas; permitir revisar a identificação antes de salvar. Confirmação explícita e nome revisável na inclusão; navegação/teclado aguardam aparelho.
 - [x] Preservar dados anteriores quando uma reanálise falhar. Análise produz rascunho; somente confirmação salva. Persistência mantém dados em falhas de escrita; timeout/cancelamento/respostas tardias testados.
 
-Estado: unificação e tratamento local implementados; backend Supabase implantado e protegido, com 92 testes aprovados. M3 continua parcial: cadastrar/testar a chave Gemini, confirmar acesso/qualidade do modelo e validar em aparelho.
+Estado: unificação e tratamento local implementados; backend Supabase implantado e protegido, com 94 testes aprovados. Segredo Gemini cadastrado; primeira requisição real respondeu HTTP 402, agora classificado como configuração do serviço. M3 continua parcial: regularizar faturamento/créditos, confirmar sucesso/qualidade do modelo e validar em aparelho.
 
 Aceite: sucesso salva análise e data; falhas têm feedback e permitem tentar novamente sem perder a planta. Build distribuído não contém chave secreta do provedor.
 

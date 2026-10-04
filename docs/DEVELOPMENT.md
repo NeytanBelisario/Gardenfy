@@ -86,6 +86,28 @@ Use um aparelho físico compatível para validar AR. A compilação gera `androi
 
 No WSL2, não presuma acesso automático a SDK, JDK ou USB do Windows. Configure todas as ferramentas no ambiente em que executará a compilação, ou execute o projeto no host já preparado.
 
+### Windows e conexão USB
+
+No PowerShell, use `npm.cmd`/`npx.cmd` se a política de execução bloquear `npm.ps1`/`npx.ps1`, com Node e npm nas versões indicadas acima. Não é necessário mudar a política de execução do sistema.
+
+Para servir o build debug por USB, abra Metro em um terminal:
+
+```powershell
+$env:REACT_NATIVE_PACKAGER_HOSTNAME = '127.0.0.1'
+npm.cmd start -- --lan --port 8081 --max-workers 2
+```
+
+Em outro terminal, com um único aparelho autorizado conectado:
+
+```powershell
+$taskAdb = Join-Path $env:ANDROID_HOME 'platform-tools\adb.exe'
+& $taskAdb devices -l
+& $taskAdb reverse tcp:8081 tcp:8081
+npm.cmd run android -- --device --no-bundler
+```
+
+`--device` permite escolher o aparelho. Quando informado diretamente, o parâmetro espera o nome exibido pelo Expo (por exemplo `SM_G781B`), não o número de série do ADB. Depois do build, confira que Metro responde em `http://127.0.0.1:8081/status` antes de abrir o app. Neste Windows, `--localhost` vinculou Metro somente a `::1`; o encaminhamento USB não alcançou o servidor por IPv4. `--lan` com o hostname acima resolveu o acesso por USB. O build debug depende de Metro; não é um APK autônomo para distribuição.
+
 Consulte [TESTING.md](TESTING.md) para os checks, roteiro manual e limites do que foi validado.
 
 ## Fluxo de uma tarefa

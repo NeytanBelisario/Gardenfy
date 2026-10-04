@@ -24,6 +24,6 @@ cp .env.example .env
 npm start
 ```
 
-Leia o guia para preparar builds nativos. O recurso AR exige módulos nativos e não roda no Expo Go. A análise por foto usa uma Edge Function Supabase: o app recebe apenas URL e chave publicável do projeto, enquanto a credencial Gemini permanece nos secrets do servidor. A função está implantada, mas a chamada real ainda depende de cadastrar `GEMINI_API_KEY` e validar o modelo na conta.
+Leia o guia para preparar builds nativos. O recurso AR exige módulos nativos e não roda no Expo Go. A análise por foto usa uma Edge Function Supabase: o app recebe apenas URL e chave publicável do projeto, enquanto a credencial Gemini permanece nos secrets do servidor. A função e o segredo estão configurados; a primeira requisição real alcançou o Gemini, mas recebeu HTTP 402. Regularizar faturamento/créditos e validar uma análise bem-sucedida na conta continuam pendentes. Build debug Android, cadastro pelo catálogo, cuidados e recuperação após recarregar JavaScript foram validados no aparelho; o roteiro nativo completo continua pendente.
 
 O fluxo de trabalho usa branches a partir de `develop`, commits frequentes por etapas no formato `🌱 | feat: mensagem` e PR para `develop` ao finalizar cada feature. As ideias anteriores de moedas, ranks, cards da planta, regar, adubar e histórico foram preservadas no roadmap.

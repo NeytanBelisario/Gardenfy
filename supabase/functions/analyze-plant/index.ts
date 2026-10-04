@@ -85,10 +85,18 @@ async function callGemini(base64: string, mimeType: string, apiKey: string, mode
       }),
       signal: controller.signal,
     });
-    if (!response.ok) throw mapGeminiStatus(response.status);
+    if (!response.ok) {
+      console.error('Analysis provider response failed', { status: response.status, model });
+      throw mapGeminiStatus(response.status);
+    }
     return extractGeminiText(await response.json());
   } catch (error) {
     if (error instanceof FunctionError) throw error;
+    console.error('Analysis provider transport failed', {
+      model,
+      aborted: controller.signal.aborted,
+      name: error instanceof Error ? error.name : 'unknown',
+    });
     throw new FunctionError('unavailable', 503);
   } finally {
     clearTimeout(timer);
@@ -108,6 +116,9 @@ const analyze = withSupabase({ auth: 'publishable' }, async (request) => {
     const text = await callGemini(photo.base64, photo.mimeType, apiKey, model, request.signal);
     return json({ text });
   } catch (error) {
+    if (!(error instanceof FunctionError)) {
+      console.error('Analysis unexpected failure', error instanceof Error ? error.name : 'unknown');
+    }
     const safe = error instanceof FunctionError ? error : new FunctionError('unavailable', 503);
     const headers = safe.retryAfter ? { 'Retry-After': String(safe.retryAfter) } : {};
     return json({ error: safe.code }, safe.status, headers);

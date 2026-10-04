@@ -107,3 +107,13 @@ Execução no aparelho/serviço real pendente. Registrar dispositivo, sistema, m
 8. Verificar teclado e nome vazio na revisão, TalkBack, texto ampliado, telas pequenas e IDs indisponíveis. Câmera/galeria reais, permissões e aborto no SDK ainda exigem execução nativa.
 
 Checks acumulados: `npm run check` (TypeScript, lint sem avisos e 92 testes), além das validações remotas descritas em `ANALYSIS.md`. Os adapters simulam transporte/seletor e as regressões novas cobrem a fronteira cliente/servidor; não executam UI, câmera/galeria ou permissões do sistema. Nenhum APK, chamada real ao Gemini ou teste em aparelho foi realizado.
+
+## Registro da sessão de 03/10/2026 — Windows, APK e análise real
+
+- Node `22.22.2`, npm `10.9.7`, JDK 17 e SDK Android 36 no Windows; aparelho Samsung `SM-G781B`, Android 13 / API 33, ARM64.
+- Build debug com Nova Arquitetura aprovado por `expo run:android --device SM_G781B --no-bundler`. APK em `android/app/build/outputs/apk/debug/app-debug.apk`, instalado como atualização; nenhuma limpeza de dados ou desinstalação. É um build dependente de Metro, não uma versão distribuível autônoma.
+- Metro inicialmente ficou acessível somente via `::1`, impedindo acesso do aparelho pelo encaminhamento USB. Reiniciado com `--lan` e `REACT_NATIVE_PACKAGER_HOSTNAME=127.0.0.1`; `/status` respondeu 200 por IPv4 e `adb reverse tcp:8081 tcp:8081` foi configurado. Após o diálogo de aplicativo sem resposta inicial, a home abriu pela rota `gardenfy:///` e mostrou os dados existentes.
+- Jornada executada no aparelho: criar `Validacao 03-10`, adicionar Monstera pelo catálogo, abrir detalhes, registrar rega/adubação e conferir histórico ordenado. Água/luz permaneceram desconhecidas. Após `Reload` no menu de desenvolvimento, o armazenamento nativo recuperou jardim, planta e ambos os cuidados. Esse teste reinicializa o JavaScript; encerramento completo do processo e reinício do aparelho ainda não foram validados. Jardim de teste preservado para revisão.
+- Requisição real com a imagem pública da Monstera usada no catálogo, sem dados pessoais, alcançou o Gemini. Logs mostraram HTTP 402 para `gemini-3.5-flash-lite`; validação de sucesso depende de regularizar faturamento/créditos do projeto da chave. Após corrigir a classificação, a função respondeu `500 / configuration`, sem detalhes internos.
+- `npm run check` aprovou TypeScript, lint sem avisos e 94 testes. As duas novas regressões verificam HTTP 402 no serviço e a propagação de erro do provedor pelo transporte Supabase sem retry. Compatibilidade Expo, export Android e `git diff --check` passaram.
+- Ainda não validados: encerramento/reabertura completos, fotos duráveis, edição/exclusão, câmera/galeria, análise bem-sucedida, acessibilidade e AR.

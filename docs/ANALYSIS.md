@@ -18,6 +18,10 @@ Vitalidade fica em 0–100; água/luz em 0–10; crescimento é um inteiro não 
 
 O app faz uma única chamada à Edge Function `analyze-plant`, que então faz uma única chamada ao modelo configurado. Mensagens distinguem configuração ausente/inválida, falha de conexão, limite de uso, indisponibilidade, timeout e resposta inválida/bloqueada. Resposta bruta, URLs do provedor e credenciais não são mostradas nem registradas no console.
 
+Para investigar falhas no servidor, os logs registram somente status HTTP e modelo em respostas de erro do provedor; falhas de transporte registram modelo, cancelamento e nome da classe do erro. Falhas inesperadas registram apenas o nome da classe. Foto, Base64, resposta bruta, mensagem da exceção e credenciais permanecem fora dos logs.
+
+HTTP 402 do Gemini é tratado como falha de configuração do serviço. Na validação de 03/10/2026, a chave cadastrada alcançou o provedor, mas o modelo respondeu 402; a análise bem-sucedida ficou pendente de regularizar o faturamento/créditos no projeto associado à chave. A [documentação de faturamento](https://ai.google.dev/gemini-api/docs/billing#prepay) explica esse status; não basta cadastrar uma chave para comprovar acesso ao modelo.
+
 Após 30 segundos, o cliente encerra a espera e sinaliza abort ao transporte. É possível cancelar durante a análise e repetir a mesma foto após falha, ou escolher outra. Sair da tela cancela a análise e ignora resultados atrasados; mudar jardim/planta reinicia a sessão da tela. A tentativa de nova análise não apaga o resultado anterior nem escreve no store. O cancelamento é do cliente; não garante interromper processamento/cobrança já iniciados no provedor. Uma gravação já confirmada não é desfeita por sair da tela.
 
 ## Configuração e seleção do modelo
@@ -43,6 +47,8 @@ A função aceita JPEG, PNG, WebP, HEIC e HEIF, com Base64 limitado a 8 MiB, tim
 
 ## Validação
 
-`npm run check` passou com TypeScript, lint sem avisos e 92 testes. As regressões novas cobrem payload/tamanho/formato no servidor, hash da origem, resposta Gemini, categorias seguras e transporte Supabase no cliente. A migração foi aplicada no projeto remoto; onze consumos numa transação revertida aceitaram os dez primeiros e recusaram o décimo primeiro. `anon` não conseguiu executar a RPC. A função implantada recusou chamada sem `apikey` com 401 e, com chave publicável, respondeu com erro seguro de configuração enquanto `GEMINI_API_KEY` permanece ausente.
+Na entrega inicial, `npm run check` passou com TypeScript, lint sem avisos e 92 testes. As regressões cobrem payload/tamanho/formato no servidor, hash da origem, resposta Gemini, categorias seguras e transporte Supabase no cliente. A migração foi aplicada no projeto remoto; onze consumos numa transação revertida aceitaram os dez primeiros e recusaram o décimo primeiro. `anon` não conseguiu executar a RPC. A função implantada recusou chamada sem `apikey` com 401 e, com chave publicável, respondeu com erro seguro de configuração enquanto faltava `GEMINI_API_KEY`.
 
-Não foram executados câmera/galeria no aparelho, React Native em dispositivo, chamadas reais à IA ou compilação de APK. Testes de serviço/seletor usam adapters simulados e não executam a interface React Native. O advisor remoto reportou avisos anteriores na função `public.rls_auto_enable()`, fora desta entrega; a nova tabela/função não gerou aviso. O roteiro de [TESTING.md](TESTING.md) continua obrigatório para validar os pontos pendentes.
+Em 03/10/2026, o segredo foi cadastrado, o build debug Android foi compilado/instalado e a jornada local básica foi validada no aparelho. Requisição real com imagem pública do catálogo alcançou o Gemini e recebeu HTTP 402; após a correção, a função respondeu com erro seguro `configuration`. Os checks passaram com 94 testes, incluindo regressões de faturamento. Análise bem-sucedida, câmera/galeria e demais cenários de [TESTING.md](TESTING.md) continuam pendentes.
+
+Testes de serviço/seletor usam adapters simulados e não executam a interface React Native. Na entrega inicial, o advisor remoto reportou avisos anteriores na função `public.rls_auto_enable()`, fora do escopo; a nova tabela/função não gerou aviso.
