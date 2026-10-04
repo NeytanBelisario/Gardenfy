@@ -64,7 +64,7 @@ export function GardenManagementDialog({ garden, action, onClose, onGardenDelete
               <Text style={styles.text}>
                 {plant
                   ? `Excluir “${plant.name}” deste jardim? O histórico de cuidados e as fotos locais desta planta também serão removidos.`
-                  : `Excluir “${garden.name}” e suas ${garden.plantCount} plantas? Os históricos de cuidados e as fotos locais também serão removidos.`}
+                  : `Excluir “${garden.name}”${garden.plantCount ? ` e ${garden.plantCount} ${garden.plantCount === 1 ? 'planta' : 'plantas'}` : ''}? Os históricos de cuidados e as fotos locais também serão removidos.`}
                 {'\n\n'}Esta ação não pode ser desfeita.
               </Text>
             ) : (

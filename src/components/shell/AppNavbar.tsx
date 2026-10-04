@@ -104,7 +104,7 @@ export function AppNavbar({ hidden = false }: AppNavbarProps) {
               <View style={[styles.navChip, active && styles.navChipActive]}>
                 <NavIcon item={item} active={active} />
               </View>
-              <Text style={[styles.navLabel, active && styles.navLabelActive]}>
+              <Text numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8} style={[styles.navLabel, active && styles.navLabelActive]}>
                 {item.label}
               </Text>
             </Pressable>
@@ -162,6 +162,8 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(71, 102, 68, 0.12)',
   },
   navLabel: {
+    maxWidth: '100%',
+    textAlign: 'center',
     color: COLORS.secondary,
     fontSize: 11,
     fontWeight: '800',
