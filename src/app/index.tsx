@@ -26,8 +26,8 @@ function GardenCard({ garden }: { garden: GardenSummary }) {
         </View>
         <Ionicons name="chevron-forward" size={20} color="#476644" />
       </View>
-      {garden.alert ? <Text style={styles.alert}>{garden.alert.label}</Text> : null}
-      {garden.vitality === null ? (
+      {garden.alert ? <Text style={[styles.alert, garden.alert.tone === 'danger' && styles.dangerAlert]}>{garden.alert.label}</Text> : null}
+      {garden.vitality === null && garden.metrics.every(metric => metric.value === null) ? (
         <View style={styles.localNote}>
           <Ionicons name="leaf-outline" size={18} color="#476644" />
           <Text style={styles.noteText}>{garden.plantCount ? 'Sem análise · os cuidados já podem ser registrados.' : 'Seu jardim está pronto para receber a primeira planta.'}</Text>
@@ -108,6 +108,7 @@ const styles = StyleSheet.create({
   gardenName: { color: '#17361d', fontSize: 20, lineHeight: 26, fontWeight: '800' },
   secondary: { color: '#586653', fontSize: 13, lineHeight: 20 },
   alert: { alignSelf: 'flex-start', color: '#6a3200', backgroundColor: '#ffead7', borderRadius: 10, paddingHorizontal: 10, paddingVertical: 6, fontSize: 12, fontWeight: '700' },
+  dangerAlert: { color: '#93000a', backgroundColor: '#ffdad6' },
   localNote: { flexDirection: 'row', alignItems: 'center', gap: 9, borderTopWidth: 1, borderColor: '#eef0e9', paddingTop: 14 },
   noteText: { flex: 1, color: '#586653', fontSize: 13, lineHeight: 20 },
   analysis: { gap: 8, borderTopWidth: 1, borderColor: '#eef0e9', paddingTop: 14 },

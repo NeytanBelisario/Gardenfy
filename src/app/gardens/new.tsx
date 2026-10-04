@@ -243,7 +243,7 @@ const styles = StyleSheet.create({
     gap: 30,
   },
   hero: {
-    height: 220,
+    minHeight: 220,
     borderRadius: 28,
     backgroundColor: COLORS.primary,
     overflow: 'hidden',
@@ -255,6 +255,7 @@ const styles = StyleSheet.create({
     elevation: 8,
   },
   heroImage: {
+    ...StyleSheet.absoluteFillObject,
     width: '100%',
     height: '100%',
   },
@@ -263,10 +264,9 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(23, 54, 29, 0.32)',
   },
   heroCopy: {
-    position: 'absolute',
-    left: 28,
-    right: 28,
-    bottom: 28,
+    minHeight: 220,
+    justifyContent: 'flex-end',
+    padding: 28,
     gap: 8,
   },
   heroStep: {

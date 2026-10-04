@@ -349,11 +349,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  drawerAvatarText: {
-    color: COLORS.primary,
-    fontSize: 24,
-    fontWeight: '900',
-  },
   drawerCopy: {
     flex: 1,
     gap: 3,
@@ -367,11 +362,6 @@ const styles = StyleSheet.create({
     color: 'rgba(255,255,255,0.86)',
     fontSize: 13,
     fontWeight: '700',
-  },
-  drawerEmail: {
-    color: 'rgba(255,255,255,0.68)',
-    fontSize: 12,
-    fontWeight: '600',
   },
   drawerSection: {
     marginTop: 24,
@@ -455,10 +445,5 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.surfaceHigh,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  avatarText: {
-    color: COLORS.primary,
-    fontSize: 16,
-    fontWeight: '900',
   },
 });
