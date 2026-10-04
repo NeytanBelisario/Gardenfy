@@ -36,8 +36,8 @@ const menuItems = [
   { label: 'Meus jardins', icon: 'leaf-outline', route: '/' },
   { label: 'Criar jardim', icon: 'add-circle-outline', route: '/gardens/new' },
   { label: 'Meu espaço', icon: 'person-outline', route: '/profile' },
-  { label: 'Visualizar em AR', icon: 'cube-outline', route: '/preview' },
-  { label: 'Análise por foto', icon: 'scan-outline', route: '/scan' },
+  { label: 'Identificar por foto', icon: 'scan-outline', route: '/scan' },
+  { label: 'AR · Em breve', icon: 'cube-outline', route: '/preview' },
 ] as const;
 
 export function AppHeader({

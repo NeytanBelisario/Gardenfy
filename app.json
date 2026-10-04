@@ -9,17 +9,14 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "icon": "./assets/expo.icon",
+      "icon": "./assets/images/icon.png",
       "infoPlist": {
-        "NSCameraUsageDescription": "A Gardenfy usa a camera para visualizar plantas em realidade aumentada.",
-        "NSPhotoLibraryUsageDescription": "Allow $(PRODUCT_NAME) to access your photos",
-        "NSPhotoLibraryAddUsageDescription": "Allow $(PRODUCT_NAME) to save photos",
-        "NSMicrophoneUsageDescription": "Allow $(PRODUCT_NAME) to use your microphone"
+        "NSCameraUsageDescription": "O Gardenfy usa a câmera para identificar suas plantas por foto.",
+        "NSPhotoLibraryUsageDescription": "O Gardenfy acessa a foto escolhida para identificar sua planta."
       }
     },
     "android": {
       "permissions": [
-        "CAMERA",
         "CAMERA"
       ],
       "adaptiveIcon": {
@@ -40,14 +37,13 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#208AEF",
+          "backgroundColor": "#17361d",
           "android": {
             "image": "./assets/images/splash-icon.png",
             "imageWidth": 76
           }
         }
-      ],
-      "@reactvision/react-viro"
+      ]
     ],
     "experiments": {
       "typedRoutes": true,

@@ -15,8 +15,8 @@ const COLORS = {
 const navItems = [
   { label: 'Jardins', icon: 'sprout', route: '/', activeOn: ['/'] },
   { label: 'Criar', icon: 'add-circle-outline', route: '/gardens/new', activeOn: ['/gardens/new'] },
-  { label: 'AR', icon: 'cube-outline', route: '/preview', activeOn: ['/preview'] },
-  { label: 'Perfil', icon: 'person-outline', route: '/profile', activeOn: ['/profile'] },
+  { label: 'Foto', icon: 'camera-outline', route: '/scan', activeOn: ['/scan'] },
+  { label: 'Espaço', icon: 'person-outline', route: '/profile', activeOn: ['/profile'] },
 ] as const;
 
 function NavIcon({
@@ -88,7 +88,7 @@ export function AppNavbar({ hidden = false }: AppNavbarProps) {
               key={item.label}
               style={styles.navItem}
               accessibilityRole="button"
-              accessibilityLabel={item.label === 'AR' ? 'Visualizar planta em realidade aumentada' : item.label === 'Criar' ? 'Criar jardim' : item.label}
+              accessibilityLabel={item.label === 'Foto' ? 'Identificar planta por foto' : item.label === 'Criar' ? 'Criar jardim' : item.label}
               accessibilityState={{ selected: active }}
               onPress={() => { if (pathname !== item.route) router.push(item.route); }}
             >

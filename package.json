@@ -20,7 +20,6 @@
     "@react-navigation/bottom-tabs": "^7.15.5",
     "@react-navigation/elements": "^2.9.10",
     "@react-navigation/native": "^7.1.33",
-    "@reactvision/react-viro": "^2.54.0",
     "expo": "~55.0.31",
     "expo-constants": "~55.0.14",
     "expo-device": "~55.0.21",
