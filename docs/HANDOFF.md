@@ -145,10 +145,11 @@ Atualize este arquivo ao encerrar sessões que mudem o estado do projeto. Não a
 ## Sessão de 03/10/2026 — ajustes do front sem celular
 
 - **Branch:** `feat/local-ui-polish`, criada de `develop` atualizado em `1f1919d`, após confirmar a integração do PR #12.
+- **PR:** [#13 — melhora do front local e preview web](https://github.com/NeytanBelisario/Gardenfy/pull/13), aberto para `develop`; integração pendente.
 - **Escopo autorizado:** melhorar o front e a experiência dos fluxos locais sem depender do celular ou Gemini.
 - **Entrega:** home com resumo e cards compactos; barra com rotas existentes e estado ativo; catálogo priorizado, quantidade real, busca vazia, fallback de fotos e layout de uma coluna em tela estreita/texto ampliado; cadastro e detalhes com textos em português. Perfil mostra contagens e atalhos reais; identidade fixa, conquistas/rank fictícios e botões sem ação foram retirados da interface. Perfil editável continua pendente.
 - **Web:** o preview inicialmente falhou ao importar Viro nativo (`requireNativeComponent` ausente). Adicionado `PlantArScreen.web.tsx`, sem importar Viro, com explicação e retorno aos jardins. Export estático web aprovado após a correção; isso não comprova interação ou compatibilidade web completa.
-- **Etapas publicadas:** `a394f67` (telas e navegação) e `01f600a` (fallback web, métricas parciais e responsividade) em `origin/feat/local-ui-polish`. Documentação será publicada ao concluir.
+- **Etapas publicadas:** `a394f67` (telas e navegação), `01f600a` (fallback web, métricas parciais e responsividade) e `e4ff997` (documentação/validação) em `origin/feat/local-ui-polish`. Este registro do PR também será publicado ao encerrar.
 - **Checks:** `npm run check` aprovado com TypeScript, lint sem avisos e 94 testes; export conjunto Android/web aprovado com 12 rotas estáticas; 13 links locais e `git diff --check` passaram. Novo APK não foi compilado: alterações são de interface/JS, sem módulos nativos novos.
 - **Preview local:** Metro web ativo em `http://localhost:8082`. Requisições HTTP para home, perfil, AR e criação responderam 200 após reiniciar o servidor com o novo arquivo por plataforma. Isso valida a resposta do servidor; bootstrap/hidratação e interações do cliente não foram verificados em navegador.
 - **Limites:** nenhum aparelho conectado nem navegador disponível pela ferramenta de automação; inspeção visual, cliques/toques, teclado e leitor de tela não executados. Nenhuma chamada Gemini, mudança de schema, dependência ou segredo.
