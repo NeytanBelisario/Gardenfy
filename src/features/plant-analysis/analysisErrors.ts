@@ -1,4 +1,4 @@
-export type AnalysisErrorCode = 'configuration' | 'image' | 'network' | 'timeout' | 'cancelled' | 'invalid-response' | 'rate-limit' | 'unavailable';
+export type AnalysisErrorCode = 'configuration' | 'image' | 'network' | 'timeout' | 'cancelled' | 'invalid-response' | 'rate-limit' | 'unavailable' | 'not-found';
 
 const messages: Record<AnalysisErrorCode, string> = {
   configuration: 'A análise por foto está indisponível nesta instalação. Confira a configuração do serviço.',
@@ -9,6 +9,7 @@ const messages: Record<AnalysisErrorCode, string> = {
   'invalid-response': 'O serviço não retornou uma análise válida. Tente outra foto bem iluminada.',
   'rate-limit': 'O limite de análises foi atingido. Aguarde e tente novamente.',
   unavailable: 'O serviço de análise está indisponível no momento. Tente novamente.',
+  'not-found': 'Não encontramos uma planta nesta foto. Fotografe uma folha ou flor de perto, com boa luz.',
 };
 
 export class PlantAnalysisError extends Error {

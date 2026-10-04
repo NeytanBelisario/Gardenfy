@@ -14,7 +14,7 @@ export function normalizeAnalysisPhoto(photo: { uri?: string; base64?: string | 
   return { uri: photo.uri, base64, mimeType };
 }
 
-export function createPlantAnalysisService(transport: AnalysisTransport, timeoutMs = 30_000) {
+export function createPhotoRequestService<T>(transport: (photo: AnalysisPhoto, signal: AbortSignal) => Promise<T>, timeoutMs = 30_000) {
   return async (photo: AnalysisPhoto, signal?: AbortSignal) => {
     if (signal?.aborted) throw new PlantAnalysisError('cancelled');
     const controller = new AbortController();
@@ -31,7 +31,7 @@ export function createPlantAnalysisService(transport: AnalysisTransport, timeout
         return transport(photo, controller.signal);
       }), interrupted]);
       if (controller.signal.aborted) throw new PlantAnalysisError('cancelled');
-      return parseGeminiAnalysisResponse(response);
+      return response;
     } catch (error) {
       throw normalizeAnalysisError(error);
     } finally {
@@ -39,4 +39,9 @@ export function createPlantAnalysisService(transport: AnalysisTransport, timeout
       signal?.removeEventListener('abort', abort);
     }
   };
+}
+
+export function createPlantAnalysisService(transport: AnalysisTransport, timeoutMs = 30_000) {
+  const request = createPhotoRequestService(transport, timeoutMs);
+  return async (photo: AnalysisPhoto, signal?: AbortSignal) => parseGeminiAnalysisResponse(await request(photo, signal));
 }
