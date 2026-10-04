@@ -36,4 +36,4 @@ Diagnóstico de doenças por foto, IA generativa e AR ficam para versões futura
 
 ## Configuração pendente
 
-A chave `PLANTNET_API_KEY` deve existir somente nos secrets do Supabase. O passo a passo ficará em [ANALYSIS.md](ANALYSIS.md). Nenhuma chave deve ser enviada por chat ou adicionada ao Git. A cota gratuita do Pl@ntNet pertence à conta usada pelo backend, compartilhada por todas as instalações do Gardenfy.
+A chave `PLANTNET_API_KEY` deve existir somente nos secrets do Supabase. O passo a passo está em [ANALYSIS.md](ANALYSIS.md#configurar-plantnet). Nenhuma chave deve ser enviada por chat ou adicionada ao Git. A cota gratuita do Pl@ntNet pertence à conta usada pelo backend, compartilhada por todas as instalações do Gardenfy.

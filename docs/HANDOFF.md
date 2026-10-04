@@ -2,13 +2,18 @@
 
 Atualize este arquivo ao encerrar sessões que mudem o estado do projeto. Não armazene credenciais ou configurações privadas.
 
-## Sessão de 04/10/2026 — preparação da versão 1.0 (em andamento)
+## Sessão de 04/10/2026 — preparação da versão 1.0
 
 - **Branch:** `feat/release-v1`, criada de `develop` atualizado em `80d0750`; árvore limpa na abertura.
 - **Escopo autorizado:** manutenção de jardins/plantas, experiência fluida, identificação Pl@ntNet e fichas locais de cuidados. AR em breve, sem execução nativa. Ver `RELEASE_1.0.md`.
-- **Etapa inicial:** escopo e fluxo de preparação registrados no roadmap e nas instruções para agentes. Implementação e checks finais em andamento.
-- **Pendências reais:** chave Pl@ntNet no servidor, identificação real, roteiro Android e APK autônomo. Não há declaração de lançamento ou autorização de merge.
-- **Próximo passo:** implementar domínio, backend e interface por etapas; publicar commits e abrir PR para `develop`.
+- **Entrega:** AR substituído por Em breve e Viro removido; navegação Jardins/Criar/Foto/Espaço; cadastro abre detalhes, cuidados e últimas datas têm destaque, busca encontra nomes com/sem acentos, imagens têm fallback. Identificação compartilhada usa Pl@ntNet com revisão explícita da espécie e fichas locais de quatro espécies, com fontes. Sem percentuais novos de saúde/água/luz da foto.
+- **Persistência:** schema v4 com espécie e histórico de identificação; v1/v2/v3 continuam migrando sem descartar cuidados/análises. Nome pessoal, descrição e cuidados são preservados na reidentificação. Retry de gravação não repete o provedor.
+- **Etapas publicadas:** `dcb2893` escopo/docs; `b2e6334` domínio/fichas; `9dc731d` backend; `9acbd68` AR/navegação; `cf79e17` revisão da foto; `9dc2bcd` cuidados/UX; `7233a18` textos/permissões/crédito; `030edc3` cota compartilhada/CI/regressões. Todos em `origin/feat/release-v1`.
+- **Checks:** `npm run check` aprovado (TypeScript, lint sem avisos, 109 testes); Deno 2.9.6 com imports congelados e compatibilidade Expo aprovados. Exports Android/web aprovados antes da revisão final de textos; nova execução em andamento. Links locais (23) e `git diff --check` aprovados. CI inclui Deno e export web.
+- **Supabase:** função `identify-plant` implantada via CLI autenticada e migração `20261004120000` aplicada; lint remoto do banco sem erros. RPC continua restrita a `service_role`, permite limite até 500; app usa 10/origem/hora + 450 compartilhadas/dia UTC. Saúde remota: sem chave pública → 401; com chave pública → 500/configuration, pois ainda falta `PLANTNET_API_KEY`. Nenhuma identificação real bem-sucedida foi registrada.
+- **Android:** prebuild novo sem Viro aprovado. Pasta anterior preservada em `%LOCALAPPDATA%/Gardenfy/native-backups/android-before-release-v1-20261004-022912`; não houve descarte de customizações. Microfone desabilitado no plugin de fotos. Compilação `assembleRelease` em andamento; assinatura gerada é de avaliação. ADB sem dispositivo e navegador de automação indisponível, portanto nenhuma interação/inspeção visual nova ocorreu.
+- **Pendências reais:** configurar chave Pl@ntNet conforme [ANALYSIS.md](ANALYSIS.md#configurar-plantnet), identificação real e roteiro Android da 1.0, instalar/testar APK sem Metro como atualização e preparar assinatura de distribuição. Não há declaração de lançamento nem autorização de merge.
+- **Próximo passo:** abrir PR para `develop`, concluir/verificar APK e registrar resultados finais. A promoção `develop` → `main` aguarda os critérios de [RELEASE_1.0.md](RELEASE_1.0.md).
 
 ## Sessão de 01/10/2026 — documentação inicial
 

@@ -1,54 +1,57 @@
-# Análise por foto
+# Identificação por foto · Pl@ntNet
 
-O scan geral, a inclusão no jardim e a reanálise da planta usam `PlantAnalysisScreen`, o hook `usePlantPhotoAnalysis` e o mesmo serviço/parser em `src/features/plant-analysis`. Não há chamada duplicada nem salvamento automático ao receber uma resposta.
+## Experiência da versão 1.0
 
-## Seleção, revisão e salvamento
+As rotas `/scan`, inclusão por foto e revisão da espécie usam a mesma tela `PlantIdentificationScreen`, o mesmo hook de seleção/cancelamento e o endpoint `identify-plant`. A pessoa escolhe um jardim, tira ou seleciona uma foto, revisa até três espécies sugeridas e confirma o cadastro. O nome pessoal da planta fica separado da espécie. Ao identificar novamente, nome, descrição e cuidados existentes são preservados.
 
-A tela explica que a foto de uma única planta será enviada ao Google Gemini e que os resultados são estimativas. Câmera e galeria pedem a permissão correspondente e tratam negativa, cancelamento, ausência de imagem/base64 e falhas ao abrir o seletor. O bloqueio começa antes de pedir permissão, evitando abrir dois seletores por toques rápidos.
+A tela informa o envio ao Pl@ntNet antes de abrir a câmera/galeria. A pontuação indica confiança do modelo na identificação; não representa saúde ou vitalidade. A confirmação é obrigatória, inclusive quando a primeira sugestão tem pontuação alta. Abaixo de 50%, a interface recomenda conferir a espécie ou refazer a foto; este limiar é uma orientação do Gardenfy, não garantia de precisão do provedor.
 
-O resultado fica em revisão, sem alterar o jardim. Na inclusão, a pessoa pode corrigir o nome antes de confirmar; o nome escolhido fica separado da identificação sugerida pela IA, inclusive no retrato histórico. Na reanálise, uma identificação diferente gera aviso para revisão, sem impedir a confirmação explícita. Nome/descrição já cadastrados são preservados. É possível descartar o resultado.
+Depois de confirmar, o app guarda a foto e a espécie e abre os detalhes/cuidados. Sem ficha local para a espécie, permite cadastrar e registrar cuidados, com informações específicas explicitamente indisponíveis. Sem serviço ou internet, o catálogo permanece utilizável.
 
-O scan geral é uma consulta sem persistência, agora também com identificação e acesso à câmera. Para incluir uma planta, use o fluxo do jardim. Confirmar inclusão/reanálise usa o store existente: memória/histórico/fotos só mudam após gravação confirmada. Falha ao salvar mantém o rascunho para tentar novamente sem outra chamada à IA. Não há mudança de schema nesta entrega (permanece v3).
+## Detalhes e origem dos dados
 
-## Parser e falhas
+As quatro fichas iniciais correspondem a Monstera deliciosa, Pilea peperomioides, Goeppertia orbifolia (sinônimo Calathea orbifolia) e Dracaena trifasciata (sinônimo Sansevieria trifasciata). Os textos são resumos editoriais, com fonte consultável na própria tela, armazenados em `src/features/gardens/careProfiles.ts`.
 
-O parser exige os seis campos completos (`Nome`, `Saude`/`Saúde`, `Vitalidade`, `Rega`, `Luz`, `Crescimento`). Normaliza acentos/caixa da saúde e nome comum. Aceita linhas vazias e unidades previstas, mas rejeita duplicatas, texto extra, números negativos, decimais, valores fora das faixas e inteiros de crescimento inseguros. Não transforma resposta inválida em métricas válidas por truncamento ou clamp. Zero válido é preservado.
+- [Monstera · NC State Extension](https://plants.ces.ncsu.edu/plants/monstera-deliciosa/).
+- [Pilea · NC State Extension](https://plants.ces.ncsu.edu/plants/pilea-peperomioides/).
+- [Orbifolia · NC State Extension](https://plants.ces.ncsu.edu/plants/goeppertia-orbifolia/).
+- [Espada-de-são-jorge · NC State Extension](https://plants.ces.ncsu.edu/plants/dracaena-trifasciata/).
 
-Vitalidade fica em 0–100; água/luz em 0–10; crescimento é um inteiro não negativo de dias. Água/luz são estimativas visuais solicitadas à IA, não sensores nem registros de rega. Uma foto não garante a identificação correta ou a estimativa de hidratação.
+Não usamos IA generativa para completar espécies desconhecidas nem produzimos percentuais de hidratação/luz/vitalidade ou dias exatos de crescimento. As fichas orientam necessidades gerais da espécie. Diagnóstico de doenças fica fora da 1.0.
 
-O app faz uma única chamada à Edge Function `analyze-plant`, que então faz uma única chamada ao modelo configurado. Mensagens distinguem configuração ausente/inválida, falha de conexão, limite de uso, indisponibilidade, timeout e resposta inválida/bloqueada. Resposta bruta, URLs do provedor e credenciais não são mostradas nem registradas no console.
+## Configurar Pl@ntNet
 
-Para investigar falhas no servidor, os logs registram somente status HTTP e modelo em respostas de erro do provedor; falhas de transporte registram modelo, cancelamento e nome da classe do erro. Falhas inesperadas registram apenas o nome da classe. Foto, Base64, resposta bruta, mensagem da exceção e credenciais permanecem fora dos logs.
+1. Crie uma conta em [Pl@ntNet para desenvolvedores](https://my.plantnet.org/) e conclua a verificação/aceitação dos termos no próprio site.
+2. Entre na conta e obtenha sua API key. Não envie a chave pelo chat, não salve no repositório e não use prefixo `EXPO_PUBLIC_`.
+3. Abra o projeto Gardenfy no [painel Supabase](https://supabase.com/dashboard/project/ukqsiclooawiqmttdobu/functions). Em **Edge Functions → Secrets**, adicione `PLANTNET_API_KEY` com o valor da chave. O nome diferencia maiúsculas/minúsculas.
+4. No app, configure somente `EXPO_PUBLIC_SUPABASE_URL` e `EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY` no `.env` ignorado. O projeto existente já tem a configuração local e `ANALYSIS_RATE_LIMIT_SALT` no servidor; em outro PC, recrie apenas os valores públicos autorizados.
+5. Confira que a migração da cota e a função `identify-plant` foram implantadas. Se estiver configurando outro ambiente, com a CLI autenticada e vinculada:
 
-HTTP 402 do Gemini é tratado como falha de configuração do serviço. Na validação de 03/10/2026, a chave cadastrada alcançou o provedor, mas o modelo respondeu 402; a análise bem-sucedida ficou pendente de regularizar o faturamento/créditos no projeto associado à chave. A [documentação de faturamento](https://ai.google.dev/gemini-api/docs/billing#prepay) explica esse status; não basta cadastrar uma chave para comprovar acesso ao modelo.
-
-Após 30 segundos, o cliente encerra a espera e sinaliza abort ao transporte. É possível cancelar durante a análise e repetir a mesma foto após falha, ou escolher outra. Sair da tela cancela a análise e ignora resultados atrasados; mudar jardim/planta reinicia a sessão da tela. A tentativa de nova análise não apaga o resultado anterior nem escreve no store. O cancelamento é do cliente; não garante interromper processamento/cobrança já iniciados no provedor. Uma gravação já confirmada não é desfeita por sair da tela.
-
-## Configuração e seleção do modelo
-
-O cliente precisa somente dos valores públicos do projeto:
-
-```dotenv
-EXPO_PUBLIC_SUPABASE_URL=
-EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY=
+```bash
+npx supabase db push --linked
+npx supabase functions deploy identify-plant --use-api
 ```
 
-A função lê `GEMINI_API_KEY`, `GEMINI_MODEL` e `ANALYSIS_RATE_LIMIT_SALT` dos secrets do Supabase. `GEMINI_MODEL` usa `gemini-3.5-flash-lite` por padrão. A seleção foi revisada em 02/10/2026 pela [lista oficial de modelos](https://ai.google.dev/gemini-api/docs/models) e pela [política de descontinuação](https://ai.google.dev/gemini-api/docs/deprecations): a documentação recomenda 3.5 Flash-Lite ou 3.8 Flash para novos projetos, limita o acesso aos modelos 2.5 a usuários anteriores e lista o desligamento de 2.0 Flash. Não há fallback para outro modelo nem segunda chamada automática.
+6. Abra um jardim de teste, escolha **Identificar por foto** e use uma foto de planta sem pessoas/dados pessoais. Confirme a espécie, confira a ficha ou o estado sem ficha e reabra o app. Registrar sucesso real exige essa execução; testes simulados não comprovam a chave ou a qualidade do reconhecimento.
 
-Essa revisão documental não comprova acesso, quota, qualidade ou compatibilidade do modelo com uma conta específica. Nenhuma requisição real ao Gemini foi feita nesta sessão porque a chave não estava disponível nesta máquina. A função usa o endpoint REST oficial e mantém a credencial fora do bundle do app; o SDK `@google/generative-ai` foi removido do cliente.
+A [documentação Supabase sobre secrets](https://supabase.com/docs/guides/functions/secrets) descreve a configuração pelo painel. Depois de salvar um secret, a função pode lê-lo sem reconstruir o app. Não é necessário criar outra chave Gemini nem regularizar seu faturamento para este fluxo.
 
-## Controle de acesso e uso
+## Backend, limites e falhas
 
-A função exige uma chave publicável válida no header `apikey` e valida essa chave no próprio runtime com `@supabase/server`. `verify_jwt` fica desativado porque a chave publicável atual não é um JWT. A chave identifica o aplicativo, mas pode ser extraída de um cliente distribuído e não substitui autenticação de usuário.
+A função exige chave publicável válida com `withSupabase({ auth: 'publishable' })`; `verify_jwt` fica desativado porque essa chave não é JWT. A chave pública identifica o app, não um usuário. A credencial Pl@ntNet existe apenas no servidor e vai somente ao endpoint oficial do provedor.
 
-Cada origem pode iniciar até 10 análises por janela de uma hora. A função usa o último endereço encaminhado pelo gateway, combina-o com um salt secreto e persiste somente SHA-256. A atualização é atômica no Postgres; tabela e RPC têm RLS/privilégios fechados para `anon` e `authenticated` e execução apenas por `service_role`. Registros com mais de dois dias são removidos durante o consumo da cota. Redes compartilhadas dividem a mesma cota e clientes capazes de trocar de origem podem contorná-la; uma futura conta permitirá limite por usuário.
+A API aceita JPG/PNG, até 8 MiB de Base64, validando MIME e assinatura inicial do arquivo. Envia uma imagem multipart, idioma português, no máximo três sugestões e sem fotos similares do banco do provedor. Resultado é JSON validado, sem texto livre gerado.
 
-A função aceita JPEG, PNG, WebP, HEIC e HEIF, com Base64 limitado a 8 MiB, timeout de 25 segundos no provedor e resposta sem detalhes internos. O cliente mantém timeout de 30 segundos e parser estrito. Cancelar no cliente ainda não garante interromper uma requisição já iniciada no provedor.
+Reutilizamos a RPC atômica `consume_analysis_quota`, restrita a `service_role`: até 10 tentativas/hora por origem e até 450 tentativas/dia UTC compartilhadas por todas as instalações. A nova migração permite limite de até 500 na RPC; o limite usado pelo app é 450. Tentativas que chegam ao provedor podem consumir cota mesmo se falharem. IPs são armazenados apenas como hashes com salt; redes compartilhadas dividem o limite por origem. As entradas expiram na limpeza após dois dias.
+
+O [plano gratuito oficial](https://my.plantnet.org/pricing) oferece 500 identificações/dia por conta. Uso da mesma chave em outras aplicações também consome a cota do provedor. O limite do Gardenfy não garante reserva para essas aplicações nem disponibilidade do serviço. Incluímos o crédito e o logo oficial conforme os [termos do Pl@ntNet](https://my.plantnet.org/terms_of_use); imagem em `assets/images/powered-by-plantnet.png`, fornecida nessa página, sem alterações.
+
+Cliente espera até 30 segundos; servidor até 25. Cancelar/sair da tela aborta a espera e ignora respostas tardias; não garante recuperar cota consumida no provedor. Falhas de permissão, imagem, rede, configuração, quota, indisponibilidade e resposta inválida permitem continuar pelo catálogo. Falha ao salvar mantém a revisão para repetir apenas a gravação, sem nova chamada.
+
+## Compatibilidade com o trabalho anterior
+
+O endpoint Gemini `analyze-plant` e helpers legados permanecem para compatibilidade/histórico, mas as rotas da versão 1.0 não os chamam. Não removemos secrets remotos nem reescrevemos análises antigas. O histórico exibe esses registros como estimativas antigas do Gemini, sem tratá-los como medidas atuais. AR e doenças ficam para versões futuras.
 
 ## Validação
 
-Na entrega inicial, `npm run check` passou com TypeScript, lint sem avisos e 92 testes. As regressões cobrem payload/tamanho/formato no servidor, hash da origem, resposta Gemini, categorias seguras e transporte Supabase no cliente. A migração foi aplicada no projeto remoto; onze consumos numa transação revertida aceitaram os dez primeiros e recusaram o décimo primeiro. `anon` não conseguiu executar a RPC. A função implantada recusou chamada sem `apikey` com 401 e, com chave publicável, respondeu com erro seguro de configuração enquanto faltava `GEMINI_API_KEY`.
-
-Em 03/10/2026, o segredo foi cadastrado, o build debug Android foi compilado/instalado e a jornada local básica foi validada no aparelho. Requisição real com imagem pública do catálogo alcançou o Gemini e recebeu HTTP 402; após a correção, a função respondeu com erro seguro `configuration`. Os checks passaram com 94 testes, incluindo regressões de faturamento. Análise bem-sucedida, câmera/galeria e demais cenários de [TESTING.md](TESTING.md) continuam pendentes.
-
-Testes de serviço/seletor usam adapters simulados e não executam a interface React Native. Na entrega inicial, o advisor remoto reportou avisos anteriores na função `public.rls_auto_enable()`, fora do escopo; a nova tabela/função não gerou aviso.
+Checks e resultados atuais estão em [TESTING.md](TESTING.md) e [HANDOFF.md](HANDOFF.md). O runtime Supabase deve ser verificado com Deno, além de TypeScript/lint do app. Parsing, transporte, limites de imagem e preservação dos cuidados/fotos têm regressões automatizadas; câmera, qualidade de identificação e permissões reais exigem teste no aparelho.

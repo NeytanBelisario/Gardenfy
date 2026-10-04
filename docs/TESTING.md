@@ -1,17 +1,35 @@
 # Validação do Gardenfy
 
+## Aceite vigente da versão 1.0
+
+Ver [RELEASE_1.0.md](RELEASE_1.0.md). Usar jardim de teste separado e registrar commit, dispositivo, Android, tipo de build e resultado. Não confundir export, Reload do JavaScript, encerramento completo ou execução em aparelho.
+
+1. Primeiro acesso: criar jardim, cancelar/validar nome vazio e editar nome/ambiente/ícone. Conferir estado vazio e acesso ao cadastro.
+2. Catálogo: pesquisar com/sem acentos, filtrar e adicionar planta. Deve abrir os detalhes; nome, espécie e ficha de cuidados devem corresponder. Voltar deve levar ao jardim correto.
+3. Cuidados: registrar rega e adubação, verificar últimas datas, histórico e contagem no jardim/home. Corrigir tipo/data/hora, rejeitar data inválida e cancelar/confirmar exclusão de um cuidado.
+4. Persistência: encerrar completamente e reabrir; conferir jardins, plantas, fotos próprias e cuidados. Repetir sem rede, inclusive criar/editar/excluir pelo catálogo. Fotos remotas indisponíveis devem ter fallback.
+5. Identificação: configurar Pl@ntNet conforme ANALYSIS.md; câmera e galeria reais, negativa de permissão, cancelamento, foto sem planta, baixa confiança, espécie sem ficha e revisão de espécie diferente. Confirmar uma sugestão, escolher nome e verificar foto/espécie/cuidados após reinício. Reidentificação mantém nome/descrição e cuidados.
+6. Erros: sem internet/configuração/cota, identificação deve explicar e permitir catálogo. Retry de gravação não deve repetir chamada ao provedor. Falha/timeout/cancelamento não salva resultados tardios.
+7. Edição/exclusão: editar planta pelos detalhes, preservar espécie/ficha; cancelar/confirmar exclusão, retornar ao jardim e revisar contagens. Excluir jardim de teste com confirmação. Não usar jardins pessoais para exclusões.
+8. AR: menu AR · Em breve e rota direta /preview mostram orientação/retorno, sem pedir câmera ou iniciar sessão AR.
+9. Experiência: largura 320/390/768, nomes longos, texto ampliado, TalkBack, áreas seguras, teclado, scroll e voltar Android. Todas as ações visíveis devem ter comportamento útil.
+10. APK autônomo: instalar como atualização compatível, encerrar Metro/desconectar computador e repetir o núcleo local. Conferir preservação de dados. Assinatura de avaliação não equivale à assinatura para publicação em loja.
+
+Não há navegador nem aparelho disponível para automação nesta sessão de preparação; os cenários manuais permanecem pendentes até registro de execução.
+
 ## Checks automatizados
 
 ```bash
 npm ci
 npm run check
 npx expo install --check
-npx expo export --platform android
+npx --yes deno@2.9.6 check --frozen --config supabase/functions/identify-plant/deno.json supabase/functions/identify-plant/index.ts
+npx expo export --platform android --platform web
 ```
 
-`npm run check` executa TypeScript, ESLint (com zero avisos permitidos) e testes de persistência. `npm test` permite executar só os testes. A configuração de lint segue o [guia oficial do Expo](https://docs.expo.dev/guides/using-eslint/), com exceção pontual documentada para o asset GLB nativo.
+`npm run check` executa TypeScript, ESLint (com zero avisos permitidos) e testes de domínio/transporte. `npm test` permite executar só os testes. A configuração de lint segue o [guia oficial do Expo](https://docs.expo.dev/guides/using-eslint/). O check Deno cobre os arquivos do runtime Supabase, excluídos do TypeScript do app.
 
-O workflow `.github/workflows/checks.yml` executa instalação pelo lockfile, checks e testes, compatibilidade dos pacotes Expo e export do bundle Android em PRs para `develop`/`main` e pushes nessas bases. O export valida JavaScript/assets; não produz APK nem substitui teste nativo.
+O workflow `.github/workflows/checks.yml` executa instalação pelo lockfile, checks e testes, compatibilidade dos pacotes Expo, check Deno e exports Android/web em PRs para `develop`/`main` e pushes nessas bases. O export valida JavaScript/assets; não produz APK nem substitui teste nativo.
 
 ## Roteiro manual — situação atual
 
