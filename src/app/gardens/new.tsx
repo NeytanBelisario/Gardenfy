@@ -1,6 +1,8 @@
 import React, { useRef, useState } from 'react';
 import {
   Image,
+  KeyboardAvoidingView,
+  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -95,7 +97,7 @@ export default function NewGardenScreen() {
   };
 
   return (
-    <View style={styles.screen}>
+    <KeyboardAvoidingView style={styles.screen} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <AppHeader title="Criar jardim" mode="back" onPressLeading={handleBack} />
       <ScrollView
         keyboardShouldPersistTaps="handled"
@@ -124,7 +126,9 @@ export default function NewGardenScreen() {
             editable={!saving}
             placeholderTextColor={COLORS.textMuted}
             value={draft.name}
-            onChangeText={(name) => setDraft((current) => ({ ...current, name }))}
+            maxLength={120}
+            returnKeyType="done"
+            onChangeText={(name) => { setDraft((current) => ({ ...current, name })); setSaveError(null); }}
             style={styles.input}
           />
         </View>
@@ -224,7 +228,7 @@ export default function NewGardenScreen() {
           </Pressable>
         </View>
       </ScrollView>
-    </View>
+    </KeyboardAvoidingView>
   );
 }
 

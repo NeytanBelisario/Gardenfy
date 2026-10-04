@@ -10,11 +10,12 @@ export type GardenManagementAction = {
   plant?: GardenPlant;
 };
 
-export function GardenManagementDialog({ garden, action, onClose, onGardenDeleted }: {
+export function GardenManagementDialog({ garden, action, onClose, onGardenDeleted, onPlantDeleted }: {
   garden: GardenDetails;
   action: GardenManagementAction;
   onClose: () => void;
   onGardenDeleted: () => void;
+  onPlantDeleted?: () => void;
 }) {
   const plant = action.plant;
   const deleting = action.mode === 'delete';
@@ -50,6 +51,7 @@ export function GardenManagementDialog({ garden, action, onClose, onGardenDelete
     }
     onClose();
     if (deleting && !plant) onGardenDeleted();
+    if (deleting && plant) onPlantDeleted?.();
   };
 
   return (
@@ -61,8 +63,8 @@ export function GardenManagementDialog({ garden, action, onClose, onGardenDelete
             {deleting ? (
               <Text style={styles.text}>
                 {plant
-                  ? `Excluir “${plant.name}” deste jardim? A análise e as fotos locais sem uso também serão removidas.`
-                  : `Excluir “${garden.name}” e suas ${garden.plantCount} plantas? As análises e fotos locais sem uso também serão removidas.`}
+                  ? `Excluir “${plant.name}” deste jardim? O histórico de cuidados e as fotos locais desta planta também serão removidos.`
+                  : `Excluir “${garden.name}” e suas ${garden.plantCount} plantas? Os históricos de cuidados e as fotos locais também serão removidos.`}
                 {'\n\n'}Esta ação não pode ser desfeita.
               </Text>
             ) : (
