@@ -4,6 +4,8 @@
 
 O projeto usa Expo 55, React Native 0.83, React 19 e TypeScript estrito, conforme `package.json`. O gerenciador é npm, com `package-lock.json` versionado.
 
+O `postinstall` adapta o import CommonJS de `query-string` 7.1 ao decoder ESM `decode-uri-component` 0.5.0, corrigido para entradas malformadas. Use `npm ci` com scripts habilitados: `--ignore-scripts` deixa esse consumidor incompatível. O adapter é idempotente e interrompe a instalação se o import ou a versão esperada mudar; revise-o ao atualizar Expo Router/React Navigation. O override `xcode` → `uuid` 11.1.1 mantém o import CommonJS e a API `v4` usados pelo prebuild. Não alterar as versões principais de Expo/React Native com `npm audit fix --force`.
+
 A versão de Node em `.nvmrc` é `22.22.2`, com npm `10.9.7` registrado em `package.json`. A instalação limpa foi verificada em Linux/WSL2 e no CI. APK de avaliação da 1.0 foi compilado no Windows com JDK 17/SDK 36; não confunda export do bundle, compilação do APK e execução no aparelho.
 
 ```bash
