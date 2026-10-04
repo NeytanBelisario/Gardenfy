@@ -5,6 +5,7 @@ import { createPhotoRequestService } from '../src/features/plant-analysis/analys
 import { createSupabasePhotoTransport } from '../src/features/plant-analysis/supabaseAnalysis';
 import { PlantAnalysisError } from '../src/features/plant-analysis/analysisErrors';
 import { isPlantCandidate } from '../src/features/plant-identification/types';
+import { parseIdentificationPayload } from '../src/features/plant-identification/identificationService';
 
 const jpeg = { base64: '/9j/AAAA', mimeType: 'image/jpeg' };
 const provider = { results: [
@@ -74,4 +75,15 @@ test('client identification uses new function and sends no nickname, species cho
   const failed = createSupabasePhotoTransport({ url: 'https://example.supabase.co', publishableKey: 'public-key' }, 'identify-plant', (payload) => payload,
     async () => Response.json({ error: 'not-found' }, { status: 422 }));
   await assert.rejects(createPhotoRequestService(failed)({ uri: 'file:///plant.jpg', ...jpeg }), (error) => error instanceof PlantAnalysisError && error.code === 'not-found');
+});
+
+test('client refuses malformed, duplicate and oversized suggestion lists before species review', () => {
+  const valid = parsePlantNetResponse(provider).candidates;
+  assert.deepEqual(parseIdentificationPayload({ candidates: [...valid].reverse() }), valid);
+  for (const payload of [null, {}, { candidates: [valid[0], valid[0]] },
+    { candidates: [...valid, ...valid] }, { candidates: [{ ...valid[0], confidence: -1 }] },
+    { candidates: [{ ...valid[0], scientificName: ' ' }] }]) {
+    assert.throws(() => parseIdentificationPayload(payload), (error) => error instanceof PlantAnalysisError && error.code === 'invalid-response');
+  }
+  assert.throws(() => parseIdentificationPayload({ candidates: [] }), (error) => error instanceof PlantAnalysisError && error.code === 'not-found');
 });

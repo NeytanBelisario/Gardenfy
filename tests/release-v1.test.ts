@@ -4,6 +4,7 @@ import { createGardensStore } from '../src/features/gardens/storeCore';
 import { deserializeGardens, serializeGardens } from '../src/features/gardens/persistence';
 import { findPlantCareProfile, getPlantCareProfile } from '../src/features/gardens/careProfiles';
 import { plantCatalog } from '../src/features/gardens/catalog';
+import { gardenCareCount, lastPlantCare } from '../src/features/gardens/careActivity';
 import type { PlantCandidate } from '../src/features/plant-identification/types';
 
 const candidate: PlantCandidate = { scientificName: 'Monstera deliciosa', commonName: 'Costela-de-adão', confidence: 0.9 };
@@ -77,12 +78,30 @@ test('invalid candidates and blank names never save a photo or write storage', a
 test('v3 migration preserves all existing analysis and care entries and writes v4 on next save', async () => {
   const { store, garden, getRaw } = await fixture();
   const plant = await store.addPlantToGarden(garden.id, plantCatalog[0]);
+  await store.updatePlantAnalysis(garden.id, plant.id, { plantName: 'Monstera', health: 'Boa', vitality: 70, water: 3, light: 5, growthDays: 30 }, 'file:///legacy.jpg');
   await store.recordPlantCare(garden.id, plant.id, 'water');
   const legacy = JSON.parse(getRaw());
   legacy.version = 3;
   const migrated = deserializeGardens(JSON.stringify(legacy));
   assert.deepEqual(migrated[0].plants[0].history, store.getSnapshot().gardens[0].plants[0].history);
   assert.equal(JSON.parse(serializeGardens(migrated)).version, 4);
+  assert.deepEqual(migrated[0].plants[0].history.map((entry) => entry.kind), ['analysis', 'care']);
+});
+
+test('daily care summaries follow corrected dates and deleted records without counting identifications', async () => {
+  const { store, garden } = await fixture();
+  const plant = await store.savePlantIdentification(garden.id, candidate, 'file:///plant.jpg', 'Nome');
+  const first = await store.recordPlantCare(garden.id, plant.id, 'water');
+  await store.recordPlantCare(garden.id, plant.id, 'water');
+  await store.updatePlantCare(garden.id, plant.id, first.id, { careType: 'fertilize', occurredAt: '2020-01-01T12:00:00.000Z' });
+  const current = store.getSnapshot().gardens[0];
+  assert.equal(gardenCareCount(current), 2);
+  assert.equal(lastPlantCare(current.plants[0], 'fertilize')?.id, first.id);
+  assert.equal(lastPlantCare(current.plants[0])?.careType, 'water');
+  await store.deletePlantCare(garden.id, plant.id, first.id);
+  const updated = store.getSnapshot().gardens[0];
+  assert.equal(gardenCareCount(updated), 1);
+  assert.equal(lastPlantCare(updated.plants[0], 'fertilize'), undefined);
 });
 
 test('corrupt persisted species and identification timestamps fail without silently accepting data', async () => {

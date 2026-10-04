@@ -31,5 +31,7 @@ jobs:
         run: npm run check
       - name: Validate Expo dependency versions
         run: npx expo install --check
-      - name: Export Android JavaScript and assets
-        run: npx expo export --platform android
+      - name: Check identification function runtime with locked imports
+        run: npx --yes deno@2.9.6 check --frozen --config supabase/functions/identify-plant/deno.json supabase/functions/identify-plant/index.ts
+      - name: Export Android and web JavaScript and assets
+        run: npx expo export --platform android --platform web
