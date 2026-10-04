@@ -120,7 +120,8 @@ Atualize este arquivo ao encerrar sessões que mudem o estado do projeto. Não a
 ## Sessão de 03/10/2026 — Android e diagnóstico da análise real
 
 - **Branch:** `chore/android-analysis-validation`, criada de `develop` atualizado em `6d1b1f5`, após confirmar a integração do PR #10. Não havia PRs abertos na retomada.
-- **Etapas publicadas:** `47520dc` (diagnósticos seguros do servidor) e `0936ecf` (HTTP 402 tratado como configuração, com regressões).
+- **PR:** [#11 — faturamento da análise e validação Android](https://github.com/NeytanBelisario/Gardenfy/pull/11), aberto para `develop`; integração pendente.
+- **Etapas publicadas:** `47520dc` (diagnósticos seguros do servidor), `0936ecf` (HTTP 402 tratado como configuração, com regressões) e `0c2268d` (build, jornada local e documentação).
 - **Ambiente:** Windows, Node `22.22.2` e npm `10.9.7` portáteis em `%LOCALAPPDATA%\Gardenfy\tools`; arquivo oficial conferido por SHA-256. Dependências instaladas pelo lockfile; dry-run confirmado com as versões fixadas. `.env` público preenchido pelo usuário e ignorado pelo Git; CLI Supabase `2.119.0` autenticada e vinculada ao projeto existente.
 - **Android:** JDK 17, Platform/Build Tools 36 e NDK `27.1.12297006`; aparelho Samsung `SM-G781B`, Android 13 / API 33, ARM64. `expo run:android --device SM_G781B --no-bundler` compilou o APK debug com Nova Arquitetura e instalou como atualização do aplicativo existente. Nenhuma desinstalação ou limpeza de dados executada.
 - **Abertura:** Metro inicialmente ficou vinculado somente a `::1`; o app não alcançou o bundle pelo USB e mostrou diálogo de aplicativo sem resposta. Metro foi reiniciado com `--lan`, hostname `127.0.0.1`, e o encaminhamento `adb reverse` está ativo; `/status` respondeu 200 por IPv4. O app voltou a responder e a home abriu pela rota `gardenfy:///`, exibindo os dados anteriores. Nenhum reinício forçado do processo executado.
@@ -128,7 +129,7 @@ Atualize este arquivo ao encerrar sessões que mudem o estado do projeto. Não a
 - **Servidor:** usuário cadastrou `GEMINI_API_KEY`. Requisições com imagem pública do catálogo passaram pela autenticação e alcançaram o Gemini, que respondeu HTTP 402 para `gemini-3.5-flash-lite`. Logs agora registram apenas status/modelo e tipo da falha, sem foto, payload, resposta bruta ou credenciais. Função atualizada no Supabase; nova requisição retornou `500 / configuration`, comprovando a classificação corrigida.
 - **Checks:** `npm run check` aprovado com TypeScript, lint sem avisos e 94 testes; compatibilidade Expo e export Android aprovados na preparação; build APK debug e instalação aprovados nesta etapa. `git diff --check` aprovado.
 - **Pendências:** regularizar faturamento/créditos do projeto Gemini e repetir a análise; validar encerramento/reabertura completos, fotos duráveis, edição/exclusão, câmera/galeria, acessibilidade e AR no aparelho. Não há análise bem-sucedida nem roteiro nativo completo validado nesta sessão. O jardim de teste permanece no aparelho para revisão.
-- **Backup:** commits por etapas publicados em `origin/chore/android-analysis-validation`. Documentação da validação e PR para `develop` serão publicados ao encerrar; não fazer merge sem instrução específica.
+- **Backup:** código e documentação publicados em `origin/chore/android-analysis-validation`; este registro do PR também será publicado no encerramento. Não fazer merge sem instrução específica.
 - **Próximo passo:** regularizar o projeto da chave Gemini e repetir uma chamada real com imagem não sensível; depois validar o fluxo no aparelho e os cenários manuais restantes. Metro permanece ativo por USB neste PC.
 
 ## Modelo para próximas sessões
