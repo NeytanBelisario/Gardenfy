@@ -120,6 +120,16 @@ npm.cmd run android -- --device --no-bundler
 
 Consulte [TESTING.md](TESTING.md) para os checks, roteiro manual e limites do que foi validado.
 
+### Preview do front sem celular
+
+```powershell
+npm.cmd run web -- --port 8082
+```
+
+Abra `http://localhost:8082` no navegador. O módulo de AR tem um arquivo `.web.tsx` com orientação e retorno aos jardins; o bundle web não importa o Viro nativo. Os dados do navegador ficam separados dos dados do Android. Esse preview permite revisar as telas locais, mas não substitui testes de câmera, permissões, armazenamento nativo, teclado ou AR no aparelho.
+
+Na sessão de ajustes visuais, o export web estático passou; o navegador de automação não estava disponível, portanto não houve inspeção visual ou interação no navegador. A compatibilidade web completa continua pendente.
+
 ## Fluxo de uma tarefa
 
 Com a árvore limpa, inicie a partir da base atualizada:

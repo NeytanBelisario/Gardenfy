@@ -130,3 +130,16 @@ Registrar dispositivo, commit e resultado de cada passo. Em 03/10/2026, na retom
 - Requisição real com a imagem pública da Monstera usada no catálogo, sem dados pessoais, alcançou o Gemini. Logs mostraram HTTP 402 para `gemini-3.5-flash-lite`; validação de sucesso depende de regularizar faturamento/créditos do projeto da chave. Após corrigir a classificação, a função respondeu `500 / configuration`, sem detalhes internos.
 - `npm run check` aprovou TypeScript, lint sem avisos e 94 testes. As duas novas regressões verificam HTTP 402 no serviço e a propagação de erro do provedor pelo transporte Supabase sem retry. Compatibilidade Expo, export Android e `git diff --check` passaram.
 - Ainda não validados: encerramento/reabertura completos, fotos duráveis, edição/exclusão, câmera/galeria, análise bem-sucedida, acessibilidade e AR.
+
+## Roteiro dos ajustes de front — uso local
+
+Conferência visual e interação pendentes. O navegador de automação e o aparelho não estavam disponíveis na sessão de implementação; os exports não comprovam layout ou toques corretos.
+
+1. Abrir home vazia: conferir orientação e criar o primeiro jardim. Com jardins existentes, conferir resumo, singular/plural, nomes longos e acesso ao jardim. Métricas desconhecidas e zero conhecido continuam distintos.
+2. Usar Jardins/Criar/AR/Perfil na barra e todas as entradas do menu. Não deve haver rota de tarefas nem botões sem ação. No navegador, AR apresenta orientação e retorno aos jardins; no aparelho, continua exigindo suporte nativo.
+3. Criar jardim: conferir labels em português, oito opções reais de ícone, seleção de ambiente, voltar/cancelar, nome obrigatório e bloqueio durante salvamento. Conferir que o teclado não impede concluir o formulário.
+4. Abrir catálogo: conferir contagem de resultados, busca, limpeza, filtros Folhagens/Resistentes e estado sem resultado. Adicionar uma planta e conferir detalhes. Imagens indisponíveis mostram ícone; botões têm rótulo e área de toque mínima de 44 pontos.
+5. Conferir perfil com zero, um e vários jardins/plantas; contagens e atalhos usam dados locais. Não deve apresentar nome/e-mail de exemplo, rank/conquistas fictícios, configurações sem ação ou logout sem conta.
+6. Revisar em larguras de 320, 390 e 768 pontos e com texto ampliado. Catálogo muda para uma coluna abaixo de 380 pontos ou com escala de fonte acima de 1,3. Testar rolagem, navbar, áreas seguras e leitura dos rótulos no Android.
+
+Análise por foto não é necessária para este roteiro. Confirmar fotos duráveis, cuidados e reinício pelos roteiros existentes; dados do navegador e do aparelho são separados.
