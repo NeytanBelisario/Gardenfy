@@ -2,6 +2,15 @@
 
 Atualize este arquivo ao encerrar sessões que mudem o estado do projeto. Não armazene credenciais ou configurações privadas.
 
+## Sessão de 28/10/2026 — ajustes da beta e preparação da 1.0.0-beta.2
+
+- **Base/branch:** `release/1.0.0-beta.2`, criada de `origin/develop` (`2fd5625`), código idêntico ao APK da beta.1 mais documentação. Usuário informou ter concluído os passos da issue #15; registrar aparelho, versão Android e evidências na issue.
+- **Entrega:** aviso de planta adicionada (`SuccessToastHost`/`successToastStore`), exclusão de jardim/planta movida para os diálogos de edição, aba Criar removida da barra inferior, texto do card sem cuidados. Expo 55.0.32. Remoção do endpoint Gemini `analyze-plant`, da tela/parser legados e do perfil fixo; utilitários do servidor em `supabase/functions/_shared/core.ts`. `versionCode` Android 2. Notas em [releases/1.0.0-beta.2.md](releases/1.0.0-beta.2.md).
+- **Checks:** `npm run check` (typecheck, lint, 93 testes), `npx expo install --check`, `deno check` de `identify-plant` e `git diff --check`. Aviso e exclusões conferidos pelo usuário no navegador (Expo web); nenhum APK gerado nem teste Android desta branch.
+- **Ambiente:** lockfile atualizado com npm 10 (o do Node 22 do `.nvmrc`); npm 11/Node 24 desta máquina remove entradas de peers opcionais do lockfile. Stash local na `main` com essa diferença de `package-lock.json`, sem valor a preservar.
+- **Pendências:** decidir pacote Android definitivo e assinatura de produção (trocar qualquer um impede atualizar sobre a beta.1); remover função `analyze-plant` e secrets Gemini no painel Supabase; validar no Android; gerar APK/tag/release da beta.2 quando solicitado. Alerta alto restante de `zod` via `@expo/cli` exige troca de versão principal do Expo.
+- **Próximo passo:** publicar a branch e abrir PR para `develop`; depois, Fase 1.1 proposta: ampliar catálogo/fichas de cuidados, lembretes de rega e backup/exportação local.
+
 ## Sessão de 04/10/2026 — publicação da beta e apresentação no GitHub
 
 - **Base/branch/PR:** PR #14 já integrado pelo usuário; `develop` atualizado com `git pull --ff-only origin develop` em `2d99498`. Nova tarefa em `docs/mvp-beta-release`, [PR #16](https://github.com/NeytanBelisario/Gardenfy/pull/16) aberto para `develop`, com labels `documentation`/`release`; nenhum merge realizado nesta sessão.
