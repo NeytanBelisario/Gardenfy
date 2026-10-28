@@ -26,8 +26,8 @@
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false,
-      "package": "com.anonymous.Gardenfy",
-      "versionCode": 2
+      "package": "br.com.gardenfy.app",
+      "versionCode": 1
     },
     "web": {
       "output": "static",
@@ -61,6 +61,12 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "a1828d9f-9169-478e-b312-960dd016e205"
+      }
+    },
+    "owner": "ydiony"
   }
 }

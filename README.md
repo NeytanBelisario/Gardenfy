@@ -2,12 +2,12 @@
 
 Um pouco de verde, todos os dias. Organize seus jardins, conheça suas plantas e acompanhe cada rega e adubação.
 
-[![Android beta](https://img.shields.io/badge/Android-1.0.0--beta.1-183D25)](https://github.com/NeytanBelisario/Gardenfy/releases/tag/v1.0.0-beta.1)
+[![Android](https://img.shields.io/badge/Android-1.0.0-183D25)](https://github.com/NeytanBelisario/Gardenfy/releases/tag/v1.0.0)
 [![Checks](https://github.com/NeytanBelisario/Gardenfy/actions/workflows/checks.yml/badge.svg?branch=develop)](https://github.com/NeytanBelisario/Gardenfy/actions/workflows/checks.yml)
 
-**[Baixar APK para testar](https://github.com/NeytanBelisario/Gardenfy/releases/download/v1.0.0-beta.1/Gardenfy-1.0.0-beta.1-android.apk)** · [Notas da versão](https://github.com/NeytanBelisario/Gardenfy/releases/tag/v1.0.0-beta.1)
+**[Baixar APK](https://github.com/NeytanBelisario/Gardenfy/releases/download/v1.0.0/Gardenfy-1.0.0-android.apk)** · [Notas da versão](docs/releases/1.0.0.md)
 
-Beta para Android 7 ou superior. O APK funciona sem Expo Go ou servidor de desenvolvimento. A versão estável 1.0 ainda está em preparação.
+Para Android 7 ou superior. O APK funciona sem Expo Go ou servidor de desenvolvimento. Quem instalou a beta precisa desinstalá-la antes: a 1.0.0 é um app novo, com assinatura própria.
 
 ## O aplicativo
 
@@ -29,9 +29,7 @@ Não há conta ou sincronização entre celulares. Identificar fotos exige inter
 
 ## Testar e contribuir
 
-Instale o APK da beta e experimente criar um jardim, adicionar uma planta e registrar um cuidado. Feche e reabra o app para conferir seu histórico. Se encontrar um problema, [abra uma issue](https://github.com/NeytanBelisario/Gardenfy/issues/new) com os passos, modelo do celular e versão do Android. Evite incluir fotos ou informações pessoais.
-
-Esta beta usa assinatura de avaliação. Captura nova de planta pela câmera, jornada com TalkBack e assinatura de produção continuam pendentes para a versão estável. [Validações e limites](docs/TESTING.md).
+Instale o APK e experimente criar um jardim, adicionar uma planta e registrar um cuidado. Feche e reabra o app para conferir seu histórico. Se encontrar um problema, [abra uma issue](https://github.com/NeytanBelisario/Gardenfy/issues/new) com os passos, modelo do celular e versão do Android. Evite incluir fotos ou informações pessoais. [Validações e limites](docs/TESTING.md).
 
 ## Desenvolver
 

@@ -24,13 +24,13 @@ Abrir PR de cada tarefa para `develop` com evidências e pendências reais. Apó
 - [x] Edição/exclusão de jardins/plantas e correção/exclusão de cuidados validadas, com confirmação e persistência. Limpeza do jardim de teste preservou os dois jardins/duas plantas anteriores após reinício.
 - [x] Cadastro e cuidados utilizáveis sem internet; fotos remotas indisponíveis têm fallback.
 - [x] Pl@ntNet configurado no servidor; identificação real por galeria, espécie sem ficha, falhas, permissões e cancelamento validados.
-- [ ] Captura nova de uma planta pela câmera e jornada com TalkBack validadas. Abertura/cancelamento/negativa de câmera aprovados; usuário optou por foto pública.
+- [x] Captura nova de uma planta pela câmera e jornada com TalkBack validadas. Conclusão informada pelo usuário em 28/10/2026, após os testes da beta.1 ([#15](https://github.com/NeytanBelisario/Gardenfy/issues/15)).
 - [x] AR informa Em breve e permite retornar, sem inicializar recurso nativo.
 - [x] Telas pequenas, teclado, áreas seguras, texto ampliado e navegação Android por três botões revisados. Larguras lógicas ajustadas no mesmo celular; não equivalem a tablet físico.
-- [x] TypeScript, lint, 112 testes, compatibilidade Expo, runtime Deno e exports Android/web aprovados; consultar último CI do PR #14.
+- [x] TypeScript, lint, testes automatizados (93 após a remoção do Gemini), compatibilidade Expo, runtime Deno e exports Android/web aprovados; consultar o CI do PR de lançamento.
 - [x] Alertas triados e correções compatíveis aplicadas. Restam 23 entradas altas de duas ferramentas sem patch publicado, ausentes nos bundles inspecionados; exposição/monitoramento documentados em TESTING.md.
 - [x] APK autônomo de avaliação instalado e testado sem Metro; atualização preserva dados existentes.
-- [ ] Configuração de assinatura/distribuição de produção e resultados manuais documentados antes de publicar a versão estável. A beta de testes usa o APK assinado com keystore debug.
+- [x] Assinatura de produção pelo EAS Build (credenciais gerenciadas pela Expo), pacote definitivo `br.com.gardenfy.app` e distribuição por APK na release do GitHub. A beta usava o keystore debug do modelo Expo; a 1.0.0 é instalada como app novo.
 
 ## Fora do escopo
 
