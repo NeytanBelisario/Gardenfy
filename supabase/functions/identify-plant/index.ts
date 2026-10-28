@@ -1,7 +1,7 @@
 import '@supabase/functions-js/edge-runtime.d.ts';
 import { withSupabase } from '@supabase/server';
 import { consumeQuota } from '../_shared/quota.ts';
-import { FunctionError } from '../analyze-plant/core.ts';
+import { FunctionError } from '../_shared/core.ts';
 import { IdentificationError, parseIdentificationRequest, requestPlantNet } from './core.ts';
 
 const cors = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'apikey, authorization, content-type', 'Access-Control-Allow-Methods': 'POST, OPTIONS' };

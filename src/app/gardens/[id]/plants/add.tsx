@@ -4,6 +4,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 
 import { AppHeader } from '../../../../components/shell/AppHeader';
+import { showSuccessToast } from '../../../../components/shell/successToastStore';
 import { plantCatalog } from '../../../../features/gardens/catalog';
 import type { PlantCatalogCategory, PlantCatalogItem } from '../../../../features/gardens/types';
 import { addPlantToGarden, useGardenDetails } from '../../../../features/gardens/store';
@@ -62,6 +63,7 @@ export default function AddPlantsScreen() {
     setSaveError(null);
     try {
       const plant = await addPlantToGarden(id, item);
+      showSuccessToast('Planta adicionada', `${plant.name} agora faz parte de ${garden.name}.`);
       router.replace({ pathname: '/gardens/[id]/plants/[plantId]', params: { id, plantId: plant.id } });
     } catch (error) {
       setSaveError(error instanceof Error ? error.message : 'Não foi possível salvar a planta.');

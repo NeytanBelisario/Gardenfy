@@ -1,8 +1,6 @@
 import { normalizeAnalysisError, PlantAnalysisError } from './analysisErrors';
-import { parseGeminiAnalysisResponse } from './analysisParser';
 
 export type AnalysisPhoto = { uri: string; base64: string; mimeType: string };
-export type AnalysisTransport = (photo: AnalysisPhoto, signal: AbortSignal) => Promise<string>;
 
 export function normalizeAnalysisPhoto(photo: { uri?: string; base64?: string | null; mimeType?: string | null }): AnalysisPhoto {
   const dataUrl = photo.base64?.match(/^data:(image\/[\w.+-]+);base64,/);
@@ -43,9 +41,4 @@ export function createPhotoRequestService<T>(transport: (photo: AnalysisPhoto, s
       signal?.removeEventListener('abort', abort);
     }
   };
-}
-
-export function createPlantAnalysisService(transport: AnalysisTransport, timeoutMs = 30_000) {
-  const request = createPhotoRequestService(transport, timeoutMs);
-  return async (photo: AnalysisPhoto, signal?: AbortSignal) => parseGeminiAnalysisResponse(await request(photo, signal));
 }

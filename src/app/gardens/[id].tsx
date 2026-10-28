@@ -57,7 +57,6 @@ export default function GardenDetailsScreen() {
             <Text style={styles.text}>{garden.plantCount ? 'Tente buscar por outro nome ou pela espécie.' : 'Adicione sua primeira planta pelo catálogo ou identifique por foto. Depois, registre os cuidados aqui.'}</Text>
             <Pressable accessibilityRole="button" onPress={garden.plantCount ? () => setQuery('') : add} style={styles.secondary}><Text style={styles.label}>{garden.plantCount ? 'Limpar busca' : 'Escolher minha primeira planta'}</Text></Pressable>
           </View> : null}
-          <Pressable accessibilityRole="button" accessibilityLabel="Excluir jardim e suas plantas" onPress={() => setAction({ mode: 'delete' })} style={styles.delete}><Text style={styles.deleteText}>Excluir jardim</Text></Pressable>
         </> : <View style={styles.empty}><Text style={styles.heading}>Jardim não encontrado</Text><Text style={styles.text}>Ele pode ter sido excluído. Seus outros jardins continuam disponíveis.</Text><Pressable accessibilityRole="button" onPress={() => router.replace('/')} style={styles.primary}><Text style={styles.primaryText}>Ver meus jardins</Text></Pressable></View>}
       </ScrollView>
       {garden && action ? <GardenManagementDialog key={action.mode} garden={garden} action={action} onClose={() => setAction(null)} onGardenDeleted={() => router.replace('/')} /> : null}
@@ -89,7 +88,5 @@ const styles = StyleSheet.create({
   input: { flex: 1, paddingVertical: 16, fontSize: 16, color: '#17361d' },
   clear: { minWidth: 48, minHeight: 48, alignItems: 'center', justifyContent: 'center' },
   empty: { alignItems: 'center', gap: 16, padding: 24, borderRadius: 24, backgroundColor: '#fff' },
-  delete: { minHeight: 48, alignSelf: 'flex-start', justifyContent: 'center', padding: 12 },
-  deleteText: { color: '#93000a', fontSize: 14 },
   pressed: { opacity: 0.75 },
 });

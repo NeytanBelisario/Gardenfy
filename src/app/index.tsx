@@ -28,7 +28,9 @@ function GardenCard({ garden }: { garden: GardenDetails }) {
       </View>
       <View style={styles.localNote}>
         <Ionicons name="water-outline" size={18} color="#476644" />
-        <Text style={styles.noteText}>{garden.plantCount ? gardenCareCount(garden) + (gardenCareCount(garden) === 1 ? ' cuidado registrado' : ' cuidados registrados') + ' · acompanhe suas plantas' : 'Seu jardim está pronto para receber a primeira planta.'}</Text>
+        <Text style={styles.noteText}>{!garden.plantCount ? 'Seu jardim está pronto para receber a primeira planta.'
+          : !gardenCareCount(garden) ? 'Nenhum cuidado ainda · registre a primeira rega'
+          : gardenCareCount(garden) + (gardenCareCount(garden) === 1 ? ' cuidado registrado' : ' cuidados registrados') + ' · acompanhe suas plantas'}</Text>
       </View>
     </Pressable>
   );
@@ -96,13 +98,8 @@ const styles = StyleSheet.create({
   cardCopy: { flex: 1, minWidth: 0, gap: 5 },
   gardenName: { color: '#17361d', fontSize: 20, lineHeight: 26, fontWeight: '800' },
   secondary: { color: '#586653', fontSize: 13, lineHeight: 20 },
-  alert: { alignSelf: 'flex-start', color: '#6a3200', backgroundColor: '#ffead7', borderRadius: 10, paddingHorizontal: 10, paddingVertical: 6, fontSize: 12, fontWeight: '700' },
-  dangerAlert: { color: '#93000a', backgroundColor: '#ffdad6' },
   localNote: { flexDirection: 'row', alignItems: 'center', gap: 9, borderTopWidth: 1, borderColor: '#eef0e9', paddingTop: 14 },
   noteText: { flex: 1, color: '#586653', fontSize: 13, lineHeight: 20 },
-  analysis: { gap: 8, borderTopWidth: 1, borderColor: '#eef0e9', paddingTop: 14 },
-  metricRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 12 },
-  metric: { color: '#17361d', fontSize: 14, fontWeight: '700' },
   empty: { borderRadius: 24, backgroundColor: '#ffffff', borderWidth: 1, borderColor: '#e7e9e0', padding: 24, alignItems: 'center', gap: 14 },
   emptyImage: { width: 180, height: 120 },
   emptyTitle: { color: '#17361d', fontSize: 23, lineHeight: 29, fontWeight: '800', textAlign: 'center' },

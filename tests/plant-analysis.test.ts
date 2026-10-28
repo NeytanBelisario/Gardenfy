@@ -2,20 +2,10 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import { PlantAnalysisError, normalizeAnalysisError } from '../src/features/plant-analysis/analysisErrors';
-import { parseGeminiAnalysisResponse } from '../src/features/plant-analysis/analysisParser';
-import { createPlantAnalysisService, normalizeAnalysisPhoto } from '../src/features/plant-analysis/analysisService';
+import { createPhotoRequestService, normalizeAnalysisPhoto } from '../src/features/plant-analysis/analysisService';
 import { selectAnalysisPhoto, type PhotoPicker } from '../src/features/plant-analysis/photoSelection';
-import { plantMatchesCatalogChoice } from '../src/features/plant-analysis/plantMatch';
-import { createSupabaseAnalysisTransport } from '../src/features/plant-analysis/supabaseAnalysis';
-import {
-  FunctionError,
-  MAX_BASE64_LENGTH,
-  extractGeminiText,
-  getClientAddress,
-  hashQuotaKey,
-  mapGeminiStatus,
-  parseAnalysisRequest,
-} from '../supabase/functions/analyze-plant/core';
+import { createSupabasePhotoTransport } from '../src/features/plant-analysis/supabaseAnalysis';
+import { getClientAddress, hashQuotaKey } from '../supabase/functions/_shared/core';
 
 const response = 'Nome: Jiboia (Epipremnum aureum)\nSaúde: Boa\nVitalidade: 80%\nRega: 4\nLuz: 6\nCrescimento: 30';
 const photo = { uri: 'file:///cache/plant.jpg', base64: 'YWJj', mimeType: 'image/jpeg' };
@@ -28,38 +18,6 @@ function deferred<T>() {
   return { promise, resolve, reject };
 }
 
-test('parser normalizes common name, health casing and accents while preserving valid zeros', () => {
-  const parsed = parseGeminiAnalysisResponse(response.replace('Boa', 'CRÍTICA').replace('80%', '0%').replace('Rega: 4', 'Rega: 0/10').replace('Luz: 6', 'Luz: 0/10').replace('30', '0 dias'));
-  assert.deepEqual(parsed, { plantName: 'Jiboia', health: 'Critica', vitality: 0, water: 0, light: 0, growthDays: 0 });
-});
-
-test('parser accepts CRLF, blank lines and units and does not truncate numbers', () => {
-  const parsed = parseGeminiAnalysisResponse('\n' + response.replace('Rega: 4', 'Rega: 10/10').replace('Luz: 6', 'Luz: 10').replace('30', '120 dias').replace(/\n/g, '\r\n\r\n') + '\n');
-  assert.equal(parsed.water, 10);
-  assert.equal(parsed.light, 10);
-  assert.equal(parsed.growthDays, 120);
-});
-
-for (const [name, invalid] of [
-  ['missing field', response.replace('Nome: Jiboia (Epipremnum aureum)\n', '')],
-  ['empty common name', response.replace('Jiboia (Epipremnum aureum)', '(Epipremnum aureum)')],
-  ['duplicate field', response + '\nLuz: 6'],
-  ['unknown health', response.replace('Boa', 'Saudável')],
-  ['partial health match', response.replace('Boa', 'Boa demais')],
-  ['negative number', response.replace('Rega: 4', 'Rega: -1')],
-  ['out of range water', response.replace('Rega: 4', 'Rega: 11')],
-  ['out of range light', response.replace('Luz: 6', 'Luz: 1000')],
-  ['out of range vitality', response.replace('80%', '101%')],
-  ['decimal', response.replace('Rega: 4', 'Rega: 4.5')],
-  ['unexpected suffix', response.replace('Rega: 4', 'Rega: 4 recomendado')],
-  ['unsafe growth integer', response.replace('30', '9007199254740992')],
-  ['extra prose', response + '\nEsta é uma estimativa.'],
-  ['empty response', ''],
-] as const) {
-  test(`parser rejects ${name} without exposing provider response`, () => {
-    assert.throws(() => parseGeminiAnalysisResponse(invalid), errorCode('invalid-response'));
-  });
-}
 
 test('image normalization strips data URI and whitespace and infers its mime type', () => {
   assert.deepEqual(normalizeAnalysisPhoto({ uri: photo.uri, base64: 'data:image/png;base64,YW\nJj' }), { ...photo, mimeType: 'image/png' });
@@ -78,50 +36,48 @@ test('image normalization uses encoded bytes when Android retains a PNG source M
 
 test('one transport call returns the shared parsed result and receives cancellation signal', async () => {
   let calls = 0;
-  const analyze = createPlantAnalysisService(async (received, signal) => {
+  const analyze = createPhotoRequestService(async (received, signal) => {
     calls++;
     assert.deepEqual(received, photo);
     assert.equal(signal.aborted, false);
     return response;
   });
-  assert.equal((await analyze(photo)).plantName, 'Jiboia');
+  assert.equal(await analyze(photo), response);
   assert.equal(calls, 1);
 });
 
 for (const [status, code] of [[400, 'configuration'], [401, 'configuration'], [402, 'configuration'], [403, 'configuration'], [404, 'configuration'], [429, 'rate-limit'], [503, 'unavailable']] as const) {
   test(`service maps HTTP ${status} to safe ${code} feedback without retrying other models`, async () => {
     let calls = 0;
-    const analyze = createPlantAnalysisService(async () => { calls++; throw { status, message: 'provider response and secret URL' }; });
+    const analyze = createPhotoRequestService(async () => { calls++; throw { status, message: 'provider response and secret URL' }; });
     await assert.rejects(analyze(photo), errorCode(code));
     assert.equal(calls, 1);
   });
 }
 
 test('configuration and invalid response errors retain their categories; network errors never expose raw details', async () => {
-  const configured = createPlantAnalysisService(async () => { throw new PlantAnalysisError('configuration'); });
+  const configured = createPhotoRequestService(async () => { throw new PlantAnalysisError('configuration'); });
   await assert.rejects(configured(photo), errorCode('configuration'));
-  const malformed = createPlantAnalysisService(async () => 'not a plant');
-  await assert.rejects(malformed(photo), errorCode('invalid-response'));
-  const network = createPlantAnalysisService(async () => { throw new TypeError('Network request failed with secret URL'); });
+  const network = createPhotoRequestService(async () => { throw new TypeError('Network request failed with secret URL'); });
   await assert.rejects(network(photo), (error) => errorCode('network')(error) && !(error as Error).message.includes('secret'));
   assert.equal(normalizeAnalysisError(null).code, 'network');
 });
 
 test('timeout aborts transport, rejects promptly and ignores a late successful response', async () => {
-  const pending = deferred<string>();
+  const pending = deferred<typeof response>();
   let received: AbortSignal | undefined;
-  const analyze = createPlantAnalysisService(async (_, signal) => { received = signal; return pending.promise; }, 10);
+  const analyze = createPhotoRequestService(async (_, signal) => { received = signal; return pending.promise; }, 10);
   await assert.rejects(analyze(photo), errorCode('timeout'));
   assert.equal(received?.aborted, true);
   pending.resolve(response);
 });
 
 test('user cancellation aborts transport and a late rejection cannot become a saved result', async () => {
-  const pending = deferred<string>();
+  const pending = deferred<typeof response>();
   const entered = deferred<void>();
   let received: AbortSignal | undefined;
   const controller = new AbortController();
-  const analyze = createPlantAnalysisService(async (_, signal) => { received = signal; entered.resolve(); return pending.promise; });
+  const analyze = createPhotoRequestService(async (_, signal) => { received = signal; entered.resolve(); return pending.promise; });
   const task = analyze(photo, controller.signal);
   await entered.promise;
   controller.abort();
@@ -132,7 +88,7 @@ test('user cancellation aborts transport and a late rejection cannot become a sa
 
 test('already cancelled and immediately cancelled requests never dispatch to transport', async () => {
   let calls = 0;
-  const analyze = createPlantAnalysisService(async () => { calls++; return response; });
+  const analyze = createPhotoRequestService(async () => { calls++; return response; });
   const controller = new AbortController();
   controller.abort();
   await assert.rejects(analyze(photo, controller.signal), errorCode('cancelled'));
@@ -175,29 +131,6 @@ test('permission errors, unavailable camera, missing asset and unreadable base64
   await assert.rejects(selectAnalysisPhoto(picker, 'gallery'), errorCode('image'));
 });
 
-test('catalog matching handles accents and a different identification is surfaced for review', () => {
-  const analysis = parseGeminiAnalysisResponse(response);
-  assert.equal(plantMatchesCatalogChoice({ name: 'Jibóia', subtitle: '' }, analysis), true);
-  assert.equal(plantMatchesCatalogChoice({ name: 'Samambaia', subtitle: '' }, analysis), false);
-});
-
-test('server validates supported image payloads and enforces its upload limit', () => {
-  assert.deepEqual(parseAnalysisRequest({ base64: 'YWJj', mimeType: 'image/jpeg' }), {
-    base64: 'YWJj', mimeType: 'image/jpeg',
-  });
-  for (const invalid of [
-    null,
-    {},
-    { base64: 'YWJj', mimeType: 'image/gif' },
-    { base64: 'not base64', mimeType: 'image/jpeg' },
-  ]) {
-    assert.throws(() => parseAnalysisRequest(invalid), (error) => error instanceof FunctionError && error.code === 'image');
-  }
-  assert.throws(
-    () => parseAnalysisRequest({ base64: 'A'.repeat(MAX_BASE64_LENGTH + 4), mimeType: 'image/jpeg' }),
-    (error) => error instanceof FunctionError && error.status === 413,
-  );
-});
 
 test('server hashes the last forwarded address and never stores its raw value', async () => {
   const request = new Request('https://example.test', {
@@ -210,65 +143,40 @@ test('server hashes the last forwarded address and never stores its raw value', 
   assert.equal(hash, await hashQuotaKey('203.0.113.8', 'test-salt'));
 });
 
-test('server extracts Gemini text and maps provider failures to safe categories', () => {
-  assert.equal(extractGeminiText({ candidates: [{ content: { parts: [{ text: response }] } }] }), response);
-  assert.throws(
-    () => extractGeminiText({ candidates: [{ finishReason: 'SAFETY' }] }),
-    (error) => error instanceof FunctionError && error.code === 'invalid-response',
-  );
-  assert.equal(mapGeminiStatus(403).code, 'configuration');
-  assert.equal(mapGeminiStatus(429).code, 'rate-limit');
-  assert.equal(mapGeminiStatus(503).code, 'unavailable');
-});
-
-test('client transport sends only image data to the protected function and parses its text', async () => {
+test('client transport sends only image data with the publishable key and forwards cancellation', async () => {
   const controller = new AbortController();
-  let receivedUrl = '';
   let receivedInit: RequestInit | undefined;
-  const transport = createSupabaseAnalysisTransport(
+  const transport = createSupabasePhotoTransport(
     { url: 'https://gardenfy.supabase.co/', publishableKey: 'public-key' },
-    async (url, init) => {
-      receivedUrl = url;
+    'identify-plant',
+    (payload) => payload,
+    async (_, init) => {
       receivedInit = init;
-      return Response.json({ text: response });
+      return Response.json(response);
     },
   );
-  assert.equal(await transport(photo, controller.signal), response);
-  assert.equal(receivedUrl, 'https://gardenfy.supabase.co/functions/v1/analyze-plant');
+  assert.deepEqual(await transport(photo, controller.signal), response);
   assert.equal((receivedInit?.headers as Record<string, string>).apikey, 'public-key');
   assert.equal(receivedInit?.signal, controller.signal);
   assert.deepEqual(JSON.parse(receivedInit?.body as string), { base64: photo.base64, mimeType: photo.mimeType });
 });
 
 test('client transport preserves safe server errors and rejects malformed responses', async () => {
-  const call = (response: Response) => createPlantAnalysisService(createSupabaseAnalysisTransport(
+  const parse = (payload: unknown) => {
+    if (!payload || typeof payload !== 'object' || !('suggestions' in payload)) throw new PlantAnalysisError('invalid-response');
+    return payload;
+  };
+  const call = (result: Response) => createPhotoRequestService(createSupabasePhotoTransport(
     { url: 'https://gardenfy.supabase.co', publishableKey: 'public-key' },
-    async () => response,
+    'identify-plant',
+    parse,
+    async () => result,
   ))(photo, new AbortController().signal);
   await assert.rejects(call(Response.json({ error: 'rate-limit' }, { status: 429 })), errorCode('rate-limit'));
   await assert.rejects(call(Response.json({ error: 'private detail' }, { status: 500 })), errorCode('unavailable'));
-  await assert.rejects(call(Response.json({ value: 'missing text' })), errorCode('invalid-response'));
+  await assert.rejects(call(Response.json({ value: 'missing suggestions' })), errorCode('invalid-response'));
   await assert.rejects(
-    createSupabaseAnalysisTransport({}, async () => Response.json({ text: response }))(photo, new AbortController().signal),
+    createSupabasePhotoTransport({}, 'identify-plant', parse, async () => Response.json(response))(photo, new AbortController().signal),
     errorCode('configuration'),
   );
-});
-
-test('provider payment failure reaches the client as configuration with no retry or private details', async () => {
-  const failure = mapGeminiStatus(402);
-  let requests = 0;
-  const service = createPlantAnalysisService(createSupabaseAnalysisTransport(
-    { url: 'https://gardenfy.supabase.co', publishableKey: 'public-key' },
-    async () => {
-      requests++;
-      return Response.json({ error: failure.code }, { status: failure.status });
-    },
-  ));
-  await assert.rejects(service(photo), (error) => {
-    assert.ok(error instanceof PlantAnalysisError);
-    assert.equal(error.code, 'configuration');
-    assert.match(error.message, /configuração do serviço/);
-    return true;
-  });
-  assert.equal(requests, 1);
 });

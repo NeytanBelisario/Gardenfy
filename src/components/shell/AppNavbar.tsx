@@ -14,7 +14,6 @@ const COLORS = {
 
 const navItems = [
   { label: 'Jardins', icon: 'sprout', route: '/', activeOn: ['/'] },
-  { label: 'Criar', icon: 'add-circle-outline', route: '/gardens/new', activeOn: ['/gardens/new'] },
   { label: 'Foto', icon: 'camera-outline', route: '/scan', activeOn: ['/scan'] },
   { label: 'Espaço', icon: 'person-outline', route: '/profile', activeOn: ['/profile'] },
 ] as const;
@@ -89,7 +88,7 @@ export function AppNavbar({ hidden = false }: AppNavbarProps) {
       <View style={styles.navBar}>
         {navItems.map((item) => {
           const active = item.route === '/'
-            ? pathname === '/' || (pathname.startsWith('/gardens/') && pathname !== '/gardens/new')
+            ? pathname === '/' || pathname.startsWith('/gardens/')
             : item.activeOn.includes(pathname as never);
 
           return (
@@ -97,7 +96,7 @@ export function AppNavbar({ hidden = false }: AppNavbarProps) {
               key={item.label}
               style={styles.navItem}
               accessibilityRole="button"
-              accessibilityLabel={item.label === 'Foto' ? 'Identificar planta por foto' : item.label === 'Criar' ? 'Criar jardim' : item.label}
+              accessibilityLabel={item.label === 'Foto' ? 'Identificar planta por foto' : item.label}
               accessibilityState={{ selected: active }}
               onPress={() => { if (pathname !== item.route) router.push(item.route); }}
             >
@@ -126,7 +125,7 @@ const styles = StyleSheet.create({
   },
   navBar: {
     width: '92%',
-    maxWidth: 680,
+    maxWidth: 420,
     borderRadius: 30,
     paddingHorizontal: 10,
     paddingTop: 10,

@@ -1,5 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
-import { FunctionError, getClientAddress, hashQuotaKey } from '../analyze-plant/core.ts';
+import { FunctionError, getClientAddress, hashQuotaKey } from './core.ts';
 
 function getSecretKey() {
   const namedKeys = Deno.env.get('SUPABASE_SECRET_KEYS');

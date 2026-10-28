@@ -26,7 +26,8 @@
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false,
-      "package": "com.anonymous.Gardenfy"
+      "package": "com.anonymous.Gardenfy",
+      "versionCode": 2
     },
     "web": {
       "output": "static",

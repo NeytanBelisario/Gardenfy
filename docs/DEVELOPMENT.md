@@ -66,7 +66,7 @@ npx supabase link --project-ref ukqsiclooawiqmttdobu
 
 O projeto remoto precisa estar ativo para concluir o vínculo. Não versione o token, a senha do banco ou segredos usados por Edge Functions.
 
-A função `identify-plant` aceita a chave publicável do projeto e limita cada origem a 10 tentativas por janela de uma hora. O IP é transformado em hash com salt antes de ser persistido; clientes públicos ainda podem extrair a chave publicável, portanto essa proteção limita abuso, mas não identifica uma pessoa. Autenticação individual exigirá Supabase Auth numa etapa futura. `analyze-plant` permanece como endpoint legado, sem chamadas nas rotas da 1.0.
+A função `identify-plant` aceita a chave publicável do projeto e limita cada origem a 10 tentativas por janela de uma hora. O IP é transformado em hash com salt antes de ser persistido; clientes públicos ainda podem extrair a chave publicável, portanto essa proteção limita abuso, mas não identifica uma pessoa. Autenticação individual exigirá Supabase Auth numa etapa futura. O endpoint legado `analyze-plant` (Gemini) foi removido do repositório; veja [ANALYSIS.md](ANALYSIS.md).
 
 A função `identify-plant` reutiliza a proteção por origem e acrescenta orçamento de 450 tentativas/dia UTC para o app inteiro. Configure a chave pelo painel, conforme [ANALYSIS.md](ANALYSIS.md), e implante código/migrações com:
 

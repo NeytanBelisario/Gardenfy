@@ -5,6 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AppHeader } from '../../components/shell/AppHeader';
 import { AppNavbar } from '../../components/shell/AppNavbar';
+import { showSuccessToast } from '../../components/shell/successToastStore';
 import { savePlantIdentification, useGardenDetails, useGardenSummaries } from '../gardens/store';
 import { findPlantCareProfile } from '../gardens/careProfiles';
 import { usePlantPhotoRequest } from '../plant-analysis/usePlantPhotoRequest';
@@ -46,6 +47,7 @@ function IdentificationView({ mode, id, plantId }: { mode: Mode; id?: string; pl
     const draft = flow.draft;
     void flow.save(async () => {
       const saved = await savePlantIdentification(garden.id, candidate, draft.photo.uri, mode === 'update' && plant ? plant.name : name, plant?.id);
+      if (!plant) showSuccessToast('Planta adicionada', `${saved.name} agora faz parte de ${garden.name}.`);
       router.replace({ pathname: '/gardens/[id]/plants/[plantId]', params: { id: garden.id, plantId: saved.id } });
     });
   };
