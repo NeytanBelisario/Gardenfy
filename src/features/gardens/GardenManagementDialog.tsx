@@ -20,7 +20,7 @@ export function GardenManagementDialog({ garden, action, onClose, onGardenDelete
   const plant = action.plant;
   const [mode, setMode] = useState(action.mode);
   const deleting = mode === 'delete';
-  const deleteFromEdit = action.mode === 'edit' && !plant;
+  const deleteFromEdit = action.mode === 'edit';
   const [name, setName] = useState(plant?.name ?? garden.name);
   const [subtitle, setSubtitle] = useState(plant?.subtitle ?? '');
   const [environment, setEnvironment] = useState(garden.environment);
@@ -115,9 +115,9 @@ export function GardenManagementDialog({ garden, action, onClose, onGardenDelete
               <Text style={styles.text}>Cancelar</Text>
             </Pressable>
             {deleteFromEdit && !deleting ? (
-              <Pressable accessibilityRole="button" accessibilityLabel="Excluir jardim e suas plantas" disabled={busy}
+              <Pressable accessibilityRole="button" accessibilityLabel={plant ? `Excluir ${plant.name}` : 'Excluir jardim e suas plantas'} disabled={busy}
                 onPress={() => { setError(null); setMode('delete'); }} style={styles.deleteLink}>
-                <Text style={styles.deleteText}>Excluir jardim</Text>
+                <Text style={styles.deleteText}>{plant ? 'Excluir planta' : 'Excluir jardim'}</Text>
               </Pressable>
             ) : null}
           </ScrollView>

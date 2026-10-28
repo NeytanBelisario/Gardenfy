@@ -87,7 +87,6 @@ export default function PlantDetailsScreen() {
           {plant.history.length ? sortPlantHistory(plant.history).map((entry) => <HistoryItem key={entry.id} entry={entry} disabled={busy} onManage={(next) => { if (!busyRef.current) { setNotice(null); setAction(next); } }} />) : <View style={styles.historyCard}><Text style={styles.label}>Cada cuidado conta</Text><Text style={styles.text}>Registre sua primeira rega ou adubação. Os próximos cuidados aparecem aqui.</Text></View>}
           <View style={styles.actions}>
             <Pressable accessibilityRole="button" disabled={busy} onPress={() => setManagement({ mode: 'edit', plant })} style={styles.secondary}><Ionicons name="create-outline" size={20} color="#476644" /><Text style={styles.label}>Editar planta</Text></Pressable>
-            <Pressable accessibilityRole="button" disabled={busy} onPress={() => setManagement({ mode: 'delete', plant })} style={styles.secondary}><Text style={styles.errorText}>Excluir planta</Text></Pressable>
           </View>
         </> : <View style={styles.historyCard}><Text style={styles.heading}>Planta não encontrada</Text><Text style={styles.text}>Volte ao jardim para continuar com suas plantas.</Text><Pressable accessibilityRole="button" onPress={back} style={styles.secondary}><Text style={styles.label}>Voltar ao jardim</Text></Pressable></View>}
       </ScrollView>
