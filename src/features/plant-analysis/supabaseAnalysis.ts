@@ -1,5 +1,5 @@
 import { PlantAnalysisError, type AnalysisErrorCode } from './analysisErrors';
-import type { AnalysisTransport } from './analysisService';
+import type { AnalysisPhoto } from './analysisService';
 
 export type AnalysisEndpointConfig = {
   url?: string;
@@ -17,7 +17,7 @@ const serverErrorCodes = new Set<AnalysisErrorCode>([
   'not-found',
 ]);
 
-function getEndpoint(config: AnalysisEndpointConfig, functionName: 'analyze-plant' | 'identify-plant') {
+function getEndpoint(config: AnalysisEndpointConfig, functionName: 'identify-plant') {
   const url = config.url?.trim().replace(/\/+$/, '');
   const publishableKey = config.publishableKey?.trim();
   if (!url || !publishableKey) throw new PlantAnalysisError('configuration');
@@ -32,11 +32,11 @@ function getEndpoint(config: AnalysisEndpointConfig, functionName: 'analyze-plan
 
 export function createSupabasePhotoTransport<T>(
   config: AnalysisEndpointConfig,
-  functionName: 'analyze-plant' | 'identify-plant',
+  functionName: 'identify-plant',
   parse: (payload: unknown) => T,
   request: FetchLike = fetch,
 ) {
-  return async (photo: Parameters<AnalysisTransport>[0], signal: AbortSignal) => {
+  return async (photo: AnalysisPhoto, signal: AbortSignal) => {
     const { endpoint, publishableKey } = getEndpoint(config, functionName);
     const response = await request(endpoint, {
       method: 'POST',
@@ -47,7 +47,7 @@ export function createSupabasePhotoTransport<T>(
       body: JSON.stringify({ base64: photo.base64, mimeType: photo.mimeType }),
       signal,
     });
-    const payload = await response.json().catch(() => null) as { text?: unknown; error?: unknown } | null;
+    const payload = await response.json().catch(() => null) as { error?: unknown } | null;
     if (!response.ok) {
       if (typeof payload?.error === 'string' && serverErrorCodes.has(payload.error as AnalysisErrorCode)) {
         throw new PlantAnalysisError(payload.error as AnalysisErrorCode);
@@ -56,12 +56,4 @@ export function createSupabasePhotoTransport<T>(
     }
     return parse(payload);
   };
-}
-
-export function createSupabaseAnalysisTransport(config: AnalysisEndpointConfig, request: FetchLike = fetch): AnalysisTransport {
-  return createSupabasePhotoTransport(config, 'analyze-plant', (payload) => {
-    const text = (payload as { text?: unknown } | null)?.text;
-    if (typeof text !== 'string' || !text.trim()) throw new PlantAnalysisError('invalid-response');
-    return text;
-  }, request);
 }
