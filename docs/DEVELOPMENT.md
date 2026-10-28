@@ -125,7 +125,18 @@ npm.cmd run android -- --device --no-bundler
 
 Consulte [TESTING.md](TESTING.md) para os checks, roteiro manual e limites do que foi validado.
 
-### Gerar APK autônomo para avaliação
+### Gerar o APK de distribuição (EAS Build)
+
+A partir da 1.0.0, o APK distribuído é gerado na nuvem pelo EAS Build, com o perfil `production` de `eas.json` e a chave de assinatura guardada pela Expo. Não é necessário SDK/JDK local.
+
+```powershell
+npx eas-cli@latest login
+npx eas-cli@latest build --platform android --profile production
+```
+
+`EXPO_PUBLIC_SUPABASE_URL` e `EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY` ficam nas variáveis do ambiente `production` do projeto EAS, porque `.env` não é enviado ao build. Pacote `br.com.gardenfy.app`; incremente `android.versionCode` em `app.json` a cada nova versão. Não troque as credenciais de assinatura no painel: um APK assinado com outra chave não atualiza o app instalado.
+
+### Gerar APK local para avaliação
 
 Com SDK/JDK preparados, gere o projeto nativo e compile a variante release:
 
@@ -136,7 +147,7 @@ Set-Location android
 Set-Location ..
 ```
 
-O APK fica em `android/app/build/outputs/apk/release/app-release.apk`, ignorado pelo Git, com JavaScript embarcado e sem Metro. A configuração gerada usa assinatura debug para avaliação; assinatura própria de distribuição e testes no aparelho continuam necessários antes de publicar. O identificador Android existente foi preservado para manter compatibilidade de atualização.
+O APK fica em `android/app/build/outputs/apk/release/app-release.apk`, ignorado pelo Git, com JavaScript embarcado e sem Metro. A configuração gerada usa assinatura debug: serve apenas para testes locais e não atualiza o APK distribuído, assinado pelo EAS.
 
 Ao remover um plugin nativo, prebuild incremental pode conservar alterações antigas. Preserve a pasta nativa em um backup antes de regenerar a partir de uma pasta nova; não apague customizações. Nesta sessão, a pasta antiga foi movida para `%LOCALAPPDATA%/Gardenfy/native-backups` antes da geração sem Viro. Uma geração limpa deve ser usada no ambiente de avaliação.
 
