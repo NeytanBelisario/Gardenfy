@@ -18,7 +18,9 @@ export function GardenManagementDialog({ garden, action, onClose, onGardenDelete
   onPlantDeleted?: () => void;
 }) {
   const plant = action.plant;
-  const deleting = action.mode === 'delete';
+  const [mode, setMode] = useState(action.mode);
+  const deleting = mode === 'delete';
+  const deleteFromEdit = action.mode === 'edit' && !plant;
   const [name, setName] = useState(plant?.name ?? garden.name);
   const [subtitle, setSubtitle] = useState(plant?.subtitle ?? '');
   const [environment, setEnvironment] = useState(garden.environment);
@@ -29,6 +31,13 @@ export function GardenManagementDialog({ garden, action, onClose, onGardenDelete
   const title = `${deleting ? 'Excluir' : 'Editar'} ${plant ? 'planta' : 'jardim'}`;
 
   const dismiss = () => { if (!busyRef.current) onClose(); };
+  const cancel = () => {
+    if (busyRef.current) return;
+    if (deleting && deleteFromEdit) {
+      setError(null);
+      setMode('edit');
+    } else onClose();
+  };
   const save = async () => {
     if (busyRef.current) return;
     busyRef.current = true;
@@ -102,9 +111,15 @@ export function GardenManagementDialog({ garden, action, onClose, onGardenDelete
             <Pressable accessibilityRole="button" accessibilityLabel={deleting ? 'Confirmar exclusão' : 'Salvar alterações'} disabled={busy} accessibilityState={{ disabled: busy, busy }} onPress={save} style={[styles.primary, deleting && styles.destructive, busy && styles.disabled]}>
               <Text style={styles.primaryText}>{busy ? (deleting ? 'Excluindo...' : 'Salvando...') : deleting ? 'Confirmar exclusão' : 'Salvar alterações'}</Text>
             </Pressable>
-            <Pressable accessibilityRole="button" disabled={busy} onPress={dismiss} style={styles.choice}>
+            <Pressable accessibilityRole="button" disabled={busy} onPress={cancel} style={styles.choice}>
               <Text style={styles.text}>Cancelar</Text>
             </Pressable>
+            {deleteFromEdit && !deleting ? (
+              <Pressable accessibilityRole="button" accessibilityLabel="Excluir jardim e suas plantas" disabled={busy}
+                onPress={() => { setError(null); setMode('delete'); }} style={styles.deleteLink}>
+                <Text style={styles.deleteText}>Excluir jardim</Text>
+              </Pressable>
+            ) : null}
           </ScrollView>
         </View>
       </KeyboardAvoidingView>
@@ -126,6 +141,8 @@ const styles = StyleSheet.create({
   primary: { padding: 16, borderRadius: 12, alignItems: 'center', backgroundColor: '#17361d' },
   destructive: { backgroundColor: '#93000a' },
   primaryText: { color: '#ffffff', fontWeight: '700', fontSize: 16 },
+  deleteLink: { minHeight: 48, alignSelf: 'center', justifyContent: 'center', padding: 12 },
+  deleteText: { color: '#93000a', fontSize: 14, fontWeight: '700' },
   error: { color: '#93000a' },
   disabled: { opacity: 0.6 },
 });
