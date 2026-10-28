@@ -50,7 +50,7 @@ Cliente espera até 30 segundos; servidor até 25. Cancelar/sair da tela aborta 
 
 ## Compatibilidade com o trabalho anterior
 
-O endpoint Gemini `analyze-plant`, a tela de análise e o parser legado foram removidos do código na 1.0.0-beta.2; utilitários comuns do servidor ficam em `supabase/functions/_shared/core.ts`. A função já implantada e o secret `GEMINI_API_KEY` devem ser removidos manualmente no painel do Supabase (Edge Functions → `analyze-plant` → Delete; Secrets → `GEMINI_API_KEY`/`GEMINI_MODEL`). Análises antigas salvas no aparelho não são reescritas. O histórico exibe esses registros como estimativas antigas do Gemini, sem tratá-los como medidas atuais. AR e doenças ficam para versões futuras.
+O endpoint Gemini `analyze-plant`, a tela de análise e o parser legado foram removidos do código na 1.0.0; utilitários comuns do servidor ficam em `supabase/functions/_shared/core.ts`. A função já implantada e o secret `GEMINI_API_KEY` devem ser removidos manualmente no painel do Supabase (Edge Functions → `analyze-plant` → Delete; Secrets → `GEMINI_API_KEY`/`GEMINI_MODEL`). Análises antigas salvas no aparelho não são reescritas. O histórico exibe esses registros como estimativas antigas do Gemini, sem tratá-los como medidas atuais. AR e doenças ficam para versões futuras.
 
 ## Validação
 
