@@ -136,6 +136,18 @@ npx eas-cli@latest build --platform android --profile production
 
 `EXPO_PUBLIC_SUPABASE_URL` e `EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY` ficam nas variáveis do ambiente `production` do projeto EAS, porque `.env` não é enviado ao build. Pacote `br.com.gardenfy.app`; incremente `android.versionCode` em `app.json` a cada nova versão. Não troque as credenciais de assinatura no painel: um APK assinado com outra chave não atualiza o app instalado.
 
+### Hotfix sem novo APK (EAS Update)
+
+APKs gerados com `expo-updates` (a partir da 1.0.0) recebem atualizações de JavaScript e assets pelo canal `production`. Ao abrir, o app usa o código que já tem e consulta os servidores da Expo; uma atualização encontrada é baixada em segundo plano e aplicada na abertura seguinte. Nenhum dado de jardins ou plantas é enviado nessa consulta.
+
+```powershell
+npx eas-cli@latest update --channel production --environment production --message "fix: descrição"
+```
+
+- Serve para telas, textos, regras e chamadas ao Supabase. Correções da função `identify-plant` são publicadas no Supabase, sem update do app.
+- Mudança nativa (dependência nativa, permissão, ícone, splash, plugin ou outras chaves de `app.json`) exige novo build. O `runtimeVersion` segue a política `appVersion`: suba `version` e `android.versionCode` antes desse build, para que updates antigos não cheguem ao APK novo e vice-versa.
+- Valide o hotfix localmente antes de publicar: o update chega a todos os aparelhos do canal. Para desfazer, use `npx eas-cli@latest update:rollback`.
+
 ### Gerar APK local para avaliação
 
 Com SDK/JDK preparados, gere o projeto nativo e compile a variante release:
