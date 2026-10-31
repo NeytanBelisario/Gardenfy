@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   Animated,
   Easing,
+  Image,
   Modal,
   PanResponder,
   Pressable,
@@ -23,7 +24,7 @@ const COLORS = {
   textMuted: '#6b7469',
   white: '#ffffff',
   overlay: 'rgba(8, 18, 10, 0.22)',
-  tertiarySoft: '#ffcfab',
+  brandCream: '#fdf9f3',
 } as const;
 
 type AppHeaderProps = {
@@ -239,7 +240,7 @@ export function AppHeader({
           >
             <View style={styles.drawerProfileCard}>
               <View style={styles.drawerAvatar}>
-                <Ionicons name="leaf-outline" size={26} color={COLORS.primary} />
+                <Image source={require('../../../assets/brand/gardenfy-mark.png')} style={styles.drawerMark} resizeMode="contain" accessibilityIgnoresInvertColors />
               </View>
               <View style={styles.drawerCopy}>
                 <Text style={styles.drawerName}>Seu espaço verde</Text>
@@ -345,9 +346,13 @@ const styles = StyleSheet.create({
     width: 54,
     height: 54,
     borderRadius: 27,
-    backgroundColor: COLORS.tertiarySoft,
+    backgroundColor: COLORS.brandCream,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  drawerMark: {
+    width: 34,
+    height: 34,
   },
   drawerCopy: {
     flex: 1,

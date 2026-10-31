@@ -1,3 +1,5 @@
+<p align="center"><img src="assets/brand/gardenfy-logo.png" alt="Logo do Gardenfy" width="220"></p>
+
 # 🌱 Gardenfy
 
 Um pouco de verde, todos os dias. Organize seus jardins, conheça suas plantas e acompanhe cada rega e adubação.
