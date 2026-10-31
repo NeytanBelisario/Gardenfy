@@ -2,6 +2,15 @@
 
 Atualize este arquivo ao encerrar sessões que mudem o estado do projeto. Não armazene credenciais ou configurações privadas.
 
+## Sessão de 31/10/2026 — logo antes da 1.0.0 estável
+
+- **Base/branch:** `feat/brand-logo`, criada de `develop` atualizado (`8cfe61a`, após #19). Issue #20 (validação do APK 1.0.0) segue aberta, sem itens marcados.
+- **Achado:** o APK 1.0.0 do EAS (`adc09f2`) ainda usa os ícones do template Expo (ícone azul, foreground/monocromático/favicon e splash padrão).
+- **Entrega:** logo original em `assets/brand`, símbolo recortado com transparência e ícones iOS/Android adaptativo/monocromático, splash e favicon gerados a partir dele. Fundo do ícone adaptativo e da splash em `#FDF9F3`. Símbolo no menu lateral e logo no README. Detalhes em [assets/brand/README.md](../assets/brand/README.md).
+- **Checks:** `npm run check` (typecheck, lint, 93 testes), `npx expo config` com cores novas, `git diff --check`. App conferido via Expo web local; nenhum APK gerado nem teste Android desta branch.
+- **Pendências:** abrir PR para `develop` (`gh` indisponível nesta máquina). Após integrar, gerar novo build de produção EAS, atualizar tamanho/SHA-256 em [releases/1.0.0.md](releases/1.0.0.md) e o link do APK na issue #20, e refazer a validação. Imagens antigas do template (`expo-*`, `react-logo*`, `logo-glow`, `tutorial-web`, `tabIcons`) não são referenciadas e podem ser removidas numa limpeza separada.
+- **Próximo passo:** revisar os ícones no PR e integrar; seguir com o build e a validação da 1.0.0.
+
 ## Sessão de 28/10/2026 — ajustes da beta e preparação da 1.0.0-beta.2
 
 - **Base/branch:** `release/1.0.0-beta.2`, criada de `origin/develop` (`2fd5625`), código idêntico ao APK da beta.1 mais documentação. Usuário informou ter concluído os passos da issue #15; registrar aparelho, versão Android e evidências na issue.
