@@ -8,6 +8,12 @@
     "scheme": "gardenfy",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/a1828d9f-9169-478e-b312-960dd016e205"
+    },
     "ios": {
       "icon": "./assets/images/icon.png",
       "infoPlist": {
