@@ -1,6 +1,6 @@
 # Gardenfy 1.0 — preparação da primeira versão estável
 
-Escopo aprovado em 04/10/2026. A preparação `feat/release-v1`, baseada em `develop` (`80d0750`), foi integrada pelo PR #14 (`2d99498`). A distribuição de avaliação é a [1.0.0-beta.1](releases/1.0.0-beta.1.md), com tag no código do APK (`1a9190e`). Este documento define o aceite da versão estável, ainda não lançada.
+Escopo aprovado em 04/10/2026. A preparação `feat/release-v1`, baseada em `develop` (`80d0750`), foi integrada pelo PR #14 (`2d99498`). A distribuição de avaliação é a [1.0.0-beta.1](releases/1.0.0-beta.1.md), com tag no código do APK (`1a9190e`). Este documento define o aceite da versão estável, [lançada como 1.0.0](releases/1.0.0.md) em 02/11/2026 (tag `v1.0.0`, PR #23).
 
 ## Experiência principal
 

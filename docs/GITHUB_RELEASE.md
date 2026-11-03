@@ -2,6 +2,7 @@
 
 ## Estado atual
 
+- [Gardenfy 1.0.0](https://github.com/NeytanBelisario/Gardenfy/releases/tag/v1.0.0) publicada em 02/11/2026 como versão estável (Latest), com APK Android e arquivo SHA-256. Tag anotada `v1.0.0` em `f09aff5`, merge do PR #23 (`develop` → `main`); código do APK `26e1260`.
 - [Beta 1.0.0-beta.1](https://github.com/NeytanBelisario/Gardenfy/releases/tag/v1.0.0-beta.1) publicada como pre-release, com APK Android e arquivo SHA-256.
 - Tag anotada `v1.0.0-beta.1` no código do APK (`1a9190e`), da preparação integrada em `develop` pelo PR #14.
 - [Release antiga](https://github.com/NeytanBelisario/Gardenfy/releases/tag/app) identificada como histórica, com link para a beta. Seu APK e tag foram preservados.

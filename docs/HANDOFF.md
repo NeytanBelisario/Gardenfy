@@ -2,6 +2,15 @@
 
 Atualize este arquivo ao encerrar sessões que mudem o estado do projeto. Não armazene credenciais ou configurações privadas.
 
+## Sessão de 02/11/2026 — lançamento da 1.0.0
+
+- **Validação:** usuário instalou o APK final (`26e1260`, build EAS `ac0491f2`) e percorreu a jornada no celular sem problemas encontrados. OTA e notas integrados em `develop` pelo PR #22 (`cc50ff1`).
+- **Promoção:** [PR #23](https://github.com/NeytanBelisario/Gardenfy/pull/23) `develop` → `main`, checks verdes, integrado por instrução do usuário em `f09aff5`. Fora de `docs/` e README, o código é idêntico a `26e1260`.
+- **Release:** [v1.0.0](https://github.com/NeytanBelisario/Gardenfy/releases/tag/v1.0.0), tag anotada em `f09aff5`, marcada como Latest. Anexos `Gardenfy-1.0.0-android.apk` (95.322.981 bytes, digest GitHub igual ao SHA-256 local `0c94d6aa…3190`) e `.sha256`; downloads públicos com HTTP 200.
+- **Ferramentas:** GitHub CLI 2.103.3 instalado via winget e autenticado como `yDiony` (escrita, sem administração).
+- **Pendências:** comentar a validação e fechar a issue #20 (ação bloqueada pelo controle de permissões nesta sessão). Esta atualização de documentação segue em `docs/release-1.0.0-published` para `develop`; a `main` recebe na próxima promoção.
+- **Próximo passo:** hotfixes de JavaScript por `eas update --channel production` ([DEVELOPMENT.md](DEVELOPMENT.md#hotfix-sem-novo-apk-eas-update)); Fase 1.1 conforme roadmap, com diferenciação da aba Foto (identificar sem exigir jardim) como candidata.
+
 ## Sessão de 02/11/2026 — APK final da 1.0.0
 
 - **Estado:** PR #21 integrado em `develop` (`6689a68`) só até `81f3ace` (logo). Os commits de OTA e documentação (`045d64f`, `26e1260`, `d484a5f`) e as notas desta sessão continuam em `feat/brand-logo`, aguardando novo PR para `develop`.
