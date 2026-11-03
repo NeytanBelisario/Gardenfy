@@ -2,6 +2,14 @@
 
 Atualize este arquivo ao encerrar sessões que mudem o estado do projeto. Não armazene credenciais ou configurações privadas.
 
+## Sessão de 02/11/2026 — APK final da 1.0.0
+
+- **Estado:** PR #21 integrado em `develop` (`6689a68`) só até `81f3ace` (logo). Os commits de OTA e documentação (`045d64f`, `26e1260`, `d484a5f`) e as notas desta sessão continuam em `feat/brand-logo`, aguardando novo PR para `develop`.
+- **Build:** [EAS `ac0491f2`](https://expo.dev/accounts/ydiony/projects/Gardenfy/builds/ac0491f2-339f-440c-b3c4-13c60c999187) concluído com o código `26e1260`. APK com 95.322.981 bytes, SHA-256 `0c94d6aa78f096f0da63eb27299036ffa1343cd9d805f4cab8c1cc6fbc193190`; cópia local em `%LOCALAPPDATA%/Gardenfy/builds/Gardenfy-1.0.0-android.apk`. Link do artefato EAS expira em cerca de 30 dias.
+- **Inspeção do APK:** logo nos ícones/splash; `expo-updates` com `assets/app.manifest`, URL `u.expo.dev`, canal `production` e runtime `1.0.0`. Comparado ao APK `adc09f2`, +4,76 MB: cerca de 4 MB do `expo-updates` (dex, metadados e libs nativas) e 0,7 MB de imagens; bundle JS igual. Não houve instalação no celular nesta sessão.
+- **Documentação:** [releases/1.0.0.md](releases/1.0.0.md) com tamanho, SHA-256, build, logo, OTA e aviso da consulta de updates.
+- **Próximo passo:** abrir PR `feat/brand-logo` → `develop`, atualizar o link do APK na issue #20 e validar no celular. Depois, PR `develop` → `main` e release `v1.0.0` com APK e `.sha256`, somente com instrução específica.
+
 ## Sessão de 31/10/2026 — logo antes da 1.0.0 estável
 
 - **Base/branch:** `feat/brand-logo`, criada de `develop` atualizado (`8cfe61a`, após #19). Issue #20 (validação do APK 1.0.0) segue aberta, sem itens marcados.
