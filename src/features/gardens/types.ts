@@ -1,11 +1,12 @@
-import type { GardenIconName } from './icons';
+import type { GardenIconName } from './iconNames';
+import type { PlantSpecies } from '../plant-identification/types';
 
 export type GardenMetricKind = 'light' | 'water';
 
 export type GardenMetric = {
   kind: GardenMetricKind;
   label: string;
-  value: number;
+  value: number | null;
 };
 
 export type PlantHealthTone = 'vital' | 'stable' | 'dry';
@@ -16,6 +17,7 @@ export type GardenPlant = {
   subtitle: string;
   imageUrl: string;
   identifiedName?: string;
+  species?: PlantSpecies;
   vitality?: number;
   growthDays?: number;
   lastAnalyzedPhotoUri?: string;
@@ -25,6 +27,7 @@ export type GardenPlant = {
     tone: PlantHealthTone;
   };
   metrics: GardenMetric[];
+  history: PlantHistoryEntry[];
 };
 
 export type PlantAnalysisResult = {
@@ -36,6 +39,38 @@ export type PlantAnalysisResult = {
   growthDays: number;
 };
 
+export type PlantCareType = 'water' | 'fertilize';
+
+export type PlantCareRecord = {
+  id: string;
+  kind: 'care';
+  careType: PlantCareType;
+  occurredAt: string;
+};
+
+export type PlantAnalysisRecord = {
+  id: string;
+  kind: 'analysis';
+  occurredAt: string;
+  snapshot: {
+    plantName: string;
+    health: string;
+    vitality?: number;
+    growthDays?: number;
+    metrics: GardenMetric[];
+  };
+};
+
+export type PlantIdentificationRecord = {
+  id: string;
+  kind: 'identification';
+  occurredAt: string;
+  species: PlantSpecies;
+};
+
+export type PlantHistoryEntry = PlantCareRecord | PlantAnalysisRecord | PlantIdentificationRecord;
+export type PlantCareDraft = Pick<PlantCareRecord, 'careType' | 'occurredAt'>;
+
 export type PlantCatalogCategory =
   | 'all'
   | 'ferns'
@@ -46,6 +81,7 @@ export type PlantCatalogCategory =
 
 export type PlantCatalogItem = {
   id: string;
+  scientificName?: string;
   name: string;
   subtitle: string;
   categoryLabel: string;
@@ -69,7 +105,7 @@ export type GardenSummary = {
   name: string;
   label: string;
   plantCount: number;
-  vitality: number;
+  vitality: number | null;
   imageUrl: string;
   icon: GardenIcon;
   environment: GardenEnvironment;
@@ -78,7 +114,7 @@ export type GardenSummary = {
 };
 
 export type GardenDetails = GardenSummary & {
-  averageHydration: number;
+  averageHydration: number | null;
   plants: GardenPlant[];
 };
 

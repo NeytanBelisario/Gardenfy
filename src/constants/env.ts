@@ -1,11 +1,4 @@
-const geminiApiKey = process.env.EXPO_PUBLIC_GEMINI_API_KEY;
-
-if (!geminiApiKey) {
-  console.warn(
-    'EXPO_PUBLIC_GEMINI_API_KEY nao definida. Configure o arquivo .env para habilitar a analise com Gemini.'
-  );
-}
-
 export const ENV = {
-  geminiApiKey,
+  supabaseUrl: process.env.EXPO_PUBLIC_SUPABASE_URL,
+  supabasePublishableKey: process.env.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY,
 } as const;

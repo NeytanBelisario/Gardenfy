@@ -5,18 +5,14 @@ import {
   MaterialIcons,
 } from '@expo/vector-icons';
 
-export const gardenIconOptions = [
-  'potted-plant',
-  'psychology',
-  'eco',
-  'wb-sunny',
-  'water-drop',
-  'energy-savings-leaf',
-  'spa',
-  'filter-vintage',
-] as const;
+import type { GardenIconName } from './iconNames';
 
-export type GardenIconName = (typeof gardenIconOptions)[number];
+export { gardenIconOptions, type GardenIconName } from './iconNames';
+
+export const gardenIconLabels: Record<GardenIconName, string> = {
+  'potted-plant': 'Broto', psychology: 'Natureza', eco: 'Folha', 'wb-sunny': 'Sol',
+  'water-drop': 'Gota de água', 'energy-savings-leaf': 'Folha delicada', spa: 'Flor', 'filter-vintage': 'Flor ornamental',
+};
 
 export function GardenIdentityIcon({
   icon,

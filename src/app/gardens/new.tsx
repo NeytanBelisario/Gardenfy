@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import {
   Image,
+  KeyboardAvoidingView,
+  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -9,16 +11,19 @@ import {
   View,
 } from 'react-native';
 import { useRouter } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   Ionicons,
 } from '@expo/vector-icons';
+import { AppHeader } from '../../components/shell/AppHeader';
 
 import { CreateGardenDraft, GardenEnvironment } from '../../features/gardens/types';
-import { createMockGarden } from '../../features/gardens/store';
+import { createGarden } from '../../features/gardens/store';
 import {
   GardenIconName,
   GardenIdentityIcon,
   gardenIconOptions,
+  gardenIconLabels,
 } from '../../features/gardens/icons';
 
 const COLORS = {
@@ -46,6 +51,10 @@ function IdentityIcon({
 
 export default function NewGardenScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
+  const savingRef = useRef(false);
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
   const [draft, setDraft] = useState<CreateGardenDraft>({
     name: '',
     environment: 'indoor',
@@ -60,23 +69,38 @@ export default function NewGardenScreen() {
     setDraft((current) => ({ ...current, icon }));
   };
 
-  const handleCreateGarden = () => {
-    const nextGarden = createMockGarden({
-      ...draft,
-      imageUrl: '',
-    });
+  const handleBack = () => {
+    if (savingRef.current) return;
+    if (router.canGoBack()) router.back();
+    else router.replace('/');
+  };
 
-    router.replace({
-      pathname: '/gardens/[id]/plants/add',
-      params: { id: nextGarden.id },
-    });
+  const handleCreateGarden = async () => {
+    if (savingRef.current) return;
+    savingRef.current = true;
+    setSaving(true);
+    setSaveError(null);
+    try {
+      const nextGarden = await createGarden({ ...draft, imageUrl: '' });
+      router.replace({
+        pathname: '/gardens/[id]/plants/add',
+        params: { id: nextGarden.id },
+      });
+    } catch (error) {
+      setSaveError(error instanceof Error ? error.message : 'Não foi possível salvar o jardim.');
+    } finally {
+      savingRef.current = false;
+      setSaving(false);
+    }
   };
 
   return (
-    <View style={styles.screen}>
+    <KeyboardAvoidingView style={styles.screen} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+      <AppHeader title="Criar jardim" mode="back" onPressLeading={handleBack} />
       <ScrollView
+        keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={[styles.scrollContent, { paddingBottom: 32 + insets.bottom }]}
       >
         <View style={styles.hero}>
           <Image
@@ -87,26 +111,33 @@ export default function NewGardenScreen() {
           />
           <View style={styles.heroOverlay} />
           <View style={styles.heroCopy}>
-            <Text style={styles.heroStep}>Step 1 of 2</Text>
-            <Text style={styles.heroTitle}>Curate Your Space</Text>
+            <Text style={styles.heroStep}>SEU NOVO COMEÇO</Text>
+            <Text style={styles.heroTitle}>Dê um lugar ao seu verde.</Text>
           </View>
         </View>
 
         <View style={styles.formSection}>
-          <Text style={styles.sectionLabel}>Garden Name</Text>
+          <Text style={styles.sectionLabel}>Nome do jardim</Text>
           <TextInput
-            placeholder="e.g., The Sun-Drenched Balcony"
+            placeholder="Ex.: Varanda ensolarada"
+            accessibilityLabel="Nome do jardim"
+            editable={!saving}
             placeholderTextColor={COLORS.textMuted}
             value={draft.name}
-            onChangeText={(name) => setDraft((current) => ({ ...current, name }))}
+            maxLength={120}
+            returnKeyType="done"
+            onChangeText={(name) => { setDraft((current) => ({ ...current, name })); setSaveError(null); }}
             style={styles.input}
           />
         </View>
 
         <View style={styles.formSection}>
-          <Text style={styles.sectionLabel}>Environment</Text>
+          <Text style={styles.sectionLabel}>Ambiente</Text>
           <View style={styles.segmentedControl}>
             <Pressable
+              accessibilityRole="button"
+              accessibilityState={{ selected: draft.environment === 'indoor', disabled: saving }}
+              disabled={saving}
               style={[
                 styles.segmentButton,
                 draft.environment === 'indoor' && styles.segmentButtonActive,
@@ -124,11 +155,14 @@ export default function NewGardenScreen() {
                   draft.environment === 'indoor' && styles.segmentTextActive,
                 ]}
               >
-                Indoor
+                Interno
               </Text>
             </Pressable>
 
             <Pressable
+              accessibilityRole="button"
+              accessibilityState={{ selected: draft.environment === 'outdoor', disabled: saving }}
+              disabled={saving}
               style={[
                 styles.segmentButton,
                 draft.environment === 'outdoor' && styles.segmentButtonActive,
@@ -146,7 +180,7 @@ export default function NewGardenScreen() {
                   draft.environment === 'outdoor' && styles.segmentTextActive,
                 ]}
               >
-                Outdoor
+                Externo
               </Text>
             </Pressable>
           </View>
@@ -154,8 +188,8 @@ export default function NewGardenScreen() {
 
         <View style={styles.formSection}>
           <View style={styles.iconSectionHeader}>
-            <Text style={styles.sectionLabel}>Identity Icon</Text>
-            <Text style={styles.iconCount}>24 styles</Text>
+            <Text style={styles.sectionLabel}>Ícone do jardim</Text>
+            <Text style={styles.iconCount}>{gardenIconOptions.length} opções</Text>
           </View>
 
           <View style={styles.iconGrid}>
@@ -165,6 +199,10 @@ export default function NewGardenScreen() {
               return (
                 <Pressable
                   key={icon}
+                  accessibilityRole="button"
+                  accessibilityLabel={gardenIconLabels[icon]}
+                  accessibilityState={{ selected: isActive, disabled: saving }}
+                  disabled={saving}
                   style={[styles.iconButton, isActive && styles.iconButtonActive]}
                   onPress={() => setIcon(icon)}
                 >
@@ -178,16 +216,17 @@ export default function NewGardenScreen() {
         </View>
 
         <View style={styles.actions}>
-          <Pressable style={styles.primaryButton} onPress={handleCreateGarden}>
-            <Text style={styles.primaryButtonText}>Create Garden</Text>
+          {saveError ? <Text accessibilityRole="alert" style={{ color: '#ba1a1a' }}>{saveError}</Text> : null}
+          <Pressable accessibilityRole="button" accessibilityLabel="Criar jardim" accessibilityState={{ disabled: saving, busy: saving }} style={[styles.primaryButton, saving && { opacity: 0.6 }]} onPress={handleCreateGarden} disabled={saving}>
+            <Text style={styles.primaryButtonText}>{saving ? 'Salvando...' : 'Criar jardim'}</Text>
           </Pressable>
 
-          <Pressable style={styles.secondaryButton} onPress={() => router.back()}>
-            <Text style={styles.secondaryButtonText}>Discard Draft</Text>
+          <Pressable accessibilityRole="button" accessibilityState={{ disabled: saving }} style={styles.secondaryButton} onPress={handleBack} disabled={saving}>
+            <Text style={styles.secondaryButtonText}>Cancelar</Text>
           </Pressable>
         </View>
       </ScrollView>
-    </View>
+    </KeyboardAvoidingView>
   );
 }
 
@@ -197,14 +236,18 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.background,
   },
   scrollContent: {
+    width: '100%',
+    maxWidth: 720,
+    alignSelf: 'center',
     paddingHorizontal: 24,
     paddingTop: 12,
     paddingBottom: 40,
-    gap: 30,
+    gap: 20,
   },
   hero: {
-    height: 330,
-    borderRadius: 40,
+    minHeight: 148,
+    borderRadius: 28,
+    backgroundColor: COLORS.primary,
     overflow: 'hidden',
     position: 'relative',
     shadowColor: '#17361d',
@@ -214,6 +257,7 @@ const styles = StyleSheet.create({
     elevation: 8,
   },
   heroImage: {
+    ...StyleSheet.absoluteFillObject,
     width: '100%',
     height: '100%',
   },
@@ -222,10 +266,9 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(23, 54, 29, 0.32)',
   },
   heroCopy: {
-    position: 'absolute',
-    left: 28,
-    right: 28,
-    bottom: 28,
+    minHeight: 148,
+    justifyContent: 'flex-end',
+    padding: 20,
     gap: 8,
   },
   heroStep: {
@@ -233,12 +276,12 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '800',
     textTransform: 'uppercase',
-    letterSpacing: 3,
+    letterSpacing: 1.5,
   },
   heroTitle: {
     color: COLORS.white,
-    fontSize: 30,
-    lineHeight: 36,
+    fontSize: 26,
+    lineHeight: 32,
     fontWeight: '900',
   },
   formSection: {
@@ -252,14 +295,16 @@ const styles = StyleSheet.create({
   input: {
     backgroundColor: COLORS.surfaceLow,
     borderRadius: 24,
-    paddingHorizontal: 24,
-    paddingVertical: 22,
+    minHeight: 56,
+    paddingHorizontal: 16,
+    paddingVertical: 16,
     color: COLORS.primary,
     fontSize: 18,
     fontWeight: '500',
   },
   segmentedControl: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     padding: 6,
     borderRadius: 999,
     backgroundColor: COLORS.surfaceLow,
@@ -267,6 +312,7 @@ const styles = StyleSheet.create({
   },
   segmentButton: {
     flex: 1,
+    minWidth: 110,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
@@ -287,11 +333,13 @@ const styles = StyleSheet.create({
   },
   iconSectionHeader: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
     alignItems: 'center',
     justifyContent: 'space-between',
   },
   iconCount: {
-    color: '#97a592',
+    color: COLORS.secondary,
     fontSize: 12,
     fontWeight: '800',
     textTransform: 'uppercase',
@@ -301,12 +349,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
-    gap: 14,
+    gap: 12,
   },
   iconButton: {
-    width: '22%',
+    width: '21%',
     aspectRatio: 1,
-    minWidth: 70,
+    minWidth: 56,
     borderRadius: 24,
     backgroundColor: COLORS.surfaceHigh,
   },
@@ -341,6 +389,7 @@ const styles = StyleSheet.create({
     fontWeight: '900',
   },
   secondaryButton: {
+    minHeight: 44,
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: 10,

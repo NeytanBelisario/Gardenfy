@@ -6,30 +6,34 @@
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "gardenfy",
-    "userInterfaceStyle": "automatic",
+    "userInterfaceStyle": "light",
     "newArchEnabled": true,
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/a1828d9f-9169-478e-b312-960dd016e205"
+    },
     "ios": {
-      "icon": "./assets/expo.icon",
+      "icon": "./assets/images/icon.png",
       "infoPlist": {
-        "NSCameraUsageDescription": "A Gardenfy usa a camera para visualizar plantas em realidade aumentada.",
-        "NSPhotoLibraryUsageDescription": "Allow $(PRODUCT_NAME) to access your photos",
-        "NSPhotoLibraryAddUsageDescription": "Allow $(PRODUCT_NAME) to save photos",
-        "NSMicrophoneUsageDescription": "Allow $(PRODUCT_NAME) to use your microphone"
+        "NSCameraUsageDescription": "O Gardenfy usa a câmera para identificar suas plantas por foto.",
+        "NSPhotoLibraryUsageDescription": "O Gardenfy acessa a foto escolhida para identificar sua planta."
       }
     },
     "android": {
       "permissions": [
-        "CAMERA",
         "CAMERA"
       ],
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
+        "backgroundColor": "#FDF9F3",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false,
-      "package": "com.anonymous.Gardenfy"
+      "package": "br.com.gardenfy.app",
+      "versionCode": 1
     },
     "web": {
       "output": "static",
@@ -38,20 +42,37 @@
     "plugins": [
       "expo-router",
       [
-        "expo-splash-screen",
+        "expo-navigation-bar",
+        { "barStyle": "dark", "enforceContrast": false }
+      ],
+      [
+        "expo-image-picker",
         {
-          "backgroundColor": "#208AEF",
-          "android": {
-            "image": "./assets/images/splash-icon.png",
-            "imageWidth": 76
-          }
+          "photosPermission": "O Gardenfy acessa a foto escolhida para identificar sua planta.",
+          "cameraPermission": "O Gardenfy usa a câmera para identificar suas plantas por foto.",
+          "microphonePermission": false
         }
       ],
-      "@reactvision/react-viro"
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#FDF9F3",
+          "android": {
+            "image": "./assets/images/splash-icon.png",
+            "imageWidth": 200
+          }
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "a1828d9f-9169-478e-b312-960dd016e205"
+      }
+    },
+    "owner": "ydiony"
   }
 }
