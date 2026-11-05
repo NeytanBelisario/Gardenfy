@@ -1,6 +1,13 @@
 import { useSyncExternalStore } from 'react';
 
-export type SuccessToast = {
+export type ToastAction = { label: string; onPress: () => void };
+
+export type ToastOptions = {
+  action?: ToastAction;
+  tone?: 'success' | 'water' | 'error';
+};
+
+export type SuccessToast = ToastOptions & {
   id: number;
   title: string;
   message?: string;
@@ -24,8 +31,8 @@ function getSnapshot() {
   return state;
 }
 
-export function showSuccessToast(title: string, message?: string) {
-  state = { id: nextId++, title, message };
+export function showSuccessToast(title: string, message?: string, options: ToastOptions = {}) {
+  state = { id: nextId++, title, message, ...options };
   emitChange();
 }
 

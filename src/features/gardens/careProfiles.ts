@@ -1,4 +1,6 @@
-import type { GardenPlant } from './types';
+import type { GardenPlant, PlantLightSpot } from './types';
+
+export type LightFit = 'ideal' | 'ok' | 'poor';
 
 export type PlantCareProfile = {
   scientificName: string;
@@ -9,6 +11,10 @@ export type PlantCareProfile = {
   watering: string;
   soil: string;
   growth: string;
+  /** Reference watering interval in days for indoor conditions; a starting point, not a measurement. */
+  wateringDays: { min: number; max: number };
+  /** How well each spot suits the species, summarised from the light guidance above. */
+  lightFit: Record<PlantLightSpot, LightFit>;
   sourceUrl: string;
 };
 
@@ -22,6 +28,8 @@ export const plantCareProfiles: PlantCareProfile[] = [
     watering: 'Regue bem e deixe a parte superior do substrato secar antes de repetir. Confira o solo antes de regar.',
     soil: 'Substrato rico em matéria orgânica, com boa drenagem.',
     growth: 'Crescimento rápido em condições favoráveis; varia com o ambiente.',
+    wateringDays: { min: 7, max: 10 },
+    lightFit: { sun: 'poor', bright: 'ideal', shade: 'ok' },
     sourceUrl: 'https://plants.ces.ncsu.edu/plants/monstera-deliciosa/',
   },
   {
@@ -32,6 +40,8 @@ export const plantCareProfiles: PlantCareProfile[] = [
     watering: 'Mantenha umidade moderada, sem encharcar. Excesso de água pode prejudicar as raízes.',
     soil: 'Substrato com boa drenagem, que conserve alguma umidade.',
     growth: 'Crescimento rápido em condições favoráveis; costuma manter porte compacto.',
+    wateringDays: { min: 7, max: 10 },
+    lightFit: { sun: 'poor', bright: 'ideal', shade: 'poor' },
     sourceUrl: 'https://plants.ces.ncsu.edu/plants/pilea-peperomioides/',
   },
   {
@@ -42,6 +52,8 @@ export const plantCareProfiles: PlantCareProfile[] = [
     watering: 'Mantenha o substrato úmido, sem encharcar. Prefira água da chuva ou destilada quando possível.',
     soil: 'Substrato levemente ácido, com boa drenagem e retenção de umidade.',
     growth: 'Crescimento rápido com calor e umidade adequados, sem prazo fixo.',
+    wateringDays: { min: 4, max: 7 },
+    lightFit: { sun: 'poor', bright: 'ideal', shade: 'ok' },
     sourceUrl: 'https://plants.ces.ncsu.edu/plants/goeppertia-orbifolia/',
   },
   {
@@ -52,6 +64,8 @@ export const plantCareProfiles: PlantCareProfile[] = [
     watering: 'Deixe o substrato secar entre regas. Reduza a rega no frio e evite excesso de água.',
     soil: 'Substrato bem drenado, em vaso com saída para a água.',
     growth: 'O ritmo varia com luz e temperatura; não há prazo fixo para novas folhas.',
+    wateringDays: { min: 14, max: 21 },
+    lightFit: { sun: 'ok', bright: 'ideal', shade: 'ok' },
     sourceUrl: 'https://plants.ces.ncsu.edu/plants/dracaena-trifasciata/',
   },
 ];

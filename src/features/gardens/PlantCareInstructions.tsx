@@ -4,47 +4,69 @@ import { Ionicons } from '@expo/vector-icons';
 import { getPlantCareProfile } from './careProfiles';
 import type { GardenPlant } from './types';
 
+const careTopics = [
+  { key: 'light', icon: 'sunny-outline', title: 'Luz', tint: '#fdf3d7', color: '#9a6700' },
+  { key: 'watering', icon: 'water-outline', title: 'Rega', tint: '#e2eff6', color: '#2f6f8f' },
+  { key: 'soil', icon: 'layers-outline', title: 'Substrato', tint: '#f2e9df', color: '#7a5a3c' },
+  { key: 'growth', icon: 'trending-up-outline', title: 'Crescimento', tint: '#e6f0e1', color: '#476644' },
+] as const;
+
 export function PlantCareInstructions({ plant }: { plant: GardenPlant }) {
   const profile = getPlantCareProfile(plant);
   const [linkError, setLinkError] = useState<string>();
+  if (!profile) {
+    return (
+      <View style={styles.empty}>
+        <View style={[styles.icon, { backgroundColor: '#eef2e8' }]}><Ionicons name="book-outline" size={22} color="#476644" /></View>
+        <Text style={styles.label}>Ainda sem ficha para esta espécie</Text>
+        <Text style={styles.textCenter}>Você já pode registrar regas e adubações. Nenhuma orientação é criada automaticamente a partir da foto.</Text>
+      </View>
+    );
+  }
   return (
-    <View style={styles.card}>
-      <Text accessibilityRole="header" style={styles.heading}>Conheça sua planta</Text>
-      {profile ? <>
-        <Text style={styles.caption}>{profile.scientificName}</Text>
-        <Text style={styles.text}>{profile.description}</Text>
-        {([
-          ['sunny-outline', 'Luz recomendada', profile.light],
-          ['water-outline', 'Como regar', profile.watering],
-          ['leaf-outline', 'Substrato', profile.soil],
-          ['trending-up-outline', 'Crescimento', profile.growth],
-        ] as const).map(([icon, title, text]) => <View key={title} style={styles.row}>
-          <View style={styles.icon}><Ionicons name={icon} size={22} color="#476644" /></View>
-          <View style={styles.copy}><Text style={styles.label}>{title}</Text><Text style={styles.text}>{text}</Text></View>
-        </View>)}
-        <Text style={styles.caption}>Orientações gerais da espécie. Observe sua planta e o substrato para ajustar os cuidados ao ambiente.</Text>
-        <Pressable accessibilityRole="link" accessibilityLabel="Consultar fonte das orientações: NC State Extension" onPress={() => {
-          setLinkError(undefined);
-          void Linking.openURL(profile.sourceUrl).catch(() => setLinkError('Não foi possível abrir a fonte agora. Confira sua conexão.'));
-        }} style={styles.source}><Text style={styles.sourceText}>Fonte: NC State Extension ↗</Text></Pressable>
-        {linkError ? <Text accessibilityRole="alert" style={styles.caption}>{linkError}</Text> : null}
-      </> : <>
-        <Text style={styles.text}>Ainda não temos uma ficha de cuidados para esta espécie.</Text>
-        <Text style={styles.caption}>Você já pode registrar regas e adubações. Nenhuma orientação específica será criada automaticamente a partir da foto.</Text>
-      </>}
+    <View style={styles.container}>
+      <Text style={styles.lead}>{profile.description}</Text>
+      <View style={styles.list}>
+        {careTopics.map((topic, index) => (
+          <View key={topic.key} style={[styles.row, index > 0 && styles.divider]}>
+            <View style={[styles.icon, { backgroundColor: topic.tint }]}><Ionicons name={topic.icon} size={20} color={topic.color} /></View>
+            <View style={styles.copy}>
+              <Text style={styles.label}>{topic.title}</Text>
+              <Text style={styles.text}>{profile[topic.key]}</Text>
+            </View>
+          </View>
+        ))}
+      </View>
+      <View style={styles.note}>
+        <Ionicons name="information-circle-outline" size={18} color="#586653" />
+        <Text style={styles.noteText}>Orientações gerais da espécie. Observe sua planta e o substrato para ajustar ao seu ambiente.</Text>
+      </View>
+      <Pressable accessibilityRole="link" accessibilityLabel="Consultar fonte das orientações: NC State Extension" onPress={() => {
+        setLinkError(undefined);
+        void Linking.openURL(profile.sourceUrl).catch(() => setLinkError('Não foi possível abrir a fonte agora. Confira sua conexão.'));
+      }} style={styles.source}>
+        <Text style={styles.sourceText}>Fonte: NC State Extension</Text>
+        <Ionicons name="open-outline" size={16} color="#476644" />
+      </Pressable>
+      {linkError ? <Text accessibilityRole="alert" style={styles.noteText}>{linkError}</Text> : null}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  card: { padding: 20, backgroundColor: '#fff', borderRadius: 24, borderWidth: 1, borderColor: '#e7e9e0', gap: 14 },
-  heading: { fontSize: 22, fontWeight: '800', color: '#17361d' },
+  container: { gap: 16 },
+  lead: { fontSize: 16, lineHeight: 25, color: '#33452f' },
+  list: { backgroundColor: '#fff', borderRadius: 20, borderWidth: 1, borderColor: '#e7e9e0', paddingHorizontal: 16 },
+  row: { flexDirection: 'row', gap: 14, paddingVertical: 14 },
+  divider: { borderTopWidth: 1, borderTopColor: '#eef0e8' },
+  icon: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center', borderRadius: 20 },
+  copy: { flex: 1, gap: 3 },
   label: { fontSize: 15, fontWeight: '700', color: '#17361d' },
-  text: { fontSize: 15, lineHeight: 24, color: '#586653' },
-  caption: { fontSize: 13, lineHeight: 21, color: '#586653' },
-  row: { flexDirection: 'row', gap: 12, paddingVertical: 5 },
-  icon: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center', borderRadius: 12, backgroundColor: '#eef2e8' },
-  copy: { flex: 1, gap: 5 },
-  source: { minHeight: 44, justifyContent: 'center' },
+  text: { fontSize: 14, lineHeight: 22, color: '#586653' },
+  textCenter: { fontSize: 14, lineHeight: 22, color: '#586653', textAlign: 'center' },
+  note: { flexDirection: 'row', gap: 8, alignItems: 'flex-start', padding: 12, borderRadius: 14, backgroundColor: '#f1f3ec' },
+  noteText: { flex: 1, fontSize: 13, lineHeight: 20, color: '#586653' },
+  source: { minHeight: 44, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6 },
   sourceText: { color: '#476644', fontSize: 13, fontWeight: '700' },
+  empty: { alignItems: 'center', gap: 10, padding: 20, borderRadius: 20, backgroundColor: '#fff', borderWidth: 1, borderColor: '#e7e9e0' },
 });
