@@ -89,7 +89,6 @@ export default function PlantDetailsScreen() {
             {error ? <Text accessibilityRole="alert" style={styles.errorText}>{error}</Text> : null}
             {notice ? <Text accessibilityLiveRegion="polite" style={styles.success}>{notice}</Text> : null}
           </View>
-          <Pressable accessibilityRole="button" disabled={busy} onPress={() => router.push({ pathname: '/gardens/[id]/plants/[plantId]/scan', params: { id: garden.id, plantId: plant.id } })} style={styles.secondary}><Ionicons name="camera-outline" size={20} color="#476644" /><Text style={styles.label}>{plant.species ? 'Revisar espécie por foto' : 'Identificar por foto'}</Text></Pressable>
           <Text accessibilityRole="header" style={styles.heading}>Seu histórico</Text>
           <Text style={styles.caption}>Mais recente primeiro · horário do aparelho</Text>
           {plant.history.length ? sortPlantHistory(plant.history).map((entry) => <HistoryItem key={entry.id} entry={entry} disabled={busy} onManage={(next) => { if (!busyRef.current) { setNotice(null); setAction(next); } }} />) : <View style={styles.historyCard}><Text style={styles.label}>Cada cuidado conta</Text><Text style={styles.text}>Registre sua primeira rega ou adubação. Os próximos cuidados aparecem aqui.</Text></View>}
@@ -99,7 +98,7 @@ export default function PlantDetailsScreen() {
         </> : <View style={styles.historyCard}><Text style={styles.heading}>Planta não encontrada</Text><Text style={styles.text}>Volte ao jardim para continuar com suas plantas.</Text><Pressable accessibilityRole="button" onPress={back} style={styles.secondary}><Text style={styles.label}>Voltar ao jardim</Text></Pressable></View>}
       </ScrollView>
       {garden && plant && action ? <PlantCareDialog key={action.mode + '-' + action.record.id} gardenId={garden.id} plantId={plant.id} action={action} onClose={() => setAction(null)} /> : null}
-      {plant && infoOpen ? <PlantInfoDialog plant={plant} onClose={() => setInfoOpen(false)} /> : null}
+      {garden && plant && infoOpen ? <PlantInfoDialog plant={plant} onClose={() => setInfoOpen(false)} onReviewSpecies={() => router.push({ pathname: '/gardens/[id]/plants/[plantId]/scan', params: { id: garden.id, plantId: plant.id } })} /> : null}
       {garden && plant && management ? <GardenManagementDialog key={management.mode} garden={garden} action={management} onClose={() => setManagement(null)} onGardenDeleted={() => router.replace('/')} onPlantDeleted={back} /> : null}
     </View>
   );
