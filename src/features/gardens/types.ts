@@ -22,6 +22,8 @@ export type GardenPlant = {
   growthDays?: number;
   lastAnalyzedPhotoUri?: string;
   lastAnalyzedAt?: string;
+  /** User-chosen watering frequency in days; overrides the species reference. */
+  wateringIntervalDays?: number;
   status: {
     label: string;
     tone: PlantHealthTone;

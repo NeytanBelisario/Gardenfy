@@ -63,6 +63,13 @@ function isSpecies(value: unknown): value is import('../plant-identification/typ
   return value.source === 'plantnet' && isHistoryDate(value.identifiedAt) && isPlantCandidate(value);
 }
 
+export const MIN_WATERING_INTERVAL_DAYS = 1;
+export const MAX_WATERING_INTERVAL_DAYS = 60;
+
+export function isWateringInterval(value: unknown): value is number {
+  return typeof value === 'number' && Number.isInteger(value) && value >= MIN_WATERING_INTERVAL_DAYS && value <= MAX_WATERING_INTERVAL_DAYS;
+}
+
 function isPlant(value: unknown, nullable = true, historyRequired = true) {
   return isRecord(value) && isString(value.id) && value.id.length > 0 &&
     isString(value.name) && isString(value.subtitle) && isImage(value.imageUrl) &&
@@ -72,6 +79,7 @@ function isPlant(value: unknown, nullable = true, historyRequired = true) {
     optional(value.growthDays, isNumber) &&
     optional(value.lastAnalyzedPhotoUri, isImage) &&
     optional(value.lastAnalyzedAt, (date) => isString(date) && Number.isFinite(Date.parse(date))) &&
+    optional(value.wateringIntervalDays, isWateringInterval) &&
     isRecord(value.status) && isString(value.status.label) &&
     ['vital', 'stable', 'dry'].includes(String(value.status.tone)) && isMetrics(value.metrics, nullable) && (!historyRequired || isHistory(value.history));
 }

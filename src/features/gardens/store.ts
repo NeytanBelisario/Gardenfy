@@ -13,6 +13,7 @@ export const updateGarden = store.updateGarden;
 export const updatePlant = store.updatePlant;
 export const deleteGarden = store.deleteGarden;
 export const recordPlantCare = store.recordPlantCare;
+export const setPlantWateringInterval = store.setPlantWateringInterval;
 export const updatePlantCare = store.updatePlantCare;
 export const deletePlantCare = store.deletePlantCare;
 export const deletePlant = store.deletePlant;

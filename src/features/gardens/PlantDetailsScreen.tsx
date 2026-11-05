@@ -10,9 +10,14 @@ import { careLabels, formatHistoryDate, sortPlantHistory } from './plantHistory'
 import { PlantCareDialog, type PlantCareAction } from './PlantCareDialog';
 import { GardenManagementDialog, type GardenManagementAction } from './GardenManagementDialog';
 import { PlantInfoDialog } from './PlantInfoDialog';
+import { WateringIntervalDialog } from './WateringIntervalDialog';
+import { describeWaterStatus, describeWateringPlan, getWaterStatus, type WaterState } from './watering';
+import { CareMeter, type CareMeterTone } from '../../components/CareMeter';
 import { formatCareDay, lastPlantCare } from './careActivity';
 import { recordPlantCare, useGardenDetails } from './store';
 import type { PlantCareType, PlantHistoryEntry } from './types';
+
+const waterTone: Record<WaterState, CareMeterTone> = { ok: 'good', soon: 'warn', due: 'alert', overdue: 'alert', never: 'neutral', unknown: 'neutral' };
 
 function HistoryItem({ entry, disabled, onManage }: { entry: PlantHistoryEntry; disabled: boolean; onManage: (action: PlantCareAction) => void }) {
   return (
@@ -49,6 +54,9 @@ export default function PlantDetailsScreen() {
   const [action, setAction] = useState<PlantCareAction | null>(null);
   const [management, setManagement] = useState<GardenManagementAction | null>(null);
   const [infoOpen, setInfoOpen] = useState(false);
+  const [intervalOpen, setIntervalOpen] = useState(false);
+  const water = plant ? getWaterStatus(plant) : undefined;
+  const lastFertilize = plant ? lastPlantCare(plant, 'fertilize') : undefined;
   const back = () => { if (!busyRef.current) { if (garden) router.replace({ pathname: '/gardens/[id]', params: { id: garden.id } }); else router.replace('/'); } };
   const record = async (careType: PlantCareType) => {
     if (!garden || !plant || busyRef.current || action || management) return;
@@ -77,11 +85,13 @@ export default function PlantDetailsScreen() {
           </Text> : null}
           <View style={styles.careCard}>
             <Text accessibilityRole="header" style={styles.heading}>O cuidado de hoje</Text>
-            <Text style={styles.text}>Já cuidou da sua planta? Registre para lembrar quando foi.</Text>
-            <View style={styles.lastCareRow}>{(['water', 'fertilize'] as const).map((type) => {
-              const last = lastPlantCare(plant, type);
-              return <View key={type} style={styles.lastCare}><Text style={styles.label}>{type === 'water' ? 'Última rega' : 'Última adubação'}</Text><Text style={styles.caption}>{last ? formatCareDay(last.occurredAt) : 'Ainda sem registro'}</Text></View>;
-            })}</View>
+            {water ? <CareMeter
+              icon="water" iconColor="#2f6f8f" tint="#e2eff6" label="Água"
+              status={describeWaterStatus(water)} level={water.level} tone={waterTone[water.state]}
+              detail={[water.lastWateredAt ? 'Última rega ' + formatCareDay(water.lastWateredAt) : null, water.plan ? describeWateringPlan(water.plan) : 'Escolha de quanto em quanto tempo você rega para acompanhar.'].filter(Boolean).join(' · ')}
+              action={{ label: water.plan ? 'Ajustar' : 'Definir', accessibilityLabel: 'Ajustar frequência de rega', disabled: busy, onPress: () => setIntervalOpen(true) }}
+            /> : null}
+            <Text style={styles.caption}>Última adubação: {lastFertilize ? formatCareDay(lastFertilize.occurredAt) : 'ainda sem registro'}</Text>
             <View style={styles.actions}>{(['water', 'fertilize'] as const).map((careType) => <Pressable key={careType} accessibilityRole="button" accessibilityLabel={careType === 'water' ? 'Registrar rega' : 'Registrar adubação'} disabled={busy || !!action || !!management} accessibilityState={{ disabled: busy || !!action || !!management, busy }} onPress={() => record(careType)} style={[styles.primary, busy && styles.disabled]}>
               <Ionicons name={careType === 'water' ? 'water-outline' : 'leaf-outline'} size={20} color="#fff" /><Text style={styles.primaryText}>{careType === 'water' ? 'Registrar rega' : 'Registrar adubação'}</Text>
             </Pressable>)}</View>
@@ -98,6 +108,7 @@ export default function PlantDetailsScreen() {
         </> : <View style={styles.historyCard}><Text style={styles.heading}>Planta não encontrada</Text><Text style={styles.text}>Volte ao jardim para continuar com suas plantas.</Text><Pressable accessibilityRole="button" onPress={back} style={styles.secondary}><Text style={styles.label}>Voltar ao jardim</Text></Pressable></View>}
       </ScrollView>
       {garden && plant && action ? <PlantCareDialog key={action.mode + '-' + action.record.id} gardenId={garden.id} plantId={plant.id} action={action} onClose={() => setAction(null)} /> : null}
+      {garden && plant && intervalOpen ? <WateringIntervalDialog gardenId={garden.id} plant={plant} onClose={() => setIntervalOpen(false)} /> : null}
       {garden && plant && infoOpen ? <PlantInfoDialog plant={plant} onClose={() => setInfoOpen(false)} onReviewSpecies={() => router.push({ pathname: '/gardens/[id]/plants/[plantId]/scan', params: { id: garden.id, plantId: plant.id } })} /> : null}
       {garden && plant && management ? <GardenManagementDialog key={management.mode} garden={garden} action={management} onClose={() => setManagement(null)} onGardenDeleted={() => router.replace('/')} onPlantDeleted={back} /> : null}
     </View>
@@ -121,8 +132,6 @@ const styles = StyleSheet.create({
   primary: { minHeight: 52, minWidth: 140, flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, borderRadius: 16, padding: 16, backgroundColor: '#17361d' },
   primaryText: { color: '#fff', fontSize: 15, fontWeight: '700', textAlign: 'center', flexShrink: 1 },
   secondary: { minHeight: 52, flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'center', gap: 8, borderRadius: 16, padding: 16, borderWidth: 1, borderColor: '#c2c8bf' },
-  lastCareRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 12 },
-  lastCare: { flex: 1, minWidth: 120, gap: 5 },
   historyCard: { borderRadius: 20, padding: 20, backgroundColor: '#fff', borderWidth: 1, borderColor: '#e7e9e0', gap: 10 },
   historyHeader: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   historyAction: { minHeight: 44, padding: 12, borderRadius: 12, backgroundColor: '#f5f3ef' },

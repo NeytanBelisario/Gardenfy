@@ -2,7 +2,7 @@ import { createId } from './ids';
 import { isPlantCandidate, type PlantCandidate, type PlantSpecies } from '../plant-identification/types';
 import { normalizeCareDraft } from './plantHistory';
 import { buildAnalyzedPlant, buildPlaceholderPlant, recalculateGardenStats } from './models';
-import { deserializeGardens, GARDENS_STORAGE_KEY, serializeGardens, type GardensStorage } from './persistence';
+import { deserializeGardens, GARDENS_STORAGE_KEY, isWateringInterval, serializeGardens, type GardensStorage } from './persistence';
 import type { PlantPhotoStorage } from './photoStorageCore';
 import type { CreateGardenDraft, GardenDetails, PlantAnalysisResult, PlantCatalogItem, GardenPlant, PlantCareType, PlantCareDraft, PlantCareRecord } from './types';
 
@@ -142,6 +142,18 @@ export function createGardensStore(storage: GardensStorage, photos: PlantPhotoSt
         const name = draft.name.trim();
         if (!name) throw new Error('Informe um nome para a planta.');
         const updated = { ...plant, name, subtitle: draft.subtitle.trim() };
+        await commit(replaceGarden({ ...garden, plants: garden.plants.map((item) => item.id === plantId ? updated : item) }));
+        return updated;
+      });
+    },
+    setPlantWateringInterval(gardenId: string, plantId: string, days: number | undefined) {
+      return enqueue(async () => {
+        const garden = findGarden(gardenId);
+        const plant = garden.plants.find((item) => item.id === plantId);
+        if (!plant) throw new Error('Planta não encontrada.');
+        if (days !== undefined && !isWateringInterval(days)) throw new Error('Escolha uma frequência entre 1 e 60 dias.');
+        const { wateringIntervalDays: _previous, ...rest } = plant;
+        const updated: GardenPlant = days === undefined ? rest : { ...rest, wateringIntervalDays: days };
         await commit(replaceGarden({ ...garden, plants: garden.plants.map((item) => item.id === plantId ? updated : item) }));
         return updated;
       });
