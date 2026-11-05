@@ -5,7 +5,7 @@ Atualize este arquivo ao encerrar sessões que mudem o estado do projeto. Não a
 ## Sessão de 05/11/2026 — início da 1.1.0
 
 - **Fechamento da 1.0.0:** issue #20 comentada com o APK validado (`26e1260`, build `ac0491f2`) e fechada; [PR #24](https://github.com/NeytanBelisario/Gardenfy/pull/24) integrado em `develop` (`55085c6`).
-- **Sincronização:** [PR #25](https://github.com/NeytanBelisario/Gardenfy/pull/25) `main` → `develop` aberto com a licença MIT e a seção "Licença" do README (`f3f752f`), checks verdes. Ainda não integrado: o merge exige instrução específica. Depois de integrado, trazer `develop` para esta branch.
+- **Sincronização:** [PR #25](https://github.com/NeytanBelisario/Gardenfy/pull/25) `main` → `develop` com a licença MIT e a seção "Licença" do README (`f3f752f`), checks verdes, integrado por instrução do usuário (`c8ddcf1`) e trazido para esta branch. `develop` contém toda a `main`.
 - **Branch:** `release/1.1.0`, criada de `develop` (`55085c6`) por escolha do usuário: as mudanças da 1.1.0 serão definidas ao longo do trabalho e ficam nesta mesma branch, em commits por etapa, com PR para `develop`.
 - **Versão:** `version` 1.1.0 (`app.json`, `package.json` e raiz do lockfile) e `android.versionCode` 2. Como `runtimeVersion` segue `appVersion`, updates OTA publicados a partir desta branch ou da `develop` após a integração atingem apenas APKs 1.1.0; hotfix para quem tem a 1.0.0 deve partir da tag `v1.0.0`/`main`.
 - **Checks:** `npx expo config` com versão 1.1.0/código 2 e `git diff --check`. Sem mudança de código; app não executado.
