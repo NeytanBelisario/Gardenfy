@@ -7,6 +7,7 @@ import { AppHeader } from '../components/shell/AppHeader';
 import { AppNavbar } from '../components/shell/AppNavbar';
 import { useGardenSummaries } from '../features/gardens/store';
 import { useNavbarVisibilityOnScroll } from '../hooks/useNavbarVisibilityOnScroll';
+import { RemindersCard } from '../features/reminders/RemindersCard';
 
 export default function ProfileScreen() {
   const router = useRouter();
@@ -27,6 +28,7 @@ export default function ProfileScreen() {
           <View style={styles.stat}><Text style={styles.value}>{gardens.length}</Text><Text style={styles.label}>{gardens.length === 1 ? 'Jardim' : 'Jardins'}</Text></View>
           <View style={styles.stat}><Text style={styles.value}>{plantsCount}</Text><Text style={styles.label}>{plantsCount === 1 ? 'Planta' : 'Plantas'}</Text></View>
         </View>
+        <RemindersCard />
         <View style={styles.card}>
           <Ionicons name="phone-portrait-outline" size={24} color="#476644" />
           <Text style={styles.cardTitle}>Seu jardim acompanha você</Text>

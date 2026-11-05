@@ -8,6 +8,8 @@ import { getTodayOverview, type TodayPlant } from './today';
 import { describeWaterStatus } from './watering';
 import { WaterNowButton } from './WaterNowButton';
 import type { GardenDetails } from './types';
+import { remindersSupported } from '../reminders/scheduler';
+import { useReminderSettings, useReminderSettingsLoaded } from '../reminders/settings';
 
 const COLLAPSED_COUNT = 4;
 
@@ -24,6 +26,8 @@ function nextLabel(next: TodayPlant) {
 export function TodaySection({ gardens }: { gardens: GardenDetails[] }) {
   const router = useRouter();
   const [expanded, setExpanded] = useState(false);
+  const reminders = useReminderSettings();
+  const remindersLoaded = useReminderSettingsLoaded();
   const now = new Date();
   if (!gardens.some((garden) => garden.plantCount > 0)) return null;
   const { due, tracked, next } = getTodayOverview(gardens, now);
@@ -82,6 +86,13 @@ export function TodaySection({ gardens }: { gardens: GardenDetails[] }) {
             : next ? nextLabel(next) : 'Registre a primeira rega das plantas para ver as próximas aqui.'}</Text>
         </View>
       )}
+      {remindersSupported && remindersLoaded && !reminders.enabled && tracked ? (
+        <Pressable accessibilityRole="button" accessibilityLabel="Ativar lembretes de rega" onPress={() => router.push('/profile')} style={({ pressed }) => [styles.invite, pressed && styles.pressed]}>
+          <Ionicons name="notifications-outline" size={18} color="#9a6700" />
+          <Text style={styles.inviteText}>Quer um aviso por dia quando for hora de regar?</Text>
+          <Text style={styles.inviteAction}>Ativar</Text>
+        </Pressable>
+      ) : null}
     </View>
   );
 }
@@ -117,5 +128,8 @@ const styles = StyleSheet.create({
   calm: { gap: 4, padding: 14, borderRadius: 18, backgroundColor: '#fff' },
   calmTitle: { fontSize: 16, fontWeight: '800', color: '#17361d' },
   calmText: { fontSize: 14, lineHeight: 21, color: '#586653' },
+  invite: { flexDirection: 'row', alignItems: 'center', gap: 8, minHeight: 44, paddingHorizontal: 12, borderRadius: 14, backgroundColor: '#fff8e8' },
+  inviteText: { flex: 1, fontSize: 13, lineHeight: 19, color: '#5c4a1f' },
+  inviteAction: { fontSize: 13, fontWeight: '800', color: '#17361d' },
   pressed: { opacity: 0.7 },
 });
