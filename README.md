@@ -48,4 +48,8 @@ npm start
 
 Jardins e cuidados funcionam sem configurar o serviço de fotos. Para identificação, siga o [setup Pl@ntNet](docs/ANALYSIS.md#configurar-plantnet); chaves privadas ficam somente no servidor.
 
+## Licença
+
+Código sob a [licença MIT](LICENSE). O logo "Powered by Pl@ntNet" pertence ao Pl@ntNet e segue os [termos do serviço](https://my.plantnet.org/terms_of_use). As fotos do catálogo são carregadas de fontes externas e não fazem parte desta licença.
+
 [Desenvolvimento](docs/DEVELOPMENT.md) · [Roadmap](docs/ROADMAP.md) · [Critérios da 1.0](docs/RELEASE_1.0.md) · [Distribuição no GitHub](docs/GITHUB_RELEASE.md) · [Continuidade](docs/HANDOFF.md) · [Regras do repositório](AGENTS.md)
