@@ -6,6 +6,10 @@ Decisão de 04/10/2026: priorizar manutenção de jardins/plantas e uma experiê
 
 O plano e os critérios de lançamento estão em [RELEASE_1.0.md](RELEASE_1.0.md). A preparação `feat/release-v1` foi integrada em `develop` pelo PR #14; a distribuição de avaliação está identificada como [1.0.0-beta.1](releases/1.0.0-beta.1.md). A versão estável [1.0.0](releases/1.0.0.md) foi promovida para `main` pelo PR #23 e publicada em 02/11/2026. M3/M4 abaixo registram a proposta anterior e não obrigam incluir Gemini ou AR na 1.0.
 
+## Versão 1.1.0 — em preparação
+
+Branch `release/1.1.0`, com ajustes definidos pelo usuário ao longo do trabalho e aprovados um a um. Foco no dia a dia: Para hoje, rega em um toque com desfazer, barras de Água/Luz/Rotina, sequência e lembretes locais de rega. Detalhes e limites em [releases/1.1.0.md](releases/1.1.0.md). Ajustes pequenos encontrados na validação seguem numa 1.1.1, incluindo o layout para celulares estreitos.
+
 ## Histórico do MVP inicial
 
 Referência inicial: 01/10/2026. Este documento separa o que existe no código das entregas propostas. Prioridades e funcionalidades adicionais podem mudar conforme os próximos detalhes do produto; nenhuma escolha de backend ou regra de pontuação está fechada.
