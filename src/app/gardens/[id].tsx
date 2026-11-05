@@ -10,6 +10,7 @@ import { GardenManagementDialog, type GardenManagementAction } from '../../featu
 import { normalizePlantName } from '../../features/gardens/careProfiles';
 import { gardenCareCount } from '../../features/gardens/careActivity';
 import { PlantWaterIndicator } from '../../features/gardens/PlantWaterIndicator';
+import { WaterNowButton } from '../../features/gardens/WaterNowButton';
 import { describeWaterStatus, getWaterStatus } from '../../features/gardens/watering';
 import { useGardenDetails } from '../../features/gardens/store';
 
@@ -47,11 +48,14 @@ export default function GardenDetailsScreen() {
             {query ? <Pressable accessibilityRole="button" accessibilityLabel="Limpar busca" onPress={() => setQuery('')} style={styles.clear}><Ionicons name="close-circle" size={22} color="#586653" /></Pressable> : null}
           </View> : null}
           {plants.map((plant) => {
-            return <Pressable key={plant.id} accessibilityRole="button" accessibilityLabel={'Abrir cuidados de ' + plant.name + '. Água: ' + describeWaterStatus(getWaterStatus(plant))} onPress={() => router.push({ pathname: '/gardens/[id]/plants/[plantId]', params: { id: garden.id, plantId: plant.id } })} style={({ pressed }) => [styles.plantCard, pressed && styles.pressed]}>
+            const water = getWaterStatus(plant);
+            return <View key={plant.id} style={styles.plantCard}>
+              <Pressable accessibilityRole="button" accessibilityLabel={'Abrir cuidados de ' + plant.name + '. Água: ' + describeWaterStatus(water)} onPress={() => router.push({ pathname: '/gardens/[id]/plants/[plantId]', params: { id: garden.id, plantId: plant.id } })} style={({ pressed }) => [styles.plantMain, pressed && styles.pressed]}>
               <PlantPhoto uri={plant.imageUrl} compact style={styles.photo} />
-              <View style={styles.plantCopy}><Text style={styles.plantName}>{plant.name}</Text>{plant.species?.scientificName ?? plant.subtitle ? <Text style={styles.caption} numberOfLines={1}>{plant.species?.scientificName ?? plant.subtitle}</Text> : null}<PlantWaterIndicator status={getWaterStatus(plant)} /></View>
-              <Ionicons name="chevron-forward" size={20} color="#476644" />
-            </Pressable>;
+              <View style={styles.plantCopy}><Text style={styles.plantName}>{plant.name}</Text>{plant.species?.scientificName ?? plant.subtitle ? <Text style={styles.caption} numberOfLines={1}>{plant.species?.scientificName ?? plant.subtitle}</Text> : null}<PlantWaterIndicator status={water} /></View>
+              </Pressable>
+              <WaterNowButton gardenId={garden.id} plant={plant} urgent={water.state === 'due' || water.state === 'overdue'} />
+            </View>;
           })}
           {!plants.length ? <View style={styles.empty}>
             <Ionicons name={garden.plantCount ? 'search-outline' : 'leaf-outline'} size={44} color="#476644" />
@@ -81,7 +85,8 @@ const styles = StyleSheet.create({
   label: { color: '#17361d', fontSize: 15, fontWeight: '700' },
   text: { color: '#586653', fontSize: 15, lineHeight: 24 },
   caption: { color: '#586653', fontSize: 13, lineHeight: 21 },
-  plantCard: { flexDirection: 'row', alignItems: 'center', gap: 14, padding: 16, borderRadius: 24, backgroundColor: '#fff', borderWidth: 1, borderColor: '#e7e9e0' },
+  plantMain: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 14 },
+  plantCard: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 16, borderRadius: 24, backgroundColor: '#fff', borderWidth: 1, borderColor: '#e7e9e0' },
   photo: { width: 64, height: 72, borderRadius: 16 },
   plantCopy: { flex: 1, gap: 6 },
   plantName: { color: '#17361d', fontSize: 18, fontWeight: '800' },

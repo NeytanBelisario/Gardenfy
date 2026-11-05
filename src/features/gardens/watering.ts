@@ -49,6 +49,10 @@ export function getWaterStatus(plant: GardenPlant, now = new Date()): WaterStatu
   return { state, plan, lastWateredAt: last.occurredAt, daysSince, daysUntil, level };
 }
 
+export function wateredToday(plant: GardenPlant, now = new Date()) {
+  return plant.history.some((entry) => entry.kind === 'care' && entry.careType === 'water' && calendarDaysBetween(new Date(entry.occurredAt), now) === 0);
+}
+
 function plural(count: number, one: string, many: string) {
   return count + ' ' + (count === 1 ? one : many);
 }

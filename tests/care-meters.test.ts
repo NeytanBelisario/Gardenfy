@@ -4,7 +4,7 @@ import test from 'node:test';
 import { createGardensStore } from '../src/features/gardens/storeCore';
 import { deserializeGardens, type GardensStorage } from '../src/features/gardens/persistence';
 import { createManagedPhotoStorage } from '../src/features/gardens/photoStorageCore';
-import { calendarDaysBetween, describeWaterStatus, getWaterStatus, getWateringPlan } from '../src/features/gardens/watering';
+import { calendarDaysBetween, describeWaterStatus, getWaterStatus, getWateringPlan, wateredToday } from '../src/features/gardens/watering';
 import type { GardenPlant, PlantCatalogItem } from '../src/features/gardens/types';
 
 function plant(overrides: Partial<GardenPlant> = {}): GardenPlant {
@@ -166,4 +166,19 @@ test('routine looks back 30 days at most and ignores fertilizing and future reco
   assert.ok(status.state === 'good');
   assert.equal(status.trackedDays, 30);
   assert.equal(status.onTimeDays, 30);
+});
+
+test('today overview lists due and late plants across gardens, most late first', async () => {
+  const { getTodayOverview } = await import('../src/features/gardens/today');
+  const garden = (id: string, plants: GardenPlant[]) => ({ id, name: id, label: '', imageUrl: '', icon: 'potted-plant', environment: 'indoor', plantCount: plants.length, vitality: null, averageHydration: null, metrics: [], plants }) as never;
+  const late = plant({ id: 'late', name: 'Atrasada', wateringIntervalDays: 2, ...watered(daysAgo(5)) });
+  const due = plant({ id: 'due', name: 'Hoje', wateringIntervalDays: 3, ...watered(daysAgo(3)) });
+  const fine = plant({ id: 'fine', name: 'Ok', wateringIntervalDays: 5, ...watered(daysAgo(1)) });
+  const untracked = plant({ id: 'free', name: 'Livre' });
+  const overview = getTodayOverview([garden('a', [due, fine]), garden('b', [late, untracked])], now);
+  assert.deepEqual(overview.due.map((item) => item.plant.id), ['late', 'due']);
+  assert.equal(overview.tracked, 3);
+  assert.equal(overview.next?.plant.id, 'fine');
+  assert.equal(wateredToday(fine, now), false);
+  assert.equal(wateredToday(plant(watered(daysAgo(0, 7))), now), true);
 });

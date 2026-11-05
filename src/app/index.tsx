@@ -9,6 +9,7 @@ import { GardenIdentityIcon } from '../features/gardens/icons';
 import { gardenCareCount } from '../features/gardens/careActivity';
 import type { GardenDetails } from '../features/gardens/types';
 import { useGardensState } from '../features/gardens/store';
+import { TodaySection } from '../features/gardens/TodaySection';
 import { useNavbarVisibilityOnScroll } from '../hooks/useNavbarVisibilityOnScroll';
 
 function GardenCard({ garden }: { garden: GardenDetails }) {
@@ -56,6 +57,7 @@ export default function HomeScreen() {
             <Text style={styles.summaryText}>{plants} {plants === 1 ? 'planta' : 'plantas'}</Text>
           </View>
         </View>
+        <TodaySection gardens={gardens} />
         <View style={styles.sectionHeader}>
           <Text accessibilityRole="header" style={styles.sectionTitle}>Meus jardins</Text>
           {gardens.length ? <Pressable accessibilityRole="button" accessibilityLabel="Criar jardim" onPress={() => router.push('/gardens/new')} style={styles.newButton}>
