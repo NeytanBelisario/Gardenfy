@@ -4,7 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 
 export type CareMeterTone = 'good' | 'warn' | 'alert' | 'neutral';
 
-const toneColors: Record<CareMeterTone, string> = {
+export const toneColors: Record<CareMeterTone, string> = {
   good: '#4c8a45',
   warn: '#c58a12',
   alert: '#c0412b',

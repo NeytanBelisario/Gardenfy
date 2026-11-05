@@ -13,19 +13,13 @@ import { PlantInfoDialog } from './PlantInfoDialog';
 import { WateringIntervalDialog } from './WateringIntervalDialog';
 import { LightSpotDialog } from './LightSpotDialog';
 import { describeLightDetail, describeLightStatus, getLightStatus } from './light';
-import { describeRoutineDetail, describeRoutineStatus, getRoutineStatus, type RoutineStatus } from './routine';
-import type { LightFit } from './careProfiles';
-import { describeWaterStatus, describeWateringPlan, getWaterStatus, type WaterState } from './watering';
-import { CareMeter, type CareMeterTone } from '../../components/CareMeter';
+import { describeRoutineDetail, describeRoutineStatus, getRoutineStatus } from './routine';
+import { describeWaterStatus, describeWateringPlan, getWaterStatus } from './watering';
+import { CareMeter } from '../../components/CareMeter';
+import { lightTone, routineTone, waterTone } from './careMeterTones';
 import { formatCareDay, lastPlantCare } from './careActivity';
 import { recordPlantCare, useGardenDetails } from './store';
 import type { PlantCareType, PlantHistoryEntry } from './types';
-
-const waterTone: Record<WaterState, CareMeterTone> = { ok: 'good', soon: 'warn', due: 'alert', overdue: 'alert', never: 'neutral', unknown: 'neutral' };
-
-const lightTone: Record<LightFit, CareMeterTone> = { ideal: 'good', ok: 'warn', poor: 'alert' };
-
-const routineTone: Record<RoutineStatus['state'], CareMeterTone> = { good: 'good', fair: 'warn', behind: 'alert', none: 'neutral' };
 
 function HistoryItem({ entry, disabled, onManage }: { entry: PlantHistoryEntry; disabled: boolean; onManage: (action: PlantCareAction) => void }) {
   return (
