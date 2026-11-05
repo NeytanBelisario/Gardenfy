@@ -9,7 +9,7 @@ import { formatPercent } from './metricPresentation';
 import { careLabels, formatHistoryDate, sortPlantHistory } from './plantHistory';
 import { PlantCareDialog, type PlantCareAction } from './PlantCareDialog';
 import { GardenManagementDialog, type GardenManagementAction } from './GardenManagementDialog';
-import { PlantCareInstructions } from './PlantCareInstructions';
+import { PlantInfoDialog } from './PlantInfoDialog';
 import { formatCareDay, lastPlantCare } from './careActivity';
 import { recordPlantCare, useGardenDetails } from './store';
 import type { PlantCareType, PlantHistoryEntry } from './types';
@@ -48,6 +48,7 @@ export default function PlantDetailsScreen() {
   const [notice, setNotice] = useState<string | null>(null);
   const [action, setAction] = useState<PlantCareAction | null>(null);
   const [management, setManagement] = useState<GardenManagementAction | null>(null);
+  const [infoOpen, setInfoOpen] = useState(false);
   const back = () => { if (!busyRef.current) { if (garden) router.replace({ pathname: '/gardens/[id]', params: { id: garden.id } }); else router.replace('/'); } };
   const record = async (careType: PlantCareType) => {
     if (!garden || !plant || busyRef.current || action || management) return;
@@ -63,9 +64,17 @@ export default function PlantDetailsScreen() {
         {garden && plant ? <>
           <PlantPhoto uri={plant.imageUrl} style={styles.photo} label={'Foto de ' + plant.name} />
           <Text style={styles.caption}>{garden.name}</Text>
-          <Text accessibilityRole="header" style={styles.title}>{plant.name}</Text>
-          {plant.species ? <Text style={styles.species}>{plant.species.scientificName}</Text> : null}
-          {plant.subtitle ? <Text style={styles.text}>{plant.subtitle}</Text> : null}
+          <View style={styles.titleRow}>
+            <Text accessibilityRole="header" style={styles.title}>{plant.name}</Text>
+            <Pressable accessibilityRole="button" accessibilityLabel={'Ver informações de ' + plant.name} disabled={busy} onPress={() => setInfoOpen(true)} hitSlop={8} style={styles.infoButton}>
+              <Ionicons name="information" size={20} color="#476644" />
+            </Pressable>
+          </View>
+          {plant.species || plant.subtitle ? <Text style={styles.text}>
+            {plant.species ? <Text style={styles.species}>{plant.species.scientificName}</Text> : null}
+            {plant.species && plant.subtitle ? ' · ' : null}
+            {plant.subtitle ?? null}
+          </Text> : null}
           <View style={styles.careCard}>
             <Text accessibilityRole="header" style={styles.heading}>O cuidado de hoje</Text>
             <Text style={styles.text}>Já cuidou da sua planta? Registre para lembrar quando foi.</Text>
@@ -80,7 +89,6 @@ export default function PlantDetailsScreen() {
             {error ? <Text accessibilityRole="alert" style={styles.errorText}>{error}</Text> : null}
             {notice ? <Text accessibilityLiveRegion="polite" style={styles.success}>{notice}</Text> : null}
           </View>
-          <PlantCareInstructions plant={plant} />
           <Pressable accessibilityRole="button" disabled={busy} onPress={() => router.push({ pathname: '/gardens/[id]/plants/[plantId]/scan', params: { id: garden.id, plantId: plant.id } })} style={styles.secondary}><Ionicons name="camera-outline" size={20} color="#476644" /><Text style={styles.label}>{plant.species ? 'Revisar espécie por foto' : 'Identificar por foto'}</Text></Pressable>
           <Text accessibilityRole="header" style={styles.heading}>Seu histórico</Text>
           <Text style={styles.caption}>Mais recente primeiro · horário do aparelho</Text>
@@ -91,6 +99,7 @@ export default function PlantDetailsScreen() {
         </> : <View style={styles.historyCard}><Text style={styles.heading}>Planta não encontrada</Text><Text style={styles.text}>Volte ao jardim para continuar com suas plantas.</Text><Pressable accessibilityRole="button" onPress={back} style={styles.secondary}><Text style={styles.label}>Voltar ao jardim</Text></Pressable></View>}
       </ScrollView>
       {garden && plant && action ? <PlantCareDialog key={action.mode + '-' + action.record.id} gardenId={garden.id} plantId={plant.id} action={action} onClose={() => setAction(null)} /> : null}
+      {plant && infoOpen ? <PlantInfoDialog plant={plant} onClose={() => setInfoOpen(false)} /> : null}
       {garden && plant && management ? <GardenManagementDialog key={management.mode} garden={garden} action={management} onClose={() => setManagement(null)} onGardenDeleted={() => router.replace('/')} onPlantDeleted={back} /> : null}
     </View>
   );
@@ -100,7 +109,9 @@ const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: '#fbf9f5' },
   content: { width: '100%', maxWidth: 720, alignSelf: 'center', padding: 20, gap: 14 },
   photo: { height: 220, width: '100%', borderRadius: 24 },
-  title: { color: '#17361d', fontSize: 32, fontWeight: '800' },
+  titleRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  title: { color: '#17361d', fontSize: 32, fontWeight: '800', flexShrink: 1 },
+  infoButton: { width: 34, height: 34, alignItems: 'center', justifyContent: 'center', borderRadius: 17, backgroundColor: '#eef2e8', borderWidth: 1, borderColor: '#d9e2d2' },
   species: { color: '#476644', fontSize: 15, fontStyle: 'italic' },
   heading: { color: '#17361d', fontSize: 22, fontWeight: '800' },
   text: { color: '#586653', fontSize: 15, lineHeight: 24 },
