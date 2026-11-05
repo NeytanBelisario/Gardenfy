@@ -182,3 +182,23 @@ test('today overview lists due and late plants across gardens, most late first',
   assert.equal(wateredToday(fine, now), false);
   assert.equal(wateredToday(plant(watered(daysAgo(0, 7))), now), true);
 });
+
+test('streak counts consecutive days with no tracked plant late, and keeps the best run', async () => {
+  const { getStreak } = await import('../src/features/gardens/streak');
+  const garden = (plants: GardenPlant[]) => ({ id: 'g', name: 'g', label: '', imageUrl: '', icon: 'potted-plant', environment: 'indoor', plantCount: plants.length, vitality: null, averageHydration: null, metrics: [], plants }) as never;
+  assert.deepEqual(getStreak([garden([plant(monstera), plant(watered(daysAgo(1)))])], now), { current: 0, best: 0, trackedPlants: 0, lateToday: [] });
+
+  // Every 2 days: watered 10, 8, 3 and 1 days ago. Days 5..4 ago are late: runs of 5 (10..6 ago) and 4 (3 ago..today).
+  const a = plant({ name: 'A', wateringIntervalDays: 2, ...watered(daysAgo(10), daysAgo(8), daysAgo(3), daysAgo(1)) });
+  const status = getStreak([garden([a])], now);
+  assert.equal(status.current, 4);
+  assert.equal(status.best, 5);
+  assert.deepEqual(status.lateToday, []);
+
+  // A second plant late today breaks the streak and is named.
+  const b = plant({ name: 'B', wateringIntervalDays: 3, ...watered(daysAgo(5)) });
+  const broken = getStreak([garden([a, b])], now);
+  assert.equal(broken.current, 0);
+  assert.deepEqual(broken.lateToday, ['B']);
+  assert.equal(broken.trackedPlants, 2);
+});
