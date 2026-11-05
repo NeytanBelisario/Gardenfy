@@ -137,3 +137,33 @@ test('light spot persists, can be cleared and rejects unknown values', async () 
   await store.setPlantLightSpot(gardenId, plantId, undefined);
   assert.equal('lightSpot' in deserializeGardens(memory.raw)[0].plants[0], false);
 });
+
+test('routine counts the days within the watering frequency, from the first watering', async () => {
+  const { getRoutineStatus, describeRoutineStatus, describeRoutineDetail } = await import('../src/features/gardens/routine');
+  assert.equal(getRoutineStatus(plant(watered(daysAgo(1))), now).state, 'none');
+  assert.equal(getRoutineStatus(plant(monstera), now).state, 'none');
+
+  const today = getRoutineStatus(plant({ ...monstera, ...watered(daysAgo(0)) }), now);
+  assert.deepEqual([today.state, today.level], ['good', 1]);
+
+  // Every 4 days, watered 20 and 10 days ago: days 15..11 ago and 5..0 ago are late.
+  const gaps = getRoutineStatus(plant({ wateringIntervalDays: 4, ...watered(daysAgo(20), daysAgo(10)) }), now);
+  if (gaps.state === 'none') return assert.fail('expected a tracked routine');
+  assert.equal(gaps.trackedDays, 21);
+  assert.equal(gaps.onTimeDays, 10);
+  assert.equal(describeRoutineStatus(gaps), 'Rotina atrasada');
+  assert.equal(describeRoutineDetail(gaps), '10 de 21 dias com a rega em dia');
+});
+
+test('routine looks back 30 days at most and ignores fertilizing and future records', async () => {
+  const { getRoutineStatus } = await import('../src/features/gardens/routine');
+  const regular = Array.from({ length: 20 }, (_, index) => daysAgo(index * 3));
+  const status = getRoutineStatus(plant({ wateringIntervalDays: 3, history: [
+    ...watered(...regular).history,
+    { id: 'f', kind: 'care', careType: 'fertilize', occurredAt: daysAgo(1) },
+    { id: 'future', kind: 'care', careType: 'water', occurredAt: daysAgo(-3) },
+  ] }), now);
+  assert.ok(status.state === 'good');
+  assert.equal(status.trackedDays, 30);
+  assert.equal(status.onTimeDays, 30);
+});

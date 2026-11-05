@@ -13,6 +13,7 @@ import { PlantInfoDialog } from './PlantInfoDialog';
 import { WateringIntervalDialog } from './WateringIntervalDialog';
 import { LightSpotDialog } from './LightSpotDialog';
 import { describeLightDetail, describeLightStatus, getLightStatus } from './light';
+import { describeRoutineDetail, describeRoutineStatus, getRoutineStatus, type RoutineStatus } from './routine';
 import type { LightFit } from './careProfiles';
 import { describeWaterStatus, describeWateringPlan, getWaterStatus, type WaterState } from './watering';
 import { CareMeter, type CareMeterTone } from '../../components/CareMeter';
@@ -23,6 +24,8 @@ import type { PlantCareType, PlantHistoryEntry } from './types';
 const waterTone: Record<WaterState, CareMeterTone> = { ok: 'good', soon: 'warn', due: 'alert', overdue: 'alert', never: 'neutral', unknown: 'neutral' };
 
 const lightTone: Record<LightFit, CareMeterTone> = { ideal: 'good', ok: 'warn', poor: 'alert' };
+
+const routineTone: Record<RoutineStatus['state'], CareMeterTone> = { good: 'good', fair: 'warn', behind: 'alert', none: 'neutral' };
 
 function HistoryItem({ entry, disabled, onManage }: { entry: PlantHistoryEntry; disabled: boolean; onManage: (action: PlantCareAction) => void }) {
   return (
@@ -62,6 +65,7 @@ export default function PlantDetailsScreen() {
   const [intervalOpen, setIntervalOpen] = useState(false);
   const [lightOpen, setLightOpen] = useState(false);
   const light = plant ? getLightStatus(plant) : undefined;
+  const routine = plant ? getRoutineStatus(plant) : undefined;
   const water = plant ? getWaterStatus(plant) : undefined;
   const lastFertilize = plant ? lastPlantCare(plant, 'fertilize') : undefined;
   const back = () => { if (!busyRef.current) { if (garden) router.replace({ pathname: '/gardens/[id]', params: { id: garden.id } }); else router.replace('/'); } };
@@ -103,6 +107,11 @@ export default function PlantDetailsScreen() {
               status={describeLightStatus(light)} level={light.level} tone={light.fit ? lightTone[light.fit] : 'neutral'}
               detail={describeLightDetail(light)}
               action={{ label: light.spot ? 'Mudar' : 'Definir', accessibilityLabel: 'Definir onde a planta fica', disabled: busy, onPress: () => setLightOpen(true) }}
+            /> : null}
+            {routine ? <CareMeter
+              icon="leaf" iconColor="#476644" tint="#e6f0e1" label="Rotina"
+              status={describeRoutineStatus(routine)} level={routine.level} tone={routineTone[routine.state]}
+              detail={describeRoutineDetail(routine)}
             /> : null}
             <Text style={styles.caption}>Última adubação: {lastFertilize ? formatCareDay(lastFertilize.occurredAt) : 'ainda sem registro'}</Text>
             <View style={styles.actions}>{(['water', 'fertilize'] as const).map((careType) => <Pressable key={careType} accessibilityRole="button" accessibilityLabel={careType === 'water' ? 'Registrar rega' : 'Registrar adubação'} disabled={busy || !!action || !!management} accessibilityState={{ disabled: busy || !!action || !!management, busy }} onPress={() => record(careType)} style={[styles.primary, busy && styles.disabled]}>
