@@ -108,3 +108,32 @@ test('invalid watering frequencies are rejected without saving', async () => {
   tampered.gardens[0].plants[0].wateringIntervalDays = 0;
   assert.throws(() => deserializeGardens(JSON.stringify(tampered)));
 });
+
+test('light status compares the chosen spot with the species preference', async () => {
+  const { getLightStatus, describeLightStatus, describeLightDetail } = await import('../src/features/gardens/light');
+  const unset = getLightStatus(plant(monstera));
+  assert.equal(unset.spot, undefined);
+  assert.equal(unset.ideal, 'bright');
+  assert.equal(describeLightStatus(unset), 'Onde ela fica?');
+
+  const ideal = getLightStatus(plant({ ...monstera, lightSpot: 'bright' }));
+  assert.deepEqual([ideal.fit, ideal.level, describeLightStatus(ideal)], ['ideal', 1, 'Local ideal']);
+
+  const sun = getLightStatus(plant({ ...monstera, lightSpot: 'sun' }));
+  assert.equal(describeLightStatus(sun), 'Sol forte demais para ela');
+  assert.equal(describeLightDetail(sun), 'Fica em: sol direto · ela prefere claridade');
+
+  const noGuide = getLightStatus(plant({ lightSpot: 'shade' }));
+  assert.equal(noGuide.fit, undefined);
+  assert.equal(noGuide.level, 0);
+  assert.equal(describeLightStatus(noGuide), 'Pouca luz');
+});
+
+test('light spot persists, can be cleared and rejects unknown values', async () => {
+  const { memory, store, gardenId, plantId } = await storeFixture();
+  await store.setPlantLightSpot(gardenId, plantId, 'shade');
+  assert.equal(deserializeGardens(memory.raw)[0].plants[0].lightSpot, 'shade');
+  await assert.rejects(store.setPlantLightSpot(gardenId, plantId, 'moon' as never), /local válido/);
+  await store.setPlantLightSpot(gardenId, plantId, undefined);
+  assert.equal('lightSpot' in deserializeGardens(memory.raw)[0].plants[0], false);
+});

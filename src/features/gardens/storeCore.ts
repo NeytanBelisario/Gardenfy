@@ -2,9 +2,9 @@ import { createId } from './ids';
 import { isPlantCandidate, type PlantCandidate, type PlantSpecies } from '../plant-identification/types';
 import { normalizeCareDraft } from './plantHistory';
 import { buildAnalyzedPlant, buildPlaceholderPlant, recalculateGardenStats } from './models';
-import { deserializeGardens, GARDENS_STORAGE_KEY, isWateringInterval, serializeGardens, type GardensStorage } from './persistence';
+import { deserializeGardens, GARDENS_STORAGE_KEY, isLightSpot, isWateringInterval, serializeGardens, type GardensStorage } from './persistence';
 import type { PlantPhotoStorage } from './photoStorageCore';
-import type { CreateGardenDraft, GardenDetails, PlantAnalysisResult, PlantCatalogItem, GardenPlant, PlantCareType, PlantCareDraft, PlantCareRecord } from './types';
+import type { PlantLightSpot, CreateGardenDraft, GardenDetails, PlantAnalysisResult, PlantCatalogItem, GardenPlant, PlantCareType, PlantCareDraft, PlantCareRecord } from './types';
 
 export type GardensState = {
   gardens: GardenDetails[];
@@ -154,6 +154,18 @@ export function createGardensStore(storage: GardensStorage, photos: PlantPhotoSt
         if (days !== undefined && !isWateringInterval(days)) throw new Error('Escolha uma frequência entre 1 e 60 dias.');
         const { wateringIntervalDays: _previous, ...rest } = plant;
         const updated: GardenPlant = days === undefined ? rest : { ...rest, wateringIntervalDays: days };
+        await commit(replaceGarden({ ...garden, plants: garden.plants.map((item) => item.id === plantId ? updated : item) }));
+        return updated;
+      });
+    },
+    setPlantLightSpot(gardenId: string, plantId: string, spot: PlantLightSpot | undefined) {
+      return enqueue(async () => {
+        const garden = findGarden(gardenId);
+        const plant = garden.plants.find((item) => item.id === plantId);
+        if (!plant) throw new Error('Planta não encontrada.');
+        if (spot !== undefined && !isLightSpot(spot)) throw new Error('Escolha um local válido para a planta.');
+        const { lightSpot: _previous, ...rest } = plant;
+        const updated: GardenPlant = spot === undefined ? rest : { ...rest, lightSpot: spot };
         await commit(replaceGarden({ ...garden, plants: garden.plants.map((item) => item.id === plantId ? updated : item) }));
         return updated;
       });

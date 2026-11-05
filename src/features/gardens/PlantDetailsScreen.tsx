@@ -11,6 +11,9 @@ import { PlantCareDialog, type PlantCareAction } from './PlantCareDialog';
 import { GardenManagementDialog, type GardenManagementAction } from './GardenManagementDialog';
 import { PlantInfoDialog } from './PlantInfoDialog';
 import { WateringIntervalDialog } from './WateringIntervalDialog';
+import { LightSpotDialog } from './LightSpotDialog';
+import { describeLightDetail, describeLightStatus, getLightStatus } from './light';
+import type { LightFit } from './careProfiles';
 import { describeWaterStatus, describeWateringPlan, getWaterStatus, type WaterState } from './watering';
 import { CareMeter, type CareMeterTone } from '../../components/CareMeter';
 import { formatCareDay, lastPlantCare } from './careActivity';
@@ -18,6 +21,8 @@ import { recordPlantCare, useGardenDetails } from './store';
 import type { PlantCareType, PlantHistoryEntry } from './types';
 
 const waterTone: Record<WaterState, CareMeterTone> = { ok: 'good', soon: 'warn', due: 'alert', overdue: 'alert', never: 'neutral', unknown: 'neutral' };
+
+const lightTone: Record<LightFit, CareMeterTone> = { ideal: 'good', ok: 'warn', poor: 'alert' };
 
 function HistoryItem({ entry, disabled, onManage }: { entry: PlantHistoryEntry; disabled: boolean; onManage: (action: PlantCareAction) => void }) {
   return (
@@ -55,6 +60,8 @@ export default function PlantDetailsScreen() {
   const [management, setManagement] = useState<GardenManagementAction | null>(null);
   const [infoOpen, setInfoOpen] = useState(false);
   const [intervalOpen, setIntervalOpen] = useState(false);
+  const [lightOpen, setLightOpen] = useState(false);
+  const light = plant ? getLightStatus(plant) : undefined;
   const water = plant ? getWaterStatus(plant) : undefined;
   const lastFertilize = plant ? lastPlantCare(plant, 'fertilize') : undefined;
   const back = () => { if (!busyRef.current) { if (garden) router.replace({ pathname: '/gardens/[id]', params: { id: garden.id } }); else router.replace('/'); } };
@@ -91,6 +98,12 @@ export default function PlantDetailsScreen() {
               detail={[water.lastWateredAt ? 'Última rega ' + formatCareDay(water.lastWateredAt) : null, water.plan ? describeWateringPlan(water.plan) : 'Escolha de quanto em quanto tempo você rega para acompanhar.'].filter(Boolean).join(' · ')}
               action={{ label: water.plan ? 'Ajustar' : 'Definir', accessibilityLabel: 'Ajustar frequência de rega', disabled: busy, onPress: () => setIntervalOpen(true) }}
             /> : null}
+            {light ? <CareMeter
+              icon="sunny" iconColor="#9a6700" tint="#fdf3d7" label="Luz"
+              status={describeLightStatus(light)} level={light.level} tone={light.fit ? lightTone[light.fit] : 'neutral'}
+              detail={describeLightDetail(light)}
+              action={{ label: light.spot ? 'Mudar' : 'Definir', accessibilityLabel: 'Definir onde a planta fica', disabled: busy, onPress: () => setLightOpen(true) }}
+            /> : null}
             <Text style={styles.caption}>Última adubação: {lastFertilize ? formatCareDay(lastFertilize.occurredAt) : 'ainda sem registro'}</Text>
             <View style={styles.actions}>{(['water', 'fertilize'] as const).map((careType) => <Pressable key={careType} accessibilityRole="button" accessibilityLabel={careType === 'water' ? 'Registrar rega' : 'Registrar adubação'} disabled={busy || !!action || !!management} accessibilityState={{ disabled: busy || !!action || !!management, busy }} onPress={() => record(careType)} style={[styles.primary, busy && styles.disabled]}>
               <Ionicons name={careType === 'water' ? 'water-outline' : 'leaf-outline'} size={20} color="#fff" /><Text style={styles.primaryText}>{careType === 'water' ? 'Registrar rega' : 'Registrar adubação'}</Text>
@@ -108,6 +121,7 @@ export default function PlantDetailsScreen() {
         </> : <View style={styles.historyCard}><Text style={styles.heading}>Planta não encontrada</Text><Text style={styles.text}>Volte ao jardim para continuar com suas plantas.</Text><Pressable accessibilityRole="button" onPress={back} style={styles.secondary}><Text style={styles.label}>Voltar ao jardim</Text></Pressable></View>}
       </ScrollView>
       {garden && plant && action ? <PlantCareDialog key={action.mode + '-' + action.record.id} gardenId={garden.id} plantId={plant.id} action={action} onClose={() => setAction(null)} /> : null}
+      {garden && plant && lightOpen ? <LightSpotDialog gardenId={garden.id} plant={plant} onClose={() => setLightOpen(false)} /> : null}
       {garden && plant && intervalOpen ? <WateringIntervalDialog gardenId={garden.id} plant={plant} onClose={() => setIntervalOpen(false)} /> : null}
       {garden && plant && infoOpen ? <PlantInfoDialog plant={plant} onClose={() => setInfoOpen(false)} onReviewSpecies={() => router.push({ pathname: '/gardens/[id]/plants/[plantId]/scan', params: { id: garden.id, plantId: plant.id } })} /> : null}
       {garden && plant && management ? <GardenManagementDialog key={management.mode} garden={garden} action={management} onClose={() => setManagement(null)} onGardenDeleted={() => router.replace('/')} onPlantDeleted={back} /> : null}
