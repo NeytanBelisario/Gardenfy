@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Plano Gardenfy</title>
+<style>
+  :root {
+    --bg: #fbf9f5; --surface: #ffffff; --surface-2: #eef2e8; --text: #17361d; --muted: #586653;
+    --primary: #476644; --border: #e7e9e0; --blue: #2f6f8f; --amber: #8a5a00; --red: #93000a;
+    --chip-done: #dcebd6; --chip-run: #fbe9c4; --chip-plan: #dfe9f0; --chip-idea: #ece7f3;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #101a12; --surface: #18241a; --surface-2: #1f2e21; --text: #e4eee0; --muted: #a7b5a2;
+      --primary: #9fc89a; --border: #2c3b2e; --blue: #8cc3de; --amber: #f0c36a; --red: #ffb4ab;
+      --chip-done: #24402a; --chip-run: #4a3a14; --chip-plan: #1d3644; --chip-idea: #33294a;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  main { max-width: 980px; margin: 0 auto; padding: 32px 16px 64px; }
+  h1 { font-size: 2rem; margin: 0 0 4px; }
+  h2 { font-size: 1.35rem; margin: 40px 0 12px; }
+  h3 { margin: 0; font-size: 1.1rem; }
+  p { margin: 0 0 10px; }
+  .lead { color: var(--muted); max-width: 70ch; }
+  .meta { color: var(--muted); font-size: .9rem; margin-bottom: 20px; }
+  nav { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0 8px; }
+  nav a { color: var(--primary); text-decoration: none; padding: 6px 12px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); font-size: .9rem; }
+  .grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 16px; }
+  .card .k { font-weight: 700; font-size: 1.05rem; }
+  .card .f { font-family: ui-monospace, Consolas, monospace; color: var(--primary); font-size: .95rem; }
+  .card small { color: var(--muted); display: block; margin-top: 6px; }
+  .note { background: var(--surface-2); border-radius: 12px; padding: 12px 14px; color: var(--text); font-size: .95rem; margin-top: 12px; }
+  .timeline { position: relative; display: flex; flex-direction: column; gap: 10px; }
+  details.v { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
+  details.v summary { list-style: none; cursor: pointer; display: grid; grid-template-columns: 74px 1fr auto; gap: 12px; align-items: center; padding: 14px 16px; }
+  details.v summary::-webkit-details-marker { display: none; }
+  details.v[open] summary { border-bottom: 1px solid var(--border); }
+  .ver { font-weight: 800; font-size: 1.1rem; color: var(--primary); font-variant-numeric: tabular-nums; }
+  .theme { font-weight: 600; }
+  .theme span { display: block; font-weight: 400; color: var(--muted); font-size: .88rem; }
+  .chips { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+  .chip { font-size: .78rem; padding: 3px 9px; border-radius: 999px; white-space: nowrap; font-weight: 600; }
+  .s-run { background: var(--chip-run); } .s-plan { background: var(--chip-plan); } .s-idea { background: var(--chip-idea); } .s-done { background: var(--chip-done); }
+  .size { background: var(--surface-2); color: var(--muted); }
+  .body { padding: 14px 18px 18px; }
+  .body h4 { margin: 14px 0 6px; font-size: .9rem; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
+  .body ul { margin: 0; padding-left: 20px; }
+  .body li { margin: 3px 0; }
+  .need { border-left: 3px solid var(--amber); padding-left: 10px; }
+  .why ol { padding-left: 20px; margin: 0; }
+  .why li { margin: 6px 0; }
+  table { width: 100%; border-collapse: collapse; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; font-size: .94rem; }
+  th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  th { background: var(--surface-2); font-size: .85rem; }
+  tr:last-child td { border-bottom: none; }
+  .scroll { overflow-x: auto; }
+  .flow { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: .9rem; }
+  .flow .chip { font-weight: 500; }
+  footer { margin-top: 48px; color: var(--muted); font-size: .85rem; }
+  @media (max-width: 560px) {
+    details.v summary { grid-template-columns: 1fr auto; }
+    .ver { grid-column: 1 / -1; }
+    h1 { font-size: 1.6rem; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <h1>🌱 Plano oficial Gardenfy</h1>
+  <p class="meta">Atualizado em 09/11/2026 · fonte técnica: <code>docs/PLANO_OFICIAL.md</code></p>
+  <p class="lead">Ordem dos próximos desenvolvimentos, do fechamento da 1.1 até o lançamento na Play Store e depois dele. Toque numa versão para ver o escopo, os riscos e o que é preciso de você.</p>
+  <nav>
+    <a href="#versionamento">Versionamento</a><a href="#linha">Linha do tempo</a><a href="#porque">Por que essa ordem</a><a href="#voce">O que preciso de você</a><a href="#ideias">Caixa de ideias</a>
+  </nav>
+
+  <h2 id="versionamento">Versionamento</h2>
+  <div class="grid">
+    <div class="card"><div class="k">Marco</div><div class="f">X.0.0</div><small>Mudança grande de produto, como o lançamento na Play. Build novo.</small></div>
+    <div class="card"><div class="k">Feature</div><div class="f">1.X.0</div><small>Feature nova do plano. Build novo, versionCode +1.</small></div>
+    <div class="card"><div class="k">Ajuste</div><div class="f">1.x.Y</div><small>Ajustes e correções de features existentes, inclusive nativas. Build novo.</small></div>
+    <div class="card"><div class="k">Ajuste mínimo</div><div class="f">1.x.y · OTA n</div><small>Texto, cor, layout, JS. Sai por <code>eas update</code>, sem mudar a versão.</small></div>
+  </div>
+  <p class="note">O quarto número (<code>1.x.x.x</code>) ficou de fora: o npm e o iOS só aceitam três. Como o <code>runtimeVersion</code> segue a versão do app, o OTA já é o lugar natural do ajuste mínimo.</p>
+
+  <h2 id="linha">Linha do tempo</h2>
+  <div class="timeline">
+
+    <details class="v">
+      <summary><span class="ver">1.1.0</span><span class="theme">Dia a dia<span>Para hoje, rega rápida, barras, sequência, lembretes</span></span><span class="chips"><span class="chip s-run">em andamento</span></span></summary>
+      <div class="body">
+        <p>Código pronto na <code>release/1.1.0</code>, com 112 testes passando.</p>
+        <h4>Falta</h4>
+        <ul><li>PR para <code>develop</code> e APK pelo EAS</li><li>Validar no celular: lembretes (Android 13+, horário, reinício), Para hoje, Desfazer, barras</li><li>PR para <code>main</code>, tag e release v1.1.0 (com sua instrução)</li></ul>
+      </div>
+    </details>
+
+    <details class="v">
+      <summary><span class="ver">1.1.x</span><span class="theme">Ajustes da 1.1<span>Telas estreitas, avisos do web, adubação</span></span><span class="chips"><span class="chip s-plan">planejada</span><span class="chip size">P</span></span></summary>
+      <div class="body">
+        <ul><li>Layout em 320/360 px: breakpoint, paddings menores, botão da barra como ícone</li><li>Limpeza dos avisos <code>shadow*</code>/<code>pointerEvents</code> no web</li><li>Adubação: remover a frase ou dar frequência própria</li><li>Achados da validação do APK</li></ul>
+      </div>
+    </details>
+
+    <details class="v">
+      <summary><span class="ver">1.2.0</span><span class="theme">Cuidados para qualquer espécie<span>Estimativa por IA + catálogo maior</span></span><span class="chips"><span class="chip s-plan">planejada</span><span class="chip size">M</span></span></summary>
+      <div class="body">
+        <p>As barras de Água e Luz passam a funcionar para qualquer espécie identificada pelo Pl@ntNet.</p>
+        <h4>Escopo</h4>
+        <ul><li>Edge Function <code>estimate-care</code> com Gemini Flash-Lite (free) e resposta em JSON validada</li><li>Cache compartilhado por espécie no Supabase e cache local no aparelho</li><li>Prioridade: seu intervalo → ficha curada → IA → sem dados</li><li>Selo "Estimativa da IA". A foto continua só identificando a espécie.</li><li>20 a 30 fichas curadas das espécies mais comuns</li></ul>
+        <h4>Riscos</h4>
+        <ul><li>A IA errar a faixa (mitigado pelo intervalo editável e pelo selo)</li><li>Limites do plano free</li></ul>
+        <h4>Preciso de você</h4>
+        <p class="need">Chave Gemini do AI Studio (sem faturamento) cadastrada como secret, e ok para a migração e o deploy.</p>
+      </div>
+    </details>
+
+    <details class="v">
+      <summary><span class="ver">1.3.0</span><span class="theme">Interface e base de produto<span>Design system, onboarding, acessibilidade, privacidade</span></span><span class="chips"><span class="chip s-plan">planejada</span><span class="chip size">M</span></span></summary>
+      <div class="body">
+        <h4>Escopo</h4>
+        <ul><li>Tokens e componentes base, migrando as telas atuais</li><li>Onboarding: primeiro jardim → primeira planta → lembretes</li><li>Acessibilidade com TalkBack, alvos de 48 dp, contraste</li><li>Relatório de falhas e métricas mínimas (retenção, regas por semana)</li><li>Política de privacidade e tela "Seus dados"</li><li>Animações leves de feedback</li></ul>
+        <h4>Preciso de você</h4>
+        <p class="need">Direção visual, conta de monitoramento e aceite da política de privacidade.</p>
+      </div>
+    </details>
+
+    <details class="v">
+      <summary><span class="ver">1.4.0</span><span class="theme">Conta e sincronização<span>Login, backup na nuvem, exclusão de conta</span></span><span class="chips"><span class="chip s-plan">planejada</span><span class="chip size">G</span></span></summary>
+      <div class="body">
+        <h4>Escopo</h4>
+        <ul><li>Supabase Auth com Google e e-mail. Login opcional: o app segue funcionando sem conta.</li><li>Tabelas com RLS e fotos no Storage</li><li>Sincronização offline-first com fila, e eventos de cuidado só acrescentados</li><li>Migração dos dados do aparelho para a conta sem perda</li><li>Exclusão de conta no app e na web (exigência da Play)</li></ul>
+        <h4>Riscos</h4>
+        <ul><li>A mudança mais delicada do plano (persistência): testes de migração e de conflito</li><li>Supabase free pausa por inatividade. Avaliar o plano Pro para produção.</li></ul>
+        <h4>Preciso de você</h4>
+        <p class="need">OAuth no Google Cloud, assinatura Android definitiva, conta na Play Console e início do teste fechado (12+ testadores por 14 dias).</p>
+      </div>
+    </details>
+
+    <details class="v">
+      <summary><span class="ver">1.5.0</span><span class="theme">Moedas, conquistas e perfil<span>XP, Sementes 🌱, medalhas</span></span><span class="chips"><span class="chip s-plan">planejada</span><span class="chip size">G</span></span></summary>
+      <div class="body">
+        <h4>Escopo</h4>
+        <ul><li><strong>XP</strong> define o nível e não se gasta. <strong>Sementes</strong> são a moeda de troca.</li><li>Ganha ao regar a planta <em>devida</em> no dia, concluir o Para hoje, bater marcos de sequência e cumprir missões. Tudo com teto diário.</li><li>Livro-razão no servidor, só de inserção, validado por uma Edge Function</li><li>Onde gastar: temas, vasos, molduras, créditos de análise de saúde e, depois, cupons de parceiros</li><li>Perfil com nível, medalhas e sequência</li><li>Sementes não são vendidas na primeira entrega</li></ul>
+        <h4>Riscos</h4>
+        <ul><li>Fraude (mitigada: só a rega devida rende, regra no servidor)</li><li>A moeda virar o objetivo no lugar do cuidado</li></ul>
+        <h4>Preciso de você</h4>
+        <p class="need">Valores da economia, lista e arte dos itens cosméticos.</p>
+      </div>
+    </details>
+
+    <details class="v">
+      <summary><span class="ver">1.6.0</span><span class="theme">Saúde da planta<span>Aba Saúde: foto → possíveis problemas → como ajudar</span></span><span class="chips"><span class="chip s-plan">planejada</span><span class="chip size">G</span></span></summary>
+      <div class="body">
+        <h4>Escopo</h4>
+        <ul><li>Funciona com qualquer planta, inclusive uma achada na rua, ou vinculada a uma do seu jardim</li><li>Confiança qualitativa, o que fazer e quando procurar ajuda</li><li>Provedor a decidir com 20 a 30 fotos reais: Gemini com visão, Kindwise plant.health, ou verificar se o Pl@ntNet oferece algo</li><li>Cota mensal grátis, mais no Plus, créditos extras com Sementes</li><li>Aviso claro: estimativa da IA, não diagnóstico definitivo</li></ul>
+        <p class="note">Muda a decisão da 1.0, que tinha tirado o diagnóstico: ele volta como feature explícita e opcional, sem trazer de volta os percentuais de água e luz tirados da foto.</p>
+        <h4>Preciso de você</h4>
+        <p class="need">Escolha do provedor depois do comparativo, orçamento mensal de IA e fotos para teste.</p>
+      </div>
+    </details>
+
+    <details class="v">
+      <summary><span class="ver">2.0.0</span><span class="theme">Play Store + Gardenfy Plus<span>Lançamento público, assinaturas, teste grátis</span></span><span class="chips"><span class="chip s-plan">planejada</span><span class="chip size">G</span></span></summary>
+      <div class="body">
+        <h4>Escopo</h4>
+        <ul><li>AAB, ficha da loja, Segurança de dados, classificação etária, política de privacidade</li><li>Assinatura mensal e anual com 7 dias grátis (Play Billing via RevenueCat)</li><li>O servidor decide o que está liberado (webhook → <code>entitlements</code>)</li><li>Plus: mais análises de saúde, temas, estatísticas. Cuidados, lembretes e sincronização continuam grátis.</li></ul>
+        <h4>Preciso de você</h4>
+        <p class="need">Perfil de pagamentos na Play, preços e o que entra no Plus.</p>
+      </div>
+    </details>
+
+    <details class="v">
+      <summary><span class="ver">2.1.0</span><span class="theme">Ranks e ligas<span>Ligas semanais, amigos, perfil público opcional</span></span><span class="chips"><span class="chip s-plan">planejada</span><span class="chip size">M</span></span></summary>
+      <div class="body">
+        <ul><li>Ligas semanais de cerca de 30 pessoas, com subida e descida de divisão. Sem ranking global.</li><li>Seguir amigos por código ou link</li><li>Perfil público desligado por padrão (LGPD e menores)</li><li>Prêmio semanal em Sementes</li></ul>
+        <p class="need">Decidir: com amigos ou só ligas anônimas?</p>
+      </div>
+    </details>
+
+    <details class="v">
+      <summary><span class="ver">2.2.0</span><span class="theme">Floriculturas parceiras<span>Kits com planta, vaso e substrato prontos</span></span><span class="chips"><span class="chip s-idea">analisada</span><span class="chip size">G</span></span></summary>
+      <div class="body">
+        <h4>Em três fases</h4>
+        <ul><li><strong>Piloto:</strong> 1 ou 2 floriculturas, kits curados, botão que abre o WhatsApp com o pedido pronto</li><li><strong>Catálogo:</strong> painel do parceiro, cupons pagos com Sementes, comissão</li><li><strong>Checkout no app:</strong> só se der certo. Envolve pagamento intermediado, nota fiscal, logística e CNPJ.</li></ul>
+        <p class="need">Contatos de floriculturas e modelo de ganho.</p>
+      </div>
+    </details>
+  </div>
+  <p class="note">Melhorias de interface são contínuas: entram em cada 1.x.Y e em cada OTA. A base delas é a 1.3.</p>
+
+  <h2 id="porque">Por que essa ordem</h2>
+  <div class="card why"><ol>
+    <li><strong>IA de cuidados primeiro:</strong> usa a infraestrutura que já existe e faz as barras valerem para qualquer espécie. Sem isso, moedas e rotina só funcionam para quatro espécies.</li>
+    <li><strong>Interface antes da conta:</strong> login, perfil, loja e planos são muitas telas novas. Com a base pronta, elas saem consistentes.</li>
+    <li><strong>Conta é a base:</strong> saldo de moedas, ranks e compras precisam do servidor. No aparelho dá pra manipular.</li>
+    <li><strong>Moedas antes da Saúde:</strong> a economia controla o custo da IA de saúde sem depender de pagamento.</li>
+    <li><strong>Play e Plus juntos:</strong> o Play Billing só funciona com o app instalado pela Play. O teste fechado começa na 1.4.</li>
+    <li><strong>Ligas e floriculturas depois do lançamento:</strong> as duas precisam de usuários reais.</li>
+  </ol></div>
+
+  <h2 id="voce">O que preciso de você</h2>
+  <div class="scroll"><table>
+    <tr><th>Versão</th><th>O quê</th></tr>
+    <tr><td>1.1.0</td><td>Validar o APK no celular e autorizar o PR para main, a tag e a release</td></tr>
+    <tr><td>1.2.0</td><td>Chave Gemini (AI Studio, sem faturamento) como secret e ok para o deploy</td></tr>
+    <tr><td>1.3.0</td><td>Direção visual, conta de monitoramento e política de privacidade</td></tr>
+    <tr><td>1.4.0</td><td>OAuth Google, assinatura Android definitiva, Play Console e 12+ testadores</td></tr>
+    <tr><td>1.5.0</td><td>Valores da economia e itens cosméticos</td></tr>
+    <tr><td>1.6.0</td><td>Provedor de saúde e orçamento de IA</td></tr>
+    <tr><td>2.0.0</td><td>Merchant da Play, preços e conteúdo do Plus</td></tr>
+    <tr><td>2.2.0</td><td>Floriculturas parceiras e modelo de comissão</td></tr>
+  </table></div>
+
+  <h2 id="ideias">Caixa de ideias</h2>
+  <div class="flow"><span class="chip s-idea">ideia</span>→<span class="chip size">analisada</span>→<span class="chip s-plan">planejada</span>→<span class="chip s-run">em andamento</span>→<span class="chip s-done">entregue</span></div>
+  <p style="margin-top:10px">Toda ideia nova entra aqui primeiro e só ganha versão depois de analisada.</p>
+  <div class="scroll"><table>
+    <tr><th>Data</th><th>Ideia</th><th>Status</th><th>Versão</th></tr>
+    <tr><td>08/11</td><td>Estimativa de cuidados por IA</td><td><span class="chip s-plan">planejada</span></td><td>1.2.0</td></tr>
+    <tr><td>09/11</td><td>Login / conta persistente</td><td><span class="chip s-plan">planejada</span></td><td>1.4.0</td></tr>
+    <tr><td>09/11</td><td>Moedas e recompensas</td><td><span class="chip s-plan">planejada</span></td><td>1.5.0</td></tr>
+    <tr><td>09/11</td><td>Planos pagos e teste grátis</td><td><span class="chip s-plan">planejada</span></td><td>2.0.0</td></tr>
+    <tr><td>09/11</td><td>Ranks e engajamento do perfil</td><td><span class="chip s-plan">planejada</span></td><td>1.5.0 / 2.1.0</td></tr>
+    <tr><td>09/11</td><td>Aba de saúde da planta</td><td><span class="chip s-plan">planejada</span></td><td>1.6.0</td></tr>
+    <tr><td>09/11</td><td>Floriculturas (kits prontos)</td><td><span class="chip size">analisada</span></td><td>2.2.0</td></tr>
+    <tr><td>09/11</td><td>Melhorias de interface</td><td><span class="chip s-plan">planejada</span></td><td>1.3.0 + contínuo</td></tr>
+    <tr><td>—</td><td>Frequência própria de adubação</td><td><span class="chip s-idea">ideia</span></td><td>1.1.1?</td></tr>
+  </table></div>
+
+  <footer>Gardenfy · plano vivo, atualizado junto com <code>docs/PLANO_OFICIAL.md</code>. Prazos e custos de terceiros devem ser conferidos na época de cada versão.</footer>
+</main>
+</body>
+</html>
