@@ -9,6 +9,7 @@ import { GardenIdentityIcon } from '../features/gardens/icons';
 import type { GardenDetails } from '../features/gardens/types';
 import { useGardensState } from '../features/gardens/store';
 import { TodaySection } from '../features/gardens/TodaySection';
+import { FirstStepsCard } from '../features/onboarding/FirstStepsCard';
 import { StreakDialog } from '../features/gardens/StreakDialog';
 import { describeStreak, getStreak } from '../features/gardens/streak';
 import { useNavbarVisibilityOnScroll } from '../hooks/useNavbarVisibilityOnScroll';
@@ -56,6 +57,7 @@ export default function HomeScreen() {
             </Pressable>
           ) : null}
         </View>
+        <FirstStepsCard gardens={gardens} />
         <TodaySection gardens={gardens} />
         <View style={styles.sectionHeader}>
           <Text accessibilityRole="header" style={styles.sectionTitle}>Meus jardins</Text>
