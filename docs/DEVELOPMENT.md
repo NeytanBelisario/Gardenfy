@@ -89,18 +89,20 @@ Para espécies sem ficha curada, o app pede ao servidor uma referência de rega 
 
 Limites: 30 pedidos por origem por hora (contador separado do `identify-plant`) e 400 chamadas novas ao Gemini por dia UTC para o app inteiro. Respostas vindas do cache não consomem cota.
 
-Configuração (secrets pelo painel do Supabase, nunca pelo chat):
+Configuração (secrets pelo painel do Supabase, em **Edge Functions → Secrets**, nunca pelo chat):
 
 - `GEMINI_API_KEY`: chave do Google AI Studio, de preferência num projeto sem faturamento. No plano gratuito o Google pode usar as requisições para melhorar os modelos; só o nome da espécie é enviado.
 - `GEMINI_MODEL` (opcional): padrão `gemini-3.1-flash-lite`. Confira a lista de modelos vigente antes do deploy.
 - `ANALYSIS_RATE_LIMIT_SALT`: o mesmo já usado pela identificação.
+
+Prefira o painel ao `supabase secrets set` no PowerShell: em 10/11/2026 o cadastro pela CLI gravou um valor diferente da chave e a função respondia `configuration`. Para conferir sem expor a chave, `npx supabase secrets list` mostra o SHA-256 do valor salvo; compare com o hash da chave calculado localmente.
 
 ```bash
 npx supabase db push --linked
 npx supabase functions deploy estimate-care --use-api
 ```
 
-Sem a função publicada, o app recebe `configuration`/rede, para de tentar naquela sessão e as barras continuam pedindo a frequência ao usuário, como na 1.1.
+Status: publicada em produção em 10/11/2026. Sem a função publicada, o app recebe `configuration`/rede, para de tentar naquela sessão e as barras continuam pedindo a frequência ao usuário, como na 1.1.
 
 Os imports do runtime ficam fixados em `deno.json`/`deno.lock`. TypeScript e lint do app não verificam os arquivos com APIs Deno; o CI executa o check separado.
 
