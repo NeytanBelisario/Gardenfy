@@ -7,7 +7,7 @@ Estas regras valem para todo o repositório e para qualquer agente que trabalhe 
 - Aplicativo Expo / React Native / TypeScript, com rotas em `src/app`.
 - Consulte `README.md`, `docs/DEVELOPMENT.md` e `docs/ROADMAP.md` antes de implementar uma tarefa.
 - O roadmap é uma proposta evolutiva. Implemente apenas o escopo solicitado; não inicie novas features só porque estão listadas nele.
-- Na preparação da versão 1.0, consulte `docs/RELEASE_1.0.md`: manutenção local de jardins/plantas, identificação Pl@ntNet com fichas de cuidados e AR em breve. Gemini, diagnóstico de doenças e percentuais derivados de foto não fazem parte da experiência nova.
+- Na preparação da versão 1.0, consulte `docs/RELEASE_1.0.md`: manutenção local de jardins/plantas, identificação Pl@ntNet com fichas de cuidados e AR em breve. Gemini, diagnóstico de doenças e percentuais derivados de foto não fazem parte da experiência nova. A partir da 1.2.0, o Gemini volta só no servidor (`estimate-care`) para estimar referências de rega e luz a partir do nome da espécie, sem foto, sempre identificadas como "Estimativa da IA"; diagnóstico e percentuais de foto continuam fora até a 1.6.
 - Atualize a documentação afetada junto da implementação. Não marque como concluído algo apenas planejado ou sem validação.
 - Comunique-se com o usuário em português. Mantenha identificadores e convenções existentes no código.
 

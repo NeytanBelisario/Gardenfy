@@ -80,7 +80,27 @@ Não passe secrets por chat ou histórico compartilhado do shell. Para validar o
 
 ```bash
 npx --yes deno@2.9.6 check --frozen --config supabase/functions/identify-plant/deno.json supabase/functions/identify-plant/index.ts
+npx --yes deno@2.9.6 check --frozen --config supabase/functions/estimate-care/deno.json supabase/functions/estimate-care/index.ts
 ```
+
+### Estimativa de cuidados (`estimate-care`, 1.2.0)
+
+Para espécies sem ficha curada, o app pede ao servidor uma referência de rega (faixa de dias) e de luz (adequação de sol direto, claridade e pouca luz). A função recebe **só** `{ scientificName, commonName? }`, consulta o cache compartilhado `care_estimates` e, se a espécie ainda não estiver lá, pergunta ao Gemini com `responseSchema` e temperatura 0. A resposta é validada no servidor (dias inteiros de 1 a 60, `min ≤ max`, pelo menos um local `ideal`) e de novo no app. Cada espécie custa uma chamada no total, não uma por usuário.
+
+Limites: 30 pedidos por origem por hora (contador separado do `identify-plant`) e 400 chamadas novas ao Gemini por dia UTC para o app inteiro. Respostas vindas do cache não consomem cota.
+
+Configuração (secrets pelo painel do Supabase, nunca pelo chat):
+
+- `GEMINI_API_KEY`: chave do Google AI Studio, de preferência num projeto sem faturamento. No plano gratuito o Google pode usar as requisições para melhorar os modelos; só o nome da espécie é enviado.
+- `GEMINI_MODEL` (opcional): padrão `gemini-3.1-flash-lite`. Confira a lista de modelos vigente antes do deploy.
+- `ANALYSIS_RATE_LIMIT_SALT`: o mesmo já usado pela identificação.
+
+```bash
+npx supabase db push --linked
+npx supabase functions deploy estimate-care --use-api
+```
+
+Sem a função publicada, o app recebe `configuration`/rede, para de tentar naquela sessão e as barras continuam pedindo a frequência ao usuário, como na 1.1.
 
 Os imports do runtime ficam fixados em `deno.json`/`deno.lock`. TypeScript e lint do app não verificam os arquivos com APIs Deno; o CI executa o check separado.
 

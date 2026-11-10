@@ -2,6 +2,16 @@
 
 Atualize este arquivo ao encerrar sessões que mudem o estado do projeto. Não armazene credenciais ou configurações privadas.
 
+## Sessão de 10/11/2026 — 1.2.0 (estimativa de cuidados por IA)
+
+- **Base:** PR #28 (1.1.1) integrado em `develop` (`04c9e4f`) por instrução do usuário; branch `release/1.2.0` a partir dele. Versão 1.2.0, `versionCode` 2.
+- **Servidor:** função `estimate-care` (`supabase/functions/estimate-care/`), núcleo puro em `core.ts` (validação do pedido, prompt, `responseSchema`, parser estrito, mapeamento de erros, linhas de cache). `consumeQuota` ganhou `scope`, `perClientLimit` e `dailyBudget { key, limit }`; `identify-plant` mantém as mesmas chaves e limites. Migração `20261110120000_add_care_estimates.sql` (tabela fechada por RLS, só service role). CI roda `deno check` das duas funções; ambos passaram localmente com Deno 2.9.6.
+- **App:** `careEstimate.ts` (tipo, validador, `getCareReference` com prioridade ficha → IA), `careEstimateService.ts` (cliente e espécies pendentes), `CareEstimateSync` no layout (fila única, para na sessão com `configuration`, retoma ao voltar ao app após rede/limite), `applyCareEstimate` no store, campo `careEstimate` na planta. Selo "Estimativa da IA" nas barras, resumo no painel ⓘ e aviso enquanto busca.
+- **Fichas:** 30 espécies (26 novas), URLs da NC State conferidas com HTTP 200.
+- **Checks:** `npm run check` (126 testes) e `deno check` das funções. Não executado: chamada real ao Gemini, telas no navegador/celular.
+- **Pendente do usuário:** chave Gemini como secret `GEMINI_API_KEY` e ok para `db push` e deploy de `estimate-care`.
+- **Próximo passo:** perguntar sobre o PR `release/1.2.0` → `develop`. A 1.3.0 depende da direção visual do usuário.
+
 ## Sessão de 10/11/2026 — 1.1.1 e testes adiados até a 1.6
 
 - **Decisão do usuário:** seguir o [plano oficial](PLANO_OFICIAL.md) versão a versão sem APK nem testes no celular até a 1.6, que valida tudo desde a 1.1.0. Ao fim de cada versão, perguntar antes de abrir o PR para `develop`.
