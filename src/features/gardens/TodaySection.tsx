@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Animated, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { PlantPhoto } from '../../components/PlantPhoto';
@@ -11,6 +11,7 @@ import type { GardenDetails } from './types';
 import { remindersSupported } from '../reminders/scheduler';
 import { useReminderSettings, useReminderSettingsLoaded } from '../reminders/settings';
 import { colors } from '../../theme/tokens';
+import { usePopOnTrue } from '../../hooks/usePopOnTrue';
 
 const COLLAPSED_COUNT = 4;
 
@@ -30,17 +31,19 @@ export function TodaySection({ gardens }: { gardens: GardenDetails[] }) {
   const reminders = useReminderSettings();
   const remindersLoaded = useReminderSettingsLoaded();
   const now = new Date();
-  if (!gardens.some((garden) => garden.plantCount > 0)) return null;
   const { due, tracked, next } = getTodayOverview(gardens, now);
+  // Pequena comemoração quando a última planta do dia é regada.
+  const pop = usePopOnTrue(!!tracked && !due.length);
+  if (!gardens.some((garden) => garden.plantCount > 0)) return null;
   const visible = expanded ? due : due.slice(0, COLLAPSED_COUNT);
   const open = (gardenId: string, plantId: string) => router.push({ pathname: '/gardens/[id]/plants/[plantId]', params: { id: gardenId, plantId } });
 
   return (
     <View style={styles.card}>
       <View style={styles.header}>
-        <View style={[styles.headerIcon, !due.length && styles.headerIconCalm]}>
+        <Animated.View style={[styles.headerIcon, !due.length && styles.headerIconCalm, { transform: [{ scale: pop }] }]}>
           <Ionicons name={due.length ? 'water' : 'leaf'} size={22} color={due.length ? colors.onInk : colors.accentStrong} />
-        </View>
+        </Animated.View>
         <View style={styles.headerCopy}>
           <Text accessibilityRole="header" style={styles.title}>Para hoje</Text>
           <Text style={styles.date}>{todayLabel(now)}</Text>
