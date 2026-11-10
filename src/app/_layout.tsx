@@ -6,10 +6,14 @@ import { StatusBar } from 'expo-status-bar';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { SuccessToastHost } from '../components/shell/SuccessToastHost';
+import { AppErrorScreen } from '../components/shell/AppErrorScreen';
 import { ReminderSync } from '../features/reminders/ReminderSync';
 import { CareEstimateSync } from '../features/gardens/CareEstimateSync';
 import { GardensBootstrap } from '../features/gardens/GardensBootstrap';
 import { colors } from '../theme/tokens';
+
+// Erros de renderização nas telas caem aqui (expo-router), sem fechar o app.
+export const ErrorBoundary = AppErrorScreen;
 
 export default function AppLayout() {
   const insets = useSafeAreaInsets();
