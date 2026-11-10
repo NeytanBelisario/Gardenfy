@@ -1,13 +1,13 @@
 # Política de privacidade do Gardenfy
 
-> **Rascunho para revisão (versão 1.3.1).** Antes de publicar na Play Store, preencha o responsável e o contato (marcados com `[definir]`) e confira se o texto continua batendo com o app.
+> **Rascunho para revisão (versão 1.3.1).** Antes de publicar na Play Store, confira se o texto continua batendo com o app.
 
 Última atualização: 10 de novembro de 2026.
 
 O Gardenfy é um app para cuidar de plantas: você organiza jardins, registra regas e recebe lembretes. Esta política explica quais dados o app usa, para quê, com quem eles são compartilhados e como você pode apagá-los. Ela segue a Lei Geral de Proteção de Dados (Lei 13.709/2018, LGPD).
 
-**Responsável pelos dados:** [definir: nome da pessoa ou empresa responsável]
-**Contato:** [definir: e-mail de contato para privacidade]
+**Responsável pelos dados:** Diony Rinker
+**Contato:** [dionyrinker40@gmail.com](mailto:dionyrinker40@gmail.com)
 
 ## Resumo
 

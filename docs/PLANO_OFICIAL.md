@@ -279,7 +279,7 @@ Modelo para uma ideia nova:
 
 | Quando | O que |
 |---|---|
-| 1.3.1 | Revisar a [política de privacidade](PRIVACY.md) e preencher responsável e e-mail de contato; conta no Sentry; ok para o deploy do `identify-plant` |
+| 1.3.1 | Revisar a [política de privacidade](PRIVACY.md); conta no Sentry |
 | 1.4.0 | OAuth Google, assinatura Android definitiva, conta Play Console e 12+ testadores |
 | 1.5.0 | Valores da economia e itens cosméticos |
 | 1.6.0 | Escolha do provedor de saúde, orçamento de IA e validação no celular de tudo desde a 1.1.0 |
