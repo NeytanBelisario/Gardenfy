@@ -39,7 +39,7 @@ Regras complementares:
 |---|---|---|---|
 | **1.1.0** | Dia a dia: Para hoje, rega rápida, barras, sequência, lembretes | `entregue` em `develop` (validação no celular na 1.6) | — |
 | **1.1.1** | Ajustes da 1.1: telas estreitas, avisos do web | `entregue` em `develop` | P |
-| **1.2.0** | Cuidados para qualquer espécie (estimativa por IA + catálogo maior) | `planejada (1.2.0)` | M |
+| **1.2.0** | Cuidados para qualquer espécie (estimativa por IA + catálogo maior) | `em andamento` (código pronto; falta deploy) | M |
 | **1.3.0** | Interface e base de produto (design system, onboarding, acessibilidade, privacidade, monitoramento) | `planejada (1.3.0)` | M |
 | **1.4.0** | Conta e sincronização (login, backup na nuvem, exclusão de conta) | `planejada (1.4.0)` | G |
 | **1.5.0** | Moedas, conquistas e perfil | `planejada (1.5.0)` | G |
@@ -82,6 +82,8 @@ Decisão de 10/11/2026: as versões 1.1.0 a 1.5.0 seguem sem APK nem validação
 Cada feature tem objetivo, escopo da primeira entrega, o que fica fora, arquitetura, riscos e o que é preciso do usuário.
 
 ### 1.2.0 — Cuidados para qualquer espécie
+
+> **Status (10/11/2026): `em andamento`.** Código na branch `release/1.2.0` (notas em [releases/1.2.0.md](releases/1.2.0.md)): função `estimate-care`, tabela `care_estimates`, `CareEstimate` salvo na planta, sincronização em segundo plano, selo "Estimativa da IA" e 30 fichas curadas. Falta o deploy, que depende da chave Gemini. Diferença do escopo original: em vez de um cache separado no AsyncStorage, a estimativa fica salva na própria planta (`careEstimate`), o que faz Para hoje, lista do jardim e lembretes usarem a estimativa sem nova chamada.
 
 **Objetivo:** as barras de Água e Luz funcionarem para qualquer espécie identificada pelo Pl@ntNet, não só para as quatro que têm ficha.
 
@@ -254,7 +256,7 @@ Toda ideia nova entra aqui. Depois da análise, ganha versão na linha do tempo.
 
 | Data | Ideia | Status | Versão | Notas |
 |---|---|---|---|---|
-| 08/11/2026 | Estimativa de cuidados por IA a partir do Pl@ntNet | `planejada` | 1.2.0 | Plano detalhado na seção 5 |
+| 08/11/2026 | Estimativa de cuidados por IA a partir do Pl@ntNet | `em andamento` | 1.2.0 | Código pronto; falta deploy com a chave Gemini |
 | 09/11/2026 | Login / conta persistente | `planejada` | 1.4.0 | Base de moedas, ranks e planos |
 | 09/11/2026 | Sistema de moedas e recompensas | `planejada` | 1.5.0 | XP + Sementes, livro-razão no servidor |
 | 09/11/2026 | Planos pagos e teste grátis | `planejada` | 2.0.0 | Depende da Play Store |
@@ -287,3 +289,4 @@ Modelo para uma ideia nova:
 - **09/11/2026** — Plano criado. Versionamento em três números, com ajuste mínimo via OTA. Ordem: 1.2 IA de cuidados → 1.3 interface → 1.4 conta → 1.5 moedas → 1.6 saúde → 2.0 Play + Plus → 2.1 ligas → 2.2 floriculturas. Ranks divididos entre perfil (1.5) e ligas (2.1). Floriculturas depois do lançamento, começando por um piloto sem pagamento no app.
 - **10/11/2026** — Testes no celular e APKs adiados até a 1.6, que valida tudo desde a 1.1.0; até lá cada versão passa só pelos checks automatizados. Versões seguem em sequência, com pergunta ao usuário sobre o PR para `develop` ao fim de cada uma. PRs #26 (1.1.0) e #27 (este plano) integrados em `develop`.
 - **10/11/2026** — Adubação na 1.1.1: mantida a frase "Última adubação"; frequência própria fica como ideia para depois da 1.2.
+- **10/11/2026** — 1.2.0: a estimativa da IA é salva na própria planta (`careEstimate`) em vez de um cache local separado; o cache compartilhado por espécie continua no Supabase (`care_estimates`). Modelo padrão `gemini-3.1-flash-lite`, configurável por `GEMINI_MODEL`.

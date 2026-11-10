@@ -1,4 +1,5 @@
-import { getPlantCareProfile, type LightFit } from './careProfiles';
+import type { LightFit } from './careProfiles';
+import { getCareReference, type CareReferenceSource } from './careEstimate';
 import type { GardenPlant, PlantLightSpot } from './types';
 
 export const lightSpotOptions: { spot: PlantLightSpot; label: string; hint: string; icon: 'sunny' | 'partly-sunny' | 'cloudy' }[] = [
@@ -15,17 +16,21 @@ export type LightStatus = {
   fit?: LightFit;
   /** Spot the species prefers, when known. */
   ideal?: PlantLightSpot;
+  /** Where the species preference comes from, when known. */
+  referenceSource?: CareReferenceSource;
   level: number;
 };
 
 const fitLevel: Record<LightFit, number> = { ideal: 1, ok: 0.6, poor: 0.25 };
 
 export function getLightStatus(plant: GardenPlant): LightStatus {
-  const lightFit = getPlantCareProfile(plant)?.lightFit;
+  const care = getCareReference(plant);
+  const lightFit = care?.lightFit;
   const ideal = lightFit ? lightSpotOptions.find((option) => lightFit[option.spot] === 'ideal')?.spot : undefined;
-  if (!plant.lightSpot) return { ideal, level: 0 };
+  const referenceSource = care?.source;
+  if (!plant.lightSpot) return { ideal, referenceSource, level: 0 };
   const fit = lightFit?.[plant.lightSpot];
-  return { spot: plant.lightSpot, fit, ideal, level: fit ? fitLevel[fit] : 0 };
+  return { spot: plant.lightSpot, fit, ideal, referenceSource, level: fit ? fitLevel[fit] : 0 };
 }
 
 export function spotLabel(spot: PlantLightSpot) {
@@ -44,6 +49,6 @@ export function describeLightDetail(status: LightStatus) {
   if (!status.spot) return 'Conte onde a planta fica para comparar com o que a espécie prefere.';
   if (!status.fit) return 'Sem ficha da espécie para comparar com o local.';
   const where = 'Fica em: ' + spotLabel(status.spot).toLowerCase();
-  if (status.fit === 'ideal' || !status.ideal) return where;
-  return where + ' · ela prefere ' + spotLabel(status.ideal).toLowerCase();
+  const detail = status.fit === 'ideal' || !status.ideal ? where : where + ' · ela prefere ' + spotLabel(status.ideal).toLowerCase();
+  return status.referenceSource === 'ai' ? detail + ' · estimativa da IA' : detail;
 }

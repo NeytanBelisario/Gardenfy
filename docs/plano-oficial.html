@@ -107,11 +107,12 @@
     </details>
 
     <details class="v">
-      <summary><span class="ver">1.2.0</span><span class="theme">Cuidados para qualquer espécie<span>Estimativa por IA + catálogo maior</span></span><span class="chips"><span class="chip s-plan">planejada</span><span class="chip size">M</span></span></summary>
+      <summary><span class="ver">1.2.0</span><span class="theme">Cuidados para qualquer espécie<span>Estimativa por IA + catálogo maior</span></span><span class="chips"><span class="chip s-run">em andamento</span><span class="chip size">M</span></span></summary>
       <div class="body">
         <p>As barras de Água e Luz passam a funcionar para qualquer espécie identificada pelo Pl@ntNet.</p>
+        <p class="note">Código pronto na <code>release/1.2.0</code>, com 30 fichas curadas. Falta só o deploy, que precisa da sua chave Gemini.</p>
         <h4>Escopo</h4>
-        <ul><li>Edge Function <code>estimate-care</code> com Gemini Flash-Lite (free) e resposta em JSON validada</li><li>Cache compartilhado por espécie no Supabase e cache local no aparelho</li><li>Prioridade: seu intervalo → ficha curada → IA → sem dados</li><li>Selo "Estimativa da IA". A foto continua só identificando a espécie.</li><li>20 a 30 fichas curadas das espécies mais comuns</li></ul>
+        <ul><li>Edge Function <code>estimate-care</code> com Gemini Flash-Lite (free) e resposta em JSON validada</li><li>Cache compartilhado por espécie no Supabase; no aparelho, a estimativa fica salva na própria planta</li><li>Prioridade: seu intervalo → ficha curada → IA → sem dados</li><li>Selo "Estimativa da IA". A foto continua só identificando a espécie.</li><li>20 a 30 fichas curadas das espécies mais comuns</li></ul>
         <h4>Riscos</h4>
         <ul><li>A IA errar a faixa (mitigado pelo intervalo editável e pelo selo)</li><li>Limites do plano free</li></ul>
         <h4>Preciso de você</h4>
@@ -220,7 +221,7 @@
   <p style="margin-top:10px">Toda ideia nova entra aqui primeiro e só ganha versão depois de analisada.</p>
   <div class="scroll"><table>
     <tr><th>Data</th><th>Ideia</th><th>Status</th><th>Versão</th></tr>
-    <tr><td>08/11</td><td>Estimativa de cuidados por IA</td><td><span class="chip s-plan">planejada</span></td><td>1.2.0</td></tr>
+    <tr><td>08/11</td><td>Estimativa de cuidados por IA</td><td><span class="chip s-run">em andamento</span></td><td>1.2.0</td></tr>
     <tr><td>09/11</td><td>Login / conta persistente</td><td><span class="chip s-plan">planejada</span></td><td>1.4.0</td></tr>
     <tr><td>09/11</td><td>Moedas e recompensas</td><td><span class="chip s-plan">planejada</span></td><td>1.5.0</td></tr>
     <tr><td>09/11</td><td>Planos pagos e teste grátis</td><td><span class="chip s-plan">planejada</span></td><td>2.0.0</td></tr>

@@ -33,5 +33,7 @@ jobs:
         run: npx expo install --check
       - name: Check identification function runtime with locked imports
         run: npx --yes deno@2.9.6 check --frozen --config supabase/functions/identify-plant/deno.json supabase/functions/identify-plant/index.ts
+      - name: Check care estimate function runtime with locked imports
+        run: npx --yes deno@2.9.6 check --frozen --config supabase/functions/estimate-care/deno.json supabase/functions/estimate-care/index.ts
       - name: Export Android and web JavaScript and assets
         run: npx expo export --platform android --platform web

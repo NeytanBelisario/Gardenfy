@@ -24,11 +24,13 @@ type Props = {
   /** 0..1 */
   level: number;
   tone: CareMeterTone;
+  /** Selo curto ao lado do rótulo, ex.: "Estimativa da IA". */
+  badge?: string;
   /** Em telas estreitas o botão vira só o ícone, para sobrar espaço ao estado. */
   action?: { label: string; icon: IconName; accessibilityLabel?: string; onPress: () => void; disabled?: boolean };
 };
 
-export function CareMeter({ icon, iconColor, tint, label, status, detail, level, tone, action }: Props) {
+export function CareMeter({ icon, iconColor, tint, label, status, detail, level, tone, badge, action }: Props) {
   const compact = useCompactLayout();
   const percent = Math.round(Math.min(1, Math.max(0, level)) * 100);
   return (
@@ -36,7 +38,10 @@ export function CareMeter({ icon, iconColor, tint, label, status, detail, level,
       <View style={[styles.top, compact && styles.topCompact]}>
         <View style={[styles.icon, compact && styles.iconCompact, { backgroundColor: tint }]}><Ionicons name={icon} size={compact ? 18 : 20} color={iconColor} /></View>
         <View style={styles.copy}>
-          <Text style={styles.label}>{label}</Text>
+          <View style={styles.labelRow}>
+            <Text style={styles.label}>{label}</Text>
+            {badge ? <View style={styles.badge}><Text style={styles.badgeText}>{badge}</Text></View> : null}
+          </View>
           <Text style={[styles.status, compact && styles.statusCompact, { color: tone === 'neutral' ? '#17361d' : toneColors[tone] }]}>{status}</Text>
         </View>
         {action ? (
@@ -61,6 +66,9 @@ const styles = StyleSheet.create({
   icon: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center' },
   iconCompact: { width: 32, height: 32, borderRadius: 16 },
   copy: { flex: 1, gap: 1 },
+  labelRow: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 6 },
+  badge: { paddingHorizontal: 8, paddingVertical: 2, borderRadius: 10, backgroundColor: '#efe8f7' },
+  badgeText: { fontSize: 11, fontWeight: '700', color: '#5b3f86' },
   label: { fontSize: 13, fontWeight: '700', color: '#586653', textTransform: 'uppercase', letterSpacing: 0.6 },
   status: { fontSize: 17, fontWeight: '800' },
   statusCompact: { fontSize: 15 },

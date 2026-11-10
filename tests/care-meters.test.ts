@@ -30,10 +30,10 @@ test('calendar days ignore the hour of the day', () => {
 });
 
 test('watering plan prefers the user frequency over the species reference', () => {
-  assert.deepEqual(getWateringPlan(plant(monstera)), { source: 'species', intervalDays: 7, reference: { min: 7, max: 10 } });
-  assert.deepEqual(getWateringPlan(plant({ ...monstera, wateringIntervalDays: 12 })), { source: 'custom', intervalDays: 12, reference: { min: 7, max: 10 } });
+  assert.deepEqual(getWateringPlan(plant(monstera)), { source: 'species', intervalDays: 7, reference: { min: 7, max: 10 }, referenceSource: 'profile' });
+  assert.deepEqual(getWateringPlan(plant({ ...monstera, wateringIntervalDays: 12 })), { source: 'custom', intervalDays: 12, reference: { min: 7, max: 10 }, referenceSource: 'profile' });
   assert.equal(getWateringPlan(plant()), undefined);
-  assert.deepEqual(getWateringPlan(plant({ wateringIntervalDays: 3 })), { source: 'custom', intervalDays: 3, reference: undefined });
+  assert.deepEqual(getWateringPlan(plant({ wateringIntervalDays: 3 })), { source: 'custom', intervalDays: 3, reference: undefined, referenceSource: undefined });
 });
 
 test('water status without a frequency or without watering never invents a level', () => {

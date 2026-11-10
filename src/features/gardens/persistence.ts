@@ -3,6 +3,7 @@ import { recalculateGardenStats } from './models';
 import { gardenIconOptions } from './iconNames';
 import { isValidPhotoReference } from './photoStorageCore';
 import type { GardenDetails } from './types';
+import { isCareEstimate } from './careEstimate';
 import { isPlantCandidate } from '../plant-identification/types';
 
 export const GARDENS_STORAGE_KEY = '@gardenfy/gardens';
@@ -87,6 +88,7 @@ function isPlant(value: unknown, nullable = true, historyRequired = true) {
     optional(value.lastAnalyzedAt, (date) => isString(date) && Number.isFinite(Date.parse(date))) &&
     optional(value.wateringIntervalDays, isWateringInterval) &&
     optional(value.lightSpot, isLightSpot) &&
+    optional(value.careEstimate, isCareEstimate) &&
     isRecord(value.status) && isString(value.status.label) &&
     ['vital', 'stable', 'dry'].includes(String(value.status.tone)) && isMetrics(value.metrics, nullable) && (!historyRequired || isHistory(value.history));
 }

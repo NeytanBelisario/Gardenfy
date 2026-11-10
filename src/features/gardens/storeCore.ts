@@ -4,6 +4,7 @@ import { normalizeCareDraft } from './plantHistory';
 import { buildAnalyzedPlant, buildPlaceholderPlant, recalculateGardenStats } from './models';
 import { deserializeGardens, GARDENS_STORAGE_KEY, isLightSpot, isWateringInterval, serializeGardens, type GardensStorage } from './persistence';
 import type { PlantPhotoStorage } from './photoStorageCore';
+import { isCareEstimate, plantSpeciesName, sameSpecies, type CareEstimate } from './careEstimate';
 import type { PlantLightSpot, CreateGardenDraft, GardenDetails, PlantAnalysisResult, PlantCatalogItem, GardenPlant, PlantCareType, PlantCareDraft, PlantCareRecord } from './types';
 
 export type GardensState = {
@@ -168,6 +169,26 @@ export function createGardensStore(storage: GardensStorage, photos: PlantPhotoSt
         const updated: GardenPlant = spot === undefined ? rest : { ...rest, lightSpot: spot };
         await commit(replaceGarden({ ...garden, plants: garden.plants.map((item) => item.id === plantId ? updated : item) }));
         return updated;
+      });
+    },
+    /** Stores an AI estimate on every plant of that species that has no current one yet. */
+    applyCareEstimate(estimate: CareEstimate) {
+      return enqueue(async () => {
+        if (!isCareEstimate(estimate)) throw new Error('Estimativa de cuidados inválida.');
+        let changed = 0;
+        const gardens = state.gardens.map((garden) => {
+          let touched = false;
+          const plants = garden.plants.map((plant) => {
+            const species = plantSpeciesName(plant);
+            if (!species || !sameSpecies(species, estimate.scientificName)) return plant;
+            if (plant.careEstimate && sameSpecies(plant.careEstimate.scientificName, species)) return plant;
+            touched = true; changed += 1;
+            return { ...plant, careEstimate: estimate };
+          });
+          return touched ? { ...garden, plants } : garden;
+        });
+        if (changed) await commit(gardens);
+        return changed;
       });
     },
     recordPlantCare(gardenId: string, plantId: string, careType: PlantCareType) {

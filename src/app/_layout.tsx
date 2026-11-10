@@ -7,6 +7,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { SuccessToastHost } from '../components/shell/SuccessToastHost';
 import { ReminderSync } from '../features/reminders/ReminderSync';
+import { CareEstimateSync } from '../features/gardens/CareEstimateSync';
 import { GardensBootstrap } from '../features/gardens/GardensBootstrap';
 
 export default function AppLayout() {
@@ -25,6 +26,7 @@ export default function AppLayout() {
       {Platform.OS === 'android' && !keyboardVisible ? <View accessible={false} style={[styles.systemInset, { height: insets.bottom }]} /> : null}
       <SuccessToastHost />
       <ReminderSync />
+      <CareEstimateSync />
     </View>
   );
 }
