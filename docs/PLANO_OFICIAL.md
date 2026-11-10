@@ -40,7 +40,8 @@ Regras complementares:
 | **1.1.0** | Dia a dia: Para hoje, rega rápida, barras, sequência, lembretes | `entregue` em `develop` (validação no celular na 1.6) | — |
 | **1.1.1** | Ajustes da 1.1: telas estreitas, avisos do web | `entregue` em `develop` | P |
 | **1.2.0** | Cuidados para qualquer espécie (estimativa por IA + catálogo maior) | `entregue` em `develop`, função ativa em produção | M |
-| **1.3.0** | Interface e base de produto (design system, onboarding, acessibilidade, privacidade, monitoramento) | `em andamento` (monitoramento e privacidade na 1.3.1) | M |
+| **1.3.0** | Interface e base de produto (design system, onboarding, acessibilidade, animações) | `entregue` em `develop` | M |
+| **1.3.1** | Privacidade e estabilidade (política, "Seus dados", fotos sem metadados, tela de erro) | `em andamento` (falta Sentry e contato da política) | P |
 | **1.4.0** | Conta e sincronização (login, backup na nuvem, exclusão de conta) | `planejada (1.4.0)` | G |
 | **1.5.0** | Moedas, conquistas e perfil | `planejada (1.5.0)` | G |
 | **1.6.0** | Saúde da planta (análise por foto) | `planejada (1.6.0)` | G |
@@ -104,7 +105,7 @@ Cada feature tem objetivo, escopo da primeira entrega, o que fica fora, arquitet
 
 ### 1.3.0 — Interface e base de produto
 
-> **Status (10/11/2026): `em andamento`** na branch `release/1.3.0`, mantendo a identidade visual atual (decisão do usuário). Feito: tokens e componentes base ([DESIGN.md](DESIGN.md)), primeiros passos na tela inicial, alvos de 48 dp, toast de Desfazer adaptado ao leitor de tela e animações leves que respeitam "reduzir movimento". Monitoramento e política de privacidade dependem do usuário e viram uma 1.3.1. Notas em [releases/1.3.0.md](releases/1.3.0.md).
+> **Status (10/11/2026): `entregue` em `develop`** ([PR #30](https://github.com/NeytanBelisario/Gardenfy/pull/30)); a parte de privacidade e estabilidade segue na 1.3.1 (branch `release/1.3.1`, notas em [releases/1.3.1.md](releases/1.3.1.md)). Feito na 1.3.0, mantendo a identidade visual atual (decisão do usuário). Feito: tokens e componentes base ([DESIGN.md](DESIGN.md)), primeiros passos na tela inicial, alvos de 48 dp, toast de Desfazer adaptado ao leitor de tela e animações leves que respeitam "reduzir movimento". Monitoramento e política de privacidade dependem do usuário e viram uma 1.3.1. Notas em [releases/1.3.0.md](releases/1.3.0.md).
 
 **Objetivo:** deixar o app com cara de produto antes de crescer em número de telas, e cumprir o básico que a loja exige.
 
@@ -278,7 +279,7 @@ Modelo para uma ideia nova:
 
 | Quando | O que |
 |---|---|
-| 1.3.1 | Conta de monitoramento (ex.: Sentry) e texto/aceite da política de privacidade (visual: manter o atual) |
+| 1.3.1 | Revisar a [política de privacidade](PRIVACY.md) e preencher responsável e e-mail de contato; conta no Sentry; ok para o deploy do `identify-plant` |
 | 1.4.0 | OAuth Google, assinatura Android definitiva, conta Play Console e 12+ testadores |
 | 1.5.0 | Valores da economia e itens cosméticos |
 | 1.6.0 | Escolha do provedor de saúde, orçamento de IA e validação no celular de tudo desde a 1.1.0 |
@@ -292,4 +293,5 @@ Modelo para uma ideia nova:
 - **10/11/2026** — Adubação na 1.1.1: mantida a frase "Última adubação"; frequência própria fica como ideia para depois da 1.2.
 - **10/11/2026** — 1.2.0: a estimativa da IA é salva na própria planta (`careEstimate`) em vez de um cache local separado; o cache compartilhado por espécie continua no Supabase (`care_estimates`). Modelo padrão `gemini-3.1-flash-lite`, configurável por `GEMINI_MODEL`.
 - **10/11/2026** — 1.3.0 mantém a identidade visual atual. Onboarding como checklist "Primeiros passos" na tela inicial, derivado dos dados (nada é marcado à mão). Monitoramento e política de privacidade saem da 1.3.0 e vão para uma 1.3.1, quando o usuário tiver a conta e o texto.
+- **10/11/2026** — 1.3.1 começa sem esperar a conta de monitoramento: o rascunho da política é escrito a partir do código, com aviso antes da primeira foto (em vez de um aceite geral na abertura do app), tela "Seus dados", remoção de metadados da foto no servidor e tela de erro com `reportError` pronto para o Sentry. Usuário pretende validar e ajustar a 1.3 em seguida.
 - **10/11/2026** — Deploy da 1.2.0: chave Gemini cadastrada pelo painel do Supabase (o cadastro pela CLI no PowerShell gravou um valor diferente da chave), migração aplicada e `estimate-care` publicada e testada.

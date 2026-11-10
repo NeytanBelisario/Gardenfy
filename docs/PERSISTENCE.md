@@ -24,6 +24,8 @@ As operações de criação de jardim, inclusão pelo catálogo, inclusão por f
 
 A criação exige nome preenchido. O antigo `createMockGarden` foi substituído por `createGarden`; o catálogo estático não inicializa mais o store por efeito colateral. As telas aguardam o salvamento antes de navegar ou apresentar resultado salvo. A identificação Pl@ntNet exige revisão e confirmação explícita; descartar resultado, cancelar ou falhar não grava nada. O nome pessoal é salvo na mesma operação, separado da espécie confirmada. Reidentificação preserva nome, descrição, cuidados e análises antigas; ver [ANALYSIS.md](ANALYSIS.md).
 
+Outras chaves no AsyncStorage guardam só preferências: `gardenfy.reminders.v1` (lembretes), `gardenfy.first-steps.dismissed.v1` (checklist dispensado) e `gardenfy.privacy.photo-notice.v1` (aviso da foto aceito).
+
 Esse armazenamento é local, sem conta, sincronização ou backup em servidor. Os dados sobrevivem ao reinício normal do app; limpar dados, desinstalar ou perder o aparelho pode removê-los. AsyncStorage não é armazenamento criptografado de credenciais. O Git transfere o código entre PCs, não os jardins de quem usa o aplicativo.
 
 ## Fotos
