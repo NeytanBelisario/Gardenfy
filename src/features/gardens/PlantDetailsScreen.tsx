@@ -3,6 +3,7 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useCompactLayout } from '../../hooks/useCompactLayout';
 import { AppHeader } from '../../components/shell/AppHeader';
 import { PlantPhoto } from '../../components/PlantPhoto';
 import { formatPercent } from './metricPresentation';
@@ -44,6 +45,7 @@ function HistoryItem({ entry, disabled, onManage }: { entry: PlantHistoryEntry; 
 export default function PlantDetailsScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const compact = useCompactLayout();
   const params = useLocalSearchParams<{ id?: string | string[]; plantId?: string | string[] }>();
   const id = Array.isArray(params.id) ? params.id[0] : params.id;
   const plantId = Array.isArray(params.plantId) ? params.plantId[0] : params.plantId;
@@ -73,12 +75,12 @@ export default function PlantDetailsScreen() {
   return (
     <View style={styles.screen}>
       <AppHeader title={plant?.name ?? 'Planta'} mode="back" onPressLeading={back} />
-      <ScrollView contentContainerStyle={[styles.content, { paddingBottom: 32 + insets.bottom }]}>
+      <ScrollView contentContainerStyle={[styles.content, compact && styles.contentCompact, { paddingBottom: 32 + insets.bottom }]}>
         {garden && plant ? <>
-          <PlantPhoto uri={plant.imageUrl} style={styles.photo} label={'Foto de ' + plant.name} />
+          <PlantPhoto uri={plant.imageUrl} style={[styles.photo, compact && styles.photoCompact]} label={'Foto de ' + plant.name} />
           <Text style={styles.caption}>{garden.name}</Text>
           <View style={styles.titleRow}>
-            <Text accessibilityRole="header" style={styles.title}>{plant.name}</Text>
+            <Text accessibilityRole="header" style={[styles.title, compact && styles.titleCompact]}>{plant.name}</Text>
             <Pressable accessibilityRole="button" accessibilityLabel={'Ver informações de ' + plant.name} disabled={busy} onPress={() => setInfoOpen(true)} hitSlop={8} style={styles.infoButton}>
               <Ionicons name="information" size={20} color="#476644" />
             </Pressable>
@@ -88,19 +90,19 @@ export default function PlantDetailsScreen() {
             {plant.species && plant.subtitle ? ' · ' : null}
             {plant.subtitle ?? null}
           </Text> : null}
-          <View style={styles.careCard}>
+          <View style={[styles.careCard, compact && styles.careCardCompact]}>
             <Text accessibilityRole="header" style={styles.heading}>O cuidado de hoje</Text>
             {water ? <CareMeter
               icon="water" iconColor="#2f6f8f" tint="#e2eff6" label="Água"
               status={describeWaterStatus(water)} level={water.level} tone={waterTone[water.state]}
               detail={[water.lastWateredAt ? 'Última rega ' + formatCareDay(water.lastWateredAt) : null, water.plan ? describeWateringPlan(water.plan) : 'Escolha de quanto em quanto tempo você rega para acompanhar.'].filter(Boolean).join(' · ')}
-              action={{ label: water.plan ? 'Ajustar' : 'Definir', accessibilityLabel: 'Ajustar frequência de rega', disabled: busy, onPress: () => setIntervalOpen(true) }}
+              action={{ label: water.plan ? 'Ajustar' : 'Definir', icon: 'options-outline', accessibilityLabel: 'Ajustar frequência de rega', disabled: busy, onPress: () => setIntervalOpen(true) }}
             /> : null}
             {light ? <CareMeter
               icon="sunny" iconColor="#9a6700" tint="#fdf3d7" label="Luz"
               status={describeLightStatus(light)} level={light.level} tone={light.fit ? lightTone[light.fit] : 'neutral'}
               detail={describeLightDetail(light)}
-              action={{ label: light.spot ? 'Mudar' : 'Definir', accessibilityLabel: 'Definir onde a planta fica', disabled: busy, onPress: () => setLightOpen(true) }}
+              action={{ label: light.spot ? 'Mudar' : 'Definir', icon: 'location-outline', accessibilityLabel: 'Definir onde a planta fica', disabled: busy, onPress: () => setLightOpen(true) }}
             /> : null}
             {routine ? <CareMeter
               icon="leaf" iconColor="#476644" tint="#e6f0e1" label="Rotina"
@@ -108,7 +110,7 @@ export default function PlantDetailsScreen() {
               detail={describeRoutineDetail(routine)}
             /> : null}
             <Text style={styles.caption}>Última adubação: {lastFertilize ? formatCareDay(lastFertilize.occurredAt) : 'ainda sem registro'}</Text>
-            <View style={styles.actions}>{(['water', 'fertilize'] as const).map((careType) => <Pressable key={careType} accessibilityRole="button" accessibilityLabel={careType === 'water' ? 'Registrar rega' : 'Registrar adubação'} disabled={busy || !!action || !!management} accessibilityState={{ disabled: busy || !!action || !!management, busy }} onPress={() => record(careType)} style={[styles.primary, busy && styles.disabled]}>
+            <View style={styles.actions}>{(['water', 'fertilize'] as const).map((careType) => <Pressable key={careType} accessibilityRole="button" accessibilityLabel={careType === 'water' ? 'Registrar rega' : 'Registrar adubação'} disabled={busy || !!action || !!management} accessibilityState={{ disabled: busy || !!action || !!management, busy }} onPress={() => record(careType)} style={[styles.primary, compact && styles.primaryCompact, busy && styles.disabled]}>
               <Ionicons name={careType === 'water' ? 'water-outline' : 'leaf-outline'} size={20} color="#fff" /><Text style={styles.primaryText}>{careType === 'water' ? 'Registrar rega' : 'Registrar adubação'}</Text>
             </Pressable>)}</View>
             {busy ? <Text accessibilityLiveRegion="polite" style={styles.caption}>Salvando cuidado...</Text> : null}
@@ -135,9 +137,12 @@ export default function PlantDetailsScreen() {
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: '#fbf9f5' },
   content: { width: '100%', maxWidth: 720, alignSelf: 'center', padding: 20, gap: 14 },
+  contentCompact: { padding: 16, gap: 12 },
   photo: { height: 220, width: '100%', borderRadius: 24 },
+  photoCompact: { height: 180, borderRadius: 20 },
   titleRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   title: { color: '#17361d', fontSize: 32, fontWeight: '800', flexShrink: 1 },
+  titleCompact: { fontSize: 26 },
   infoButton: { width: 34, height: 34, alignItems: 'center', justifyContent: 'center', borderRadius: 17, backgroundColor: '#eef2e8', borderWidth: 1, borderColor: '#d9e2d2' },
   species: { color: '#476644', fontSize: 15, fontStyle: 'italic' },
   heading: { color: '#17361d', fontSize: 22, fontWeight: '800' },
@@ -145,8 +150,10 @@ const styles = StyleSheet.create({
   label: { color: '#17361d', fontSize: 15, fontWeight: '700', flexShrink: 1 },
   caption: { color: '#586653', fontSize: 13, lineHeight: 21 },
   careCard: { borderRadius: 24, padding: 20, backgroundColor: '#eef2e8', gap: 16 },
+  careCardCompact: { padding: 12, gap: 12, borderRadius: 20 },
   actions: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
   primary: { minHeight: 52, minWidth: 140, flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, borderRadius: 16, padding: 16, backgroundColor: '#17361d' },
+  primaryCompact: { flexBasis: '100%', minWidth: 0, minHeight: 48, padding: 12 },
   primaryText: { color: '#fff', fontSize: 15, fontWeight: '700', textAlign: 'center', flexShrink: 1 },
   secondary: { minHeight: 52, flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'center', gap: 8, borderRadius: 16, padding: 16, borderWidth: 1, borderColor: '#c2c8bf' },
   historyCard: { borderRadius: 20, padding: 20, backgroundColor: '#fff', borderWidth: 1, borderColor: '#e7e9e0', gap: 10 },

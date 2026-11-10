@@ -90,18 +90,19 @@
   <div class="timeline">
 
     <details class="v">
-      <summary><span class="ver">1.1.0</span><span class="theme">Dia a dia<span>Para hoje, rega rápida, barras, sequência, lembretes</span></span><span class="chips"><span class="chip s-run">em andamento</span></span></summary>
+      <summary><span class="ver">1.1.0</span><span class="theme">Dia a dia<span>Para hoje, rega rápida, barras, sequência, lembretes</span></span><span class="chips"><span class="chip s-done">entregue</span></span></summary>
       <div class="body">
-        <p>Código pronto na <code>release/1.1.0</code>, com 112 testes passando.</p>
-        <h4>Falta</h4>
-        <ul><li>PR para <code>develop</code> e APK pelo EAS</li><li>Validar no celular: lembretes (Android 13+, horário, reinício), Para hoje, Desfazer, barras</li><li>PR para <code>main</code>, tag e release v1.1.0 (com sua instrução)</li></ul>
+        <p>Integrada em <code>develop</code> (PR #26), com 112 testes passando.</p>
+        <h4>Adiado para a 1.6</h4>
+        <ul><li>APK pelo EAS e validação no celular: lembretes (Android 13+, horário, reinício), Para hoje, Desfazer, barras</li><li>PR para <code>main</code>, tag e release (com sua instrução)</li></ul>
       </div>
     </details>
 
     <details class="v">
-      <summary><span class="ver">1.1.x</span><span class="theme">Ajustes da 1.1<span>Telas estreitas, avisos do web, adubação</span></span><span class="chips"><span class="chip s-plan">planejada</span><span class="chip size">P</span></span></summary>
+      <summary><span class="ver">1.1.1</span><span class="theme">Ajustes da 1.1<span>Telas estreitas, avisos do web, adubação</span></span><span class="chips"><span class="chip s-done">entregue</span><span class="chip size">P</span></span></summary>
       <div class="body">
-        <ul><li>Layout em 320/360 px: breakpoint, paddings menores, botão da barra como ícone</li><li>Limpeza dos avisos <code>shadow*</code>/<code>pointerEvents</code> no web</li><li>Adubação: remover a frase ou dar frequência própria</li><li>Achados da validação do APK</li></ul>
+        <ul><li>✅ Layout em 320/360 px: modo compacto, paddings menores, botão da barra como ícone</li><li>✅ Avisos <code>shadow*</code>/<code>pointerEvents</code> no web</li><li>✅ Adubação: mantida a frase “Última adubação”; frequência própria fica para depois da 1.2</li></ul>
+        <p class="note">Testes no celular adiados: a 1.6 valida tudo desde a 1.1.0.</p>
       </div>
     </details>
 
@@ -205,12 +206,11 @@
   <h2 id="voce">O que preciso de você</h2>
   <div class="scroll"><table>
     <tr><th>Versão</th><th>O quê</th></tr>
-    <tr><td>1.1.0</td><td>Validar o APK no celular e autorizar o PR para main, a tag e a release</td></tr>
-    <tr><td>1.2.0</td><td>Chave Gemini (AI Studio, sem faturamento) como secret e ok para o deploy</td></tr>
+        <tr><td>1.2.0</td><td>Chave Gemini (AI Studio, sem faturamento) como secret e ok para o deploy</td></tr>
     <tr><td>1.3.0</td><td>Direção visual, conta de monitoramento e política de privacidade</td></tr>
     <tr><td>1.4.0</td><td>OAuth Google, assinatura Android definitiva, Play Console e 12+ testadores</td></tr>
     <tr><td>1.5.0</td><td>Valores da economia e itens cosméticos</td></tr>
-    <tr><td>1.6.0</td><td>Provedor de saúde e orçamento de IA</td></tr>
+    <tr><td>1.6.0</td><td>Provedor de saúde, orçamento de IA e validação no celular de tudo desde a 1.1.0</td></tr>
     <tr><td>2.0.0</td><td>Merchant da Play, preços e conteúdo do Plus</td></tr>
     <tr><td>2.2.0</td><td>Floriculturas parceiras e modelo de comissão</td></tr>
   </table></div>
@@ -228,7 +228,7 @@
     <tr><td>09/11</td><td>Aba de saúde da planta</td><td><span class="chip s-plan">planejada</span></td><td>1.6.0</td></tr>
     <tr><td>09/11</td><td>Floriculturas (kits prontos)</td><td><span class="chip size">analisada</span></td><td>2.2.0</td></tr>
     <tr><td>09/11</td><td>Melhorias de interface</td><td><span class="chip s-plan">planejada</span></td><td>1.3.0 + contínuo</td></tr>
-    <tr><td>—</td><td>Frequência própria de adubação</td><td><span class="chip s-idea">ideia</span></td><td>1.1.1?</td></tr>
+    <tr><td>—</td><td>Frequência própria de adubação</td><td><span class="chip s-idea">ideia</span></td><td>depois da 1.2</td></tr>
   </table></div>
 
   <footer>Gardenfy · plano vivo, atualizado junto com <code>docs/PLANO_OFICIAL.md</code>. Prazos e custos de terceiros devem ser conferidos na época de cada versão.</footer>

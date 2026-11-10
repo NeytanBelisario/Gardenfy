@@ -22,7 +22,7 @@ export default function AppLayout() {
     <View style={styles.screen}>
       <StatusBar style="dark" />
       <GardensBootstrap><Slot /></GardensBootstrap>
-      {Platform.OS === 'android' && !keyboardVisible ? <View pointerEvents="none" accessible={false} style={[styles.systemInset, { height: insets.bottom }]} /> : null}
+      {Platform.OS === 'android' && !keyboardVisible ? <View accessible={false} style={[styles.systemInset, { height: insets.bottom }]} /> : null}
       <SuccessToastHost />
       <ReminderSync />
     </View>
@@ -31,5 +31,5 @@ export default function AppLayout() {
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: '#fbf9f5' },
-  systemInset: { position: 'absolute', bottom: 0, left: 0, right: 0, backgroundColor: '#fbf9f5' },
+  systemInset: { position: 'absolute', bottom: 0, left: 0, right: 0, backgroundColor: '#fbf9f5', pointerEvents: 'none' },
 });

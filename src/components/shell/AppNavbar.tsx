@@ -73,12 +73,12 @@ export function AppNavbar({ hidden = false }: AppNavbarProps) {
 
   return (
     <Animated.View
-      pointerEvents={shouldHide ? 'none' : 'auto'}
       accessibilityElementsHidden={shouldHide}
       importantForAccessibility={shouldHide ? 'no-hide-descendants' : 'auto'}
       style={[
         styles.navShell,
         {
+          pointerEvents: shouldHide ? 'none' : 'auto',
           paddingBottom: Math.max(insets.bottom, 12),
           opacity,
           transform: [{ translateY }],
@@ -136,11 +136,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#ffffff',
     borderWidth: 1,
     borderColor: '#e7e9e0',
-    shadowColor: '#17361d',
-    shadowOpacity: 0.14,
-    shadowRadius: 18,
-    shadowOffset: { width: 0, height: 8 },
-    elevation: 10,
+    boxShadow: '0px 8px 18px rgba(23, 54, 29, 0.14)',
   },
   navItem: {
     alignItems: 'center',
