@@ -9,8 +9,8 @@ Atualize este arquivo ao encerrar sessões que mudem o estado do projeto. Não a
 - **Branch:** `release/1.1.1`, a partir de `develop` (`34c38dc`). Versão 1.1.1; `versionCode` continua 2 (nenhum APK distribuído desde a 1.0.0).
 - **Feito:** modo compacto da tela da planta (`src/hooks/useCompactLayout.ts`, `CareMeter` com ação em ícone) e troca de `shadow*`/prop `pointerEvents` por `boxShadow`/estilo. Notas em [releases/1.1.1.md](releases/1.1.1.md).
 - **Checks:** `npm run check` (typecheck, lint, 112 testes). Não executado: layout em 320/360/390 px e sombras no Android.
-- **Pendente:** decisão do usuário sobre a adubação (remover a frase "Última adubação" ou dar frequência própria).
-- **Próximo passo:** com a decisão, fechar a 1.1.1 e perguntar sobre o PR; depois, 1.2.0 (código da estimativa de cuidados; deploy depende da chave Gemini do usuário).
+- **Adubação:** usuário decidiu manter a frase "Última adubação"; frequência própria fica como ideia para depois da 1.2.
+- **Próximo passo:** PR `release/1.1.1` → `develop` (autorizado, com merge); depois, 1.2.0 (código da estimativa de cuidados; deploy depende da chave Gemini do usuário).
 
 ## Sessão de 05/11/2026 — início da 1.1.0
 
