@@ -129,7 +129,7 @@ test('reference priority: curated profile, then AI estimate; user frequency stil
 });
 
 test('an estimate for another species or an unknown species gives no reference', () => {
-  const renamed = plant({ species: { scientificName: 'Maranta leuconeura', commonName: 'Maranta', source: 'catalog' }, careEstimate: estimate });
+  const renamed = plant({ species: { scientificName: 'Ctenanthe oppenheimiana', commonName: 'Ctenante', source: 'catalog' }, careEstimate: estimate });
   assert.equal(currentCareEstimate(renamed), undefined);
   assert.equal(getCareReference(renamed), undefined);
   assert.equal(needsCareEstimate(renamed), true);
@@ -190,4 +190,21 @@ test('store applies an estimate to every plant of the species and persists it', 
   const tampered = JSON.parse(memory.raw!);
   tampered.gardens[0].plants[0].careEstimate.lightFit.sun = 'great';
   assert.throws(() => deserializeGardens(JSON.stringify(tampered)));
+});
+
+test('curated profiles are consistent and no name points to two species', async () => {
+  const { plantCareProfiles, normalizePlantName, findPlantCareProfile } = await import('../src/features/gardens/careProfiles');
+  assert.ok(plantCareProfiles.length >= 20);
+  const owner = new Map<string, string>();
+  for (const profile of plantCareProfiles) {
+    const { min, max } = profile.wateringDays;
+    assert.ok(Number.isInteger(min) && Number.isInteger(max) && min >= 1 && min <= max && max <= 60, profile.scientificName);
+    assert.ok(Object.values(profile.lightFit).includes('ideal'), profile.scientificName);
+    assert.match(profile.sourceUrl, /^https:\/\/plants\.ces\.ncsu\.edu\/plants\/[a-z-]+\/$/);
+    for (const name of new Set([profile.scientificName, profile.commonName, ...profile.aliases].map(normalizePlantName))) {
+      assert.equal(owner.get(name), undefined, `${name} já pertence a ${owner.get(name)}`);
+      owner.set(name, profile.scientificName);
+    }
+    assert.equal(findPlantCareProfile(profile.commonName)?.scientificName, profile.scientificName);
+  }
 });
