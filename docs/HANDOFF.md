@@ -2,6 +2,16 @@
 
 Atualize este arquivo ao encerrar sessões que mudem o estado do projeto. Não armazene credenciais ou configurações privadas.
 
+## Sessão de 10/11/2026 — 1.1.1 e testes adiados até a 1.6
+
+- **Decisão do usuário:** seguir o [plano oficial](PLANO_OFICIAL.md) versão a versão sem APK nem testes no celular até a 1.6, que valida tudo desde a 1.1.0. Ao fim de cada versão, perguntar antes de abrir o PR para `develop`.
+- **Integração:** PR #26 (`release/1.1.0`) e PR #27 (plano oficial) integrados em `develop` por instrução do usuário; o #27 precisou de merge de `develop` (conflito só no `ROADMAP.md`, resolvido mantendo as duas seções).
+- **Branch:** `release/1.1.1`, a partir de `develop` (`34c38dc`). Versão 1.1.1; `versionCode` continua 2 (nenhum APK distribuído desde a 1.0.0).
+- **Feito:** modo compacto da tela da planta (`src/hooks/useCompactLayout.ts`, `CareMeter` com ação em ícone) e troca de `shadow*`/prop `pointerEvents` por `boxShadow`/estilo. Notas em [releases/1.1.1.md](releases/1.1.1.md).
+- **Checks:** `npm run check` (typecheck, lint, 112 testes). Não executado: layout em 320/360/390 px e sombras no Android.
+- **Pendente:** decisão do usuário sobre a adubação (remover a frase "Última adubação" ou dar frequência própria).
+- **Próximo passo:** com a decisão, fechar a 1.1.1 e perguntar sobre o PR; depois, 1.2.0 (código da estimativa de cuidados; deploy depende da chave Gemini do usuário).
+
 ## Sessão de 05/11/2026 — início da 1.1.0
 
 - **Fechamento da 1.0.0:** issue #20 comentada com o APK validado (`26e1260`, build `ac0491f2`) e fechada; [PR #24](https://github.com/NeytanBelisario/Gardenfy/pull/24) integrado em `develop` (`55085c6`).

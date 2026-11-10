@@ -37,8 +37,8 @@ Regras complementares:
 
 | Versão | Tema | Status | Tamanho |
 |---|---|---|---|
-| **1.1.0** | Dia a dia: Para hoje, rega rápida, barras, sequência, lembretes | `em andamento` (validação no celular) | — |
-| **1.1.x** | Ajustes da 1.1: telas estreitas, avisos do web, adubação, achados do APK | `planejada (1.1.1)` | P |
+| **1.1.0** | Dia a dia: Para hoje, rega rápida, barras, sequência, lembretes | `entregue` em `develop` (validação no celular na 1.6) | — |
+| **1.1.1** | Ajustes da 1.1: telas estreitas, avisos do web, adubação | `em andamento` | P |
 | **1.2.0** | Cuidados para qualquer espécie (estimativa por IA + catálogo maior) | `planejada (1.2.0)` | M |
 | **1.3.0** | Interface e base de produto (design system, onboarding, acessibilidade, privacidade, monitoramento) | `planejada (1.3.0)` | M |
 | **1.4.0** | Conta e sincronização (login, backup na nuvem, exclusão de conta) | `planejada (1.4.0)` | G |
@@ -61,21 +61,21 @@ Tamanho: **P** é cerca de uma semana de trabalho, **M** de duas a três semanas
 
 ## 4. Fechamento da 1.1
 
-### 1.1.0 — `em andamento`
+### 1.1.0 — `entregue` em `develop`
 
-Entregue em código na branch `release/1.1.0` (detalhes em [releases/1.1.0.md](releases/1.1.0.md)). Falta:
+Integrada em `develop` pelo [PR #26](https://github.com/NeytanBelisario/Gardenfy/pull/26) (detalhes em [releases/1.1.0.md](releases/1.1.0.md)). APK, validação no celular e promoção para `main` ficam para a 1.6 (ver [testes adiados](#testes-adiados-até-a-16)).
 
-- [ ] PR `release/1.1.0` → `develop`
-- [ ] APK de produção pelo EAS
-- [ ] Validação no celular: lembretes (permissão Android 13+, horário, reinício), Para hoje, rega com Desfazer, barras
-- [ ] PR `develop` → `main`, tag e release `v1.1.0` (somente com instrução)
+### 1.1.1 — `em andamento`
 
-### 1.1.1 — `planejada`
+Branch `release/1.1.1`, notas em [releases/1.1.1.md](releases/1.1.1.md).
 
-- Layout em celulares estreitos (análise de 320/360 px em [HANDOFF.md](HANDOFF.md)): breakpoint com `useWindowDimensions`, paddings menores, botão da barra virando ícone, título compacto.
-- Limpeza dos avisos `shadow*` e `pointerEvents` no web.
-- Adubação: remover a frase ou dar frequência própria (decisão pendente).
-- Achados da validação do APK 1.1.0.
+- [x] Layout em celulares estreitos: `useCompactLayout` (largura lógica < 380, considerando fonte ampliada), paddings menores, botão da barra virando ícone, título e estado menores, botões de registro empilhados.
+- [x] Limpeza dos avisos `shadow*` (agora `boxShadow`) e `pointerEvents` (agora estilo) no web.
+- [ ] Adubação: remover a frase ou dar frequência própria (decisão do usuário pendente).
+
+### Testes adiados até a 1.6
+
+Decisão de 10/11/2026: as versões 1.1.0 a 1.5.0 seguem sem APK nem validação no celular. Cada versão continua passando por `npm run check` (typecheck, lint e testes automatizados); a validação completa no aparelho acontece na 1.6, cobrindo tudo o que foi entregue desde a 1.1.0. Até lá, nada é promovido para `main` nem publicado como release.
 
 ## 5. Features planejadas
 
@@ -274,15 +274,16 @@ Modelo para uma ideia nova:
 
 | Quando | O que |
 |---|---|
-| 1.1.0 | Validar o APK no celular e autorizar o PR para `main`, a tag e a release |
+| 1.1.1 | Decidir a adubação: remover a frase ou dar frequência própria |
 | 1.2.0 | Chave Gemini (AI Studio, sem faturamento) como secret e ok para o deploy |
 | 1.3.0 | Direção visual, conta de monitoramento e política de privacidade |
 | 1.4.0 | OAuth Google, assinatura Android definitiva, conta Play Console e 12+ testadores |
 | 1.5.0 | Valores da economia e itens cosméticos |
-| 1.6.0 | Escolha do provedor de saúde e orçamento de IA |
+| 1.6.0 | Escolha do provedor de saúde, orçamento de IA e validação no celular de tudo desde a 1.1.0 |
 | 2.0.0 | Merchant da Play, preços e conteúdo do Plus |
 | 2.2.0 | Floriculturas parceiras e modelo de comissão |
 
 ## 9. Histórico de decisões
 
 - **09/11/2026** — Plano criado. Versionamento em três números, com ajuste mínimo via OTA. Ordem: 1.2 IA de cuidados → 1.3 interface → 1.4 conta → 1.5 moedas → 1.6 saúde → 2.0 Play + Plus → 2.1 ligas → 2.2 floriculturas. Ranks divididos entre perfil (1.5) e ligas (2.1). Floriculturas depois do lançamento, começando por um piloto sem pagamento no app.
+- **10/11/2026** — Testes no celular e APKs adiados até a 1.6, que valida tudo desde a 1.1.0; até lá cada versão passa só pelos checks automatizados. Versões seguem em sequência, com pergunta ao usuário sobre o PR para `develop` ao fim de cada uma. PRs #26 (1.1.0) e #27 (este plano) integrados em `develop`.
