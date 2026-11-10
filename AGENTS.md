@@ -11,6 +11,13 @@ Estas regras valem para todo o repositório e para qualquer agente que trabalhe 
 - Atualize a documentação afetada junto da implementação. Não marque como concluído algo apenas planejado ou sem validação.
 - Comunique-se com o usuário em português. Mantenha identificadores e convenções existentes no código.
 
+## Plano oficial (leitura obrigatória)
+
+- `docs/PLANO_OFICIAL.md` é o plano oficial dos próximos desenvolvimentos: versionamento, ordem das versões, escopo técnico de cada feature, pendências do usuário e caixa de ideias. Leia antes de qualquer tarefa. A visualização para o usuário é `docs/plano-oficial.html`.
+- Toda ideia nova do usuário entra na Caixa de ideias com status `ideia` e só recebe versão depois de analisada. Mudanças de ordem ou de escopo atualizam o `.md` e o `.html` no mesmo commit, com registro no Histórico de decisões.
+- Versionamento: `X.0.0` marco, `1.X.0` feature, `1.x.Y` ajuste, ajuste mínimo via OTA (`eas update`) sem mudar a versão. Não usar quatro números.
+- O plano não autoriza implementar antecipadamente: cada versão começa só com pedido explícito do usuário.
+
 ## Branches e pull requests
 
 - `develop` é a base de integração; `main` fica reservada para versões estáveis.
