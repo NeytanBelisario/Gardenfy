@@ -8,6 +8,10 @@ O plano e os critérios de lançamento estão em [RELEASE_1.0.md](RELEASE_1.0.md
 
 **A partir de 09/11/2026, os próximos desenvolvimentos seguem o [Plano oficial](PLANO_OFICIAL.md)** (versionamento, ordem 1.2 → 2.2 e caixa de ideias). Este roadmap fica como histórico até a 1.1.
 
+## Versão 1.1.0 — em preparação
+
+Branch `release/1.1.0`, com ajustes definidos pelo usuário ao longo do trabalho e aprovados um a um. Foco no dia a dia: Para hoje, rega em um toque com desfazer, barras de Água/Luz/Rotina, sequência e lembretes locais de rega. Detalhes e limites em [releases/1.1.0.md](releases/1.1.0.md). Ajustes pequenos encontrados na validação seguem numa 1.1.1, incluindo o layout para celulares estreitos.
+
 ## Histórico do MVP inicial
 
 Referência inicial: 01/10/2026. Este documento separa o que existe no código das entregas propostas. Prioridades e funcionalidades adicionais podem mudar conforme os próximos detalhes do produto; nenhuma escolha de backend ou regra de pontuação está fechada.

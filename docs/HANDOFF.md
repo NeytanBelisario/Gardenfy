@@ -2,6 +2,21 @@
 
 Atualize este arquivo ao encerrar sessões que mudem o estado do projeto. Não armazene credenciais ou configurações privadas.
 
+## Sessão de 05/11/2026 — início da 1.1.0
+
+- **Fechamento da 1.0.0:** issue #20 comentada com o APK validado (`26e1260`, build `ac0491f2`) e fechada; [PR #24](https://github.com/NeytanBelisario/Gardenfy/pull/24) integrado em `develop` (`55085c6`).
+- **Sincronização:** [PR #25](https://github.com/NeytanBelisario/Gardenfy/pull/25) `main` → `develop` com a licença MIT e a seção "Licença" do README (`f3f752f`), checks verdes, integrado por instrução do usuário (`c8ddcf1`) e trazido para esta branch. `develop` contém toda a `main`.
+- **Branch:** `release/1.1.0`, criada de `develop` (`55085c6`) por escolha do usuário: as mudanças da 1.1.0 serão definidas ao longo do trabalho e ficam nesta mesma branch, em commits por etapa, com PR para `develop`.
+- **Versão:** `version` 1.1.0 (`app.json`, `package.json` e raiz do lockfile) e `android.versionCode` 2. Como `runtimeVersion` segue `appVersion`, updates OTA publicados a partir desta branch ou da `develop` após a integração atingem apenas APKs 1.1.0; hotfix para quem tem a 1.0.0 deve partir da tag `v1.0.0`/`main`.
+- **Checks:** `npx expo config` com versão 1.1.0/código 2 e `git diff --check`. Sem mudança de código; app não executado.
+- **Ajustes aprovados (um bloco por vez, commit após aprovação do usuário na web local):** ficha "Conheça sua planta" no painel ⓘ (`24cf9c9`), revisar espécie dentro do ⓘ (`617a1ef`), barra de Água com frequência por planta (`7a200a7`) e barra de Luz pelo local da planta (`9a37ae3`).
+- **Pendência registrada pelo usuário — celulares estreitos:** a tela de detalhes ainda não foi conferida em larguras pequenas. Análise do código: em 320 px lógicos sobram ~212 px dentro de cada barra (padding da tela 20 + card 20 + barra 14), e ícone 40 + botão "Ajustar/Mudar" ~70 deixam ~80 px para o estado (fonte 17), que quebra em 3–4 linhas; em 360 px, ~120 px. Os botões "Registrar rega/adubação" (mínimo 140 cada) empilham abaixo de ~330 px, e o título de 32 px com o ⓘ quebra com nomes longos. Caminho proposto: breakpoint por `useWindowDimensions` (< 360/380), reduzir paddings aninhados, trocar o botão de texto da barra por ícone ou levá-lo para a linha de detalhe, e reduzir título/estado no modo compacto. Validar em 320/360/390 no navegador e no celular.
+- **Blocos seguintes aprovados:** barra de Rotina (`9db0931`), mini-barra e contagem de sede na lista do jardim (`8d37762`), rega em um toque com Desfazer e seção Para hoje (`ae3c615`, inclui correção de botão aninhado no web), Sequência e home sem contadores (`e874e33`), lembretes locais com `expo-notifications` ~55.0.27 (`06c61ff`, instalado com npm 10.9.7; lockfile só com o pacote e duas dependências).
+- **Checks:** `npm run check` (TypeScript, lint, 112 testes), `npx expo install --check` e `expo export --platform android` aprovados. Telas conferidas pelo usuário no navegador; notificações não testadas (web não suporta).
+- **Avisos conhecidos no console web:** `shadow*` e `props.pointerEvents` obsoletos, anteriores à 1.1.0 (AppHeader, AppNavbar, `_layout`, `gardens/new`, toast); mensagens de `contentscript.js` vêm de extensão do navegador.
+- **Pendências para a 1.1.1:** layout em telas estreitas (análise acima), limpeza dos avisos de estilo do web e o que surgir na validação do APK. Remover a frase de adubação ou dar frequência própria à adubação ainda não foi discutido.
+- **Próximo passo:** revisar o PR `release/1.1.0` → `develop`, gerar o APK de produção pelo EAS e validar no celular: lembretes (permissão Android 13+, horário, reinício do aparelho), Para hoje, rega com Desfazer e barras. Depois, PR `develop` → `main`, tag e release `v1.1.0` somente com instrução.
+
 ## Sessão de 02/11/2026 — lançamento da 1.0.0
 
 - **Validação:** usuário instalou o APK final (`26e1260`, build EAS `ac0491f2`) e percorreu a jornada no celular sem problemas encontrados. OTA e notas integrados em `develop` pelo PR #22 (`cc50ff1`).

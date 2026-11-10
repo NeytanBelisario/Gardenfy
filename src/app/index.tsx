@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -6,9 +6,11 @@ import { Ionicons } from '@expo/vector-icons';
 import { AppHeader } from '../components/shell/AppHeader';
 import { AppNavbar } from '../components/shell/AppNavbar';
 import { GardenIdentityIcon } from '../features/gardens/icons';
-import { gardenCareCount } from '../features/gardens/careActivity';
 import type { GardenDetails } from '../features/gardens/types';
 import { useGardensState } from '../features/gardens/store';
+import { TodaySection } from '../features/gardens/TodaySection';
+import { StreakDialog } from '../features/gardens/StreakDialog';
+import { describeStreak, getStreak } from '../features/gardens/streak';
 import { useNavbarVisibilityOnScroll } from '../hooks/useNavbarVisibilityOnScroll';
 
 function GardenCard({ garden }: { garden: GardenDetails }) {
@@ -26,12 +28,6 @@ function GardenCard({ garden }: { garden: GardenDetails }) {
         </View>
         <Ionicons name="chevron-forward" size={20} color="#476644" />
       </View>
-      <View style={styles.localNote}>
-        <Ionicons name="water-outline" size={18} color="#476644" />
-        <Text style={styles.noteText}>{!garden.plantCount ? 'Seu jardim está pronto para receber a primeira planta.'
-          : !gardenCareCount(garden) ? 'Nenhum cuidado ainda · registre a primeira rega'
-          : gardenCareCount(garden) + (gardenCareCount(garden) === 1 ? ' cuidado registrado' : ' cuidados registrados') + ' · acompanhe suas plantas'}</Text>
-      </View>
     </Pressable>
   );
 }
@@ -39,8 +35,9 @@ function GardenCard({ garden }: { garden: GardenDetails }) {
 export default function HomeScreen() {
   const router = useRouter();
   const { gardens } = useGardensState();
-  const plants = gardens.reduce((total, garden) => total + garden.plantCount, 0);
   const { navbarHidden, handleNavbarScroll } = useNavbarVisibilityOnScroll();
+  const [streakOpen, setStreakOpen] = useState(false);
+  const streak = getStreak(gardens);
   return (
     <View style={styles.screen}>
       <AppHeader mode="menu" />
@@ -50,12 +47,15 @@ export default function HomeScreen() {
           <Text style={styles.eyebrow}>UM POUCO DE VERDE, TODOS OS DIAS</Text>
           <Text style={styles.heroTitle}>Seu espaço para cultivar.</Text>
           <Text style={styles.heroText}>Reúna suas plantas e acompanhe cada cuidado, no seu ritmo.</Text>
-          <View style={styles.summary}>
-            <Text style={styles.summaryText}>{gardens.length} {gardens.length === 1 ? 'jardim' : 'jardins'}</Text>
-            <View style={styles.summaryDot} />
-            <Text style={styles.summaryText}>{plants} {plants === 1 ? 'planta' : 'plantas'}</Text>
-          </View>
+          {streak.trackedPlants ? (
+            <Pressable accessibilityRole="button" accessibilityLabel={(streak.current ? 'Sequência: ' + describeStreak(streak.current) : 'Sequência zerada') + '. Ver detalhes'} onPress={() => setStreakOpen(true)} style={({ pressed }) => [styles.streak, pressed && styles.pressed]}>
+              <Ionicons name="flame" size={18} color={streak.current ? '#ffb547' : '#b8ceaf'} />
+              <Text style={styles.streakText}>{streak.current ? describeStreak(streak.current) : 'Recomece sua sequência hoje'}</Text>
+              <Ionicons name="chevron-forward" size={16} color="#c4d9b9" />
+            </Pressable>
+          ) : null}
         </View>
+        <TodaySection gardens={gardens} />
         <View style={styles.sectionHeader}>
           <Text accessibilityRole="header" style={styles.sectionTitle}>Meus jardins</Text>
           {gardens.length ? <Pressable accessibilityRole="button" accessibilityLabel="Criar jardim" onPress={() => router.push('/gardens/new')} style={styles.newButton}>
@@ -74,6 +74,7 @@ export default function HomeScreen() {
         )}
       </ScrollView>
       <AppNavbar hidden={navbarHidden} />
+      {streakOpen ? <StreakDialog streak={streak} onClose={() => setStreakOpen(false)} /> : null}
     </View>
   );
 }
@@ -85,9 +86,8 @@ const styles = StyleSheet.create({
   eyebrow: { color: '#c4d9b9', fontSize: 10, fontWeight: '800', letterSpacing: 1.5 },
   heroTitle: { color: '#ffffff', fontSize: 32, lineHeight: 38, fontWeight: '800', letterSpacing: -1 },
   heroText: { color: '#d6e2d0', fontSize: 15, lineHeight: 23, maxWidth: 420 },
-  summary: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 12, marginTop: 10 },
-  summaryText: { color: '#ffffff', fontSize: 14, fontWeight: '700' },
-  summaryDot: { width: 4, height: 4, borderRadius: 2, backgroundColor: '#b8ceaf' },
+  streak: { alignSelf: 'flex-start', marginTop: 6, minHeight: 40, flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 14, borderRadius: 20, backgroundColor: 'rgba(255,255,255,0.12)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.18)' },
+  streakText: { color: '#ffffff', fontSize: 14, fontWeight: '800' },
   sectionHeader: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: 8, marginTop: 8 },
   sectionTitle: { fontSize: 22, fontWeight: '800', color: '#17361d' },
   newButton: { minHeight: 44, flexDirection: 'row', alignItems: 'center', gap: 5, paddingHorizontal: 10, borderRadius: 14, backgroundColor: '#e9efe4' },
@@ -98,8 +98,6 @@ const styles = StyleSheet.create({
   cardCopy: { flex: 1, minWidth: 0, gap: 5 },
   gardenName: { color: '#17361d', fontSize: 20, lineHeight: 26, fontWeight: '800' },
   secondary: { color: '#586653', fontSize: 13, lineHeight: 20 },
-  localNote: { flexDirection: 'row', alignItems: 'center', gap: 9, borderTopWidth: 1, borderColor: '#eef0e9', paddingTop: 14 },
-  noteText: { flex: 1, color: '#586653', fontSize: 13, lineHeight: 20 },
   empty: { borderRadius: 24, backgroundColor: '#ffffff', borderWidth: 1, borderColor: '#e7e9e0', padding: 24, alignItems: 'center', gap: 14 },
   emptyImage: { width: 180, height: 120 },
   emptyTitle: { color: '#17361d', fontSize: 23, lineHeight: 29, fontWeight: '800', textAlign: 'center' },

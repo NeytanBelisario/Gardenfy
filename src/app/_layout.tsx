@@ -6,6 +6,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { SuccessToastHost } from '../components/shell/SuccessToastHost';
+import { ReminderSync } from '../features/reminders/ReminderSync';
 import { GardensBootstrap } from '../features/gardens/GardensBootstrap';
 
 export default function AppLayout() {
@@ -23,6 +24,7 @@ export default function AppLayout() {
       <GardensBootstrap><Slot /></GardensBootstrap>
       {Platform.OS === 'android' && !keyboardVisible ? <View pointerEvents="none" accessible={false} style={[styles.systemInset, { height: insets.bottom }]} /> : null}
       <SuccessToastHost />
+      <ReminderSync />
     </View>
   );
 }

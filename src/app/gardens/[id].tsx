@@ -8,8 +8,10 @@ import { PlantPhoto } from '../../components/PlantPhoto';
 import { GardenIdentityIcon } from '../../features/gardens/icons';
 import { GardenManagementDialog, type GardenManagementAction } from '../../features/gardens/GardenManagementDialog';
 import { normalizePlantName } from '../../features/gardens/careProfiles';
-import { formatCareDay, gardenCareCount, lastPlantCare } from '../../features/gardens/careActivity';
-import { careLabels } from '../../features/gardens/plantHistory';
+import { gardenCareCount } from '../../features/gardens/careActivity';
+import { PlantWaterIndicator } from '../../features/gardens/PlantWaterIndicator';
+import { WaterNowButton } from '../../features/gardens/WaterNowButton';
+import { describeWaterStatus, getWaterStatus } from '../../features/gardens/watering';
 import { useGardenDetails } from '../../features/gardens/store';
 
 export default function GardenDetailsScreen() {
@@ -21,6 +23,7 @@ export default function GardenDetailsScreen() {
   const [action, setAction] = useState<GardenManagementAction | null>(null);
   const [query, setQuery] = useState('');
   const plants = useMemo(() => garden?.plants.filter((plant) => normalizePlantName([plant.name, plant.subtitle, plant.species?.scientificName ?? ''].join(' ')).includes(normalizePlantName(query))) ?? [], [garden, query]);
+  const thirsty = garden?.plants.filter((plant) => { const state = getWaterStatus(plant).state; return state === 'due' || state === 'overdue'; }).length ?? 0;
   const add = () => { if (garden) router.push({ pathname: '/gardens/[id]/plants/add', params: { id: garden.id } }); };
   return (
     <View style={styles.screen}>
@@ -31,6 +34,7 @@ export default function GardenDetailsScreen() {
             <GardenIdentityIcon icon={garden.icon} size={42} color="#c4d9b9" />
             <Text style={styles.eyebrow}>{garden.label}</Text>
             <Text accessibilityRole="header" style={styles.title}>{garden.name}</Text>
+            {thirsty ? <View style={styles.heroAlert}><Ionicons name="water" size={16} color="#17361d" /><Text style={styles.heroAlertText}>{thirsty === 1 ? '1 planta precisa de água hoje' : thirsty + ' plantas precisam de água hoje'}</Text></View> : null}
             <Text style={styles.heroText}>{garden.plantCount} {garden.plantCount === 1 ? 'planta' : 'plantas'} · {gardenCareCount(garden)} {gardenCareCount(garden) === 1 ? 'cuidado registrado' : 'cuidados registrados'}</Text>
           </View>
           <View style={styles.actions}>
@@ -44,12 +48,14 @@ export default function GardenDetailsScreen() {
             {query ? <Pressable accessibilityRole="button" accessibilityLabel="Limpar busca" onPress={() => setQuery('')} style={styles.clear}><Ionicons name="close-circle" size={22} color="#586653" /></Pressable> : null}
           </View> : null}
           {plants.map((plant) => {
-            const lastCare = lastPlantCare(plant);
-            return <Pressable key={plant.id} accessibilityRole="button" accessibilityLabel={'Abrir cuidados de ' + plant.name} onPress={() => router.push({ pathname: '/gardens/[id]/plants/[plantId]', params: { id: garden.id, plantId: plant.id } })} style={({ pressed }) => [styles.plantCard, pressed && styles.pressed]}>
+            const water = getWaterStatus(plant);
+            return <View key={plant.id} style={styles.plantCard}>
+              <Pressable accessibilityRole="button" accessibilityLabel={'Abrir cuidados de ' + plant.name + '. Água: ' + describeWaterStatus(water)} onPress={() => router.push({ pathname: '/gardens/[id]/plants/[plantId]', params: { id: garden.id, plantId: plant.id } })} style={({ pressed }) => [styles.plantMain, pressed && styles.pressed]}>
               <PlantPhoto uri={plant.imageUrl} compact style={styles.photo} />
-              <View style={styles.plantCopy}><Text style={styles.plantName}>{plant.name}</Text><Text style={styles.caption}>{plant.species?.scientificName ?? plant.subtitle}</Text><Text style={styles.caption}>{lastCare ? careLabels[lastCare.careType] + ' · ' + formatCareDay(lastCare.occurredAt) : 'Pronta para o primeiro cuidado'}</Text><Text style={styles.open}>Ver planta e registrar cuidados</Text></View>
-              <Ionicons name="chevron-forward" size={20} color="#476644" />
-            </Pressable>;
+              <View style={styles.plantCopy}><Text style={styles.plantName}>{plant.name}</Text>{plant.species?.scientificName ?? plant.subtitle ? <Text style={styles.caption} numberOfLines={1}>{plant.species?.scientificName ?? plant.subtitle}</Text> : null}<PlantWaterIndicator status={water} /></View>
+              </Pressable>
+              <WaterNowButton gardenId={garden.id} plant={plant} urgent={water.state === 'due' || water.state === 'overdue'} />
+            </View>;
           })}
           {!plants.length ? <View style={styles.empty}>
             <Ionicons name={garden.plantCount ? 'search-outline' : 'leaf-outline'} size={44} color="#476644" />
@@ -79,11 +85,13 @@ const styles = StyleSheet.create({
   label: { color: '#17361d', fontSize: 15, fontWeight: '700' },
   text: { color: '#586653', fontSize: 15, lineHeight: 24 },
   caption: { color: '#586653', fontSize: 13, lineHeight: 21 },
-  plantCard: { flexDirection: 'row', alignItems: 'center', gap: 14, padding: 16, borderRadius: 24, backgroundColor: '#fff', borderWidth: 1, borderColor: '#e7e9e0' },
-  photo: { width: 64, height: 84, borderRadius: 16 },
-  plantCopy: { flex: 1, gap: 5 },
+  plantMain: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 14 },
+  plantCard: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 16, borderRadius: 24, backgroundColor: '#fff', borderWidth: 1, borderColor: '#e7e9e0' },
+  photo: { width: 64, height: 72, borderRadius: 16 },
+  plantCopy: { flex: 1, gap: 6 },
   plantName: { color: '#17361d', fontSize: 18, fontWeight: '800' },
-  open: { color: '#476644', fontSize: 12, fontWeight: '700', lineHeight: 20 },
+  heroAlert: { alignSelf: 'flex-start', flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 14, backgroundColor: '#c8ecc1' },
+  heroAlertText: { color: '#17361d', fontSize: 13, fontWeight: '800' },
   search: { flexDirection: 'row', alignItems: 'center', gap: 10, minHeight: 52, paddingLeft: 16, borderRadius: 16, backgroundColor: '#eef2e8' },
   input: { flex: 1, paddingVertical: 16, fontSize: 16, color: '#17361d' },
   clear: { minWidth: 48, minHeight: 48, alignItems: 'center', justifyContent: 'center' },
