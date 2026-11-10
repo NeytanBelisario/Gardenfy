@@ -16,13 +16,14 @@ import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { setShellMenuOpen, useShellUi } from './shellUiStore';
+import { colors } from '../../theme/tokens';
 
 const COLORS = {
-  primary: '#17361d',
-  surfaceHigh: '#eae8e4',
-  surfaceLow: '#f5f3ef',
+  primary: colors.ink,
+  surfaceHigh: colors.surfaceWarmHigh,
+  surfaceLow: colors.surfaceWarm,
   textMuted: '#6b7469',
-  white: '#ffffff',
+  white: colors.surface,
   overlay: 'rgba(8, 18, 10, 0.22)',
   brandCream: '#fdf9f3',
 } as const;

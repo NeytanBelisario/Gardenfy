@@ -2,6 +2,7 @@ import React, { useEffect, type ReactNode } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { hydrateGardensStore, useGardensState } from './store';
+import { colors } from '../../theme/tokens';
 
 function loadGardens() {
   // The store publishes the error so the user can retry without clearing storage.
@@ -17,7 +18,7 @@ export function GardensBootstrap({ children }: { children: ReactNode }) {
     <View style={styles.screen}>
       {status === 'loading' ? (
         <>
-          <ActivityIndicator size="large" color="#17361d" />
+          <ActivityIndicator size="large" color={colors.ink} />
           <Text style={styles.title}>Carregando seus jardins...</Text>
         </>
       ) : (
@@ -34,9 +35,9 @@ export function GardensBootstrap({ children }: { children: ReactNode }) {
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: '#fbf9f5', justifyContent: 'center', alignItems: 'center', padding: 28, gap: 20 },
-  title: { color: '#17361d', fontSize: 20, fontWeight: '700', textAlign: 'center' },
+  screen: { flex: 1, backgroundColor: colors.background, justifyContent: 'center', alignItems: 'center', padding: 28, gap: 20 },
+  title: { color: colors.ink, fontSize: 20, fontWeight: '700', textAlign: 'center' },
   message: { color: '#5f675d', fontSize: 16, textAlign: 'center' },
-  button: { backgroundColor: '#17361d', borderRadius: 14, padding: 16 },
-  buttonText: { color: '#ffffff', fontWeight: '700' },
+  button: { backgroundColor: colors.ink, borderRadius: 14, padding: 16 },
+  buttonText: { color: colors.onInk, fontWeight: '700' },
 });

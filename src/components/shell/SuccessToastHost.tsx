@@ -4,13 +4,14 @@ import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { dismissSuccessToast, useSuccessToast } from './successToastStore';
+import { colors } from '../../theme/tokens';
 
 const VISIBLE_MS = 2600;
 const VISIBLE_WITH_ACTION_MS = 5000;
 
 const toneStyle = {
   success: { badge: '#4f8a45', icon: 'checkmark' },
-  water: { badge: '#2f6f8f', icon: 'water' },
+  water: { badge: colors.water, icon: 'water' },
   error: { badge: '#c0412b', icon: 'alert' },
 } as const;
 
@@ -45,7 +46,7 @@ export function SuccessToastHost() {
           <Pressable accessibilityRole="button" accessibilityLabel={toast.message ? `${toast.title}. ${toast.message}` : toast.title}
             accessibilityHint="Toque para fechar" onPress={() => dismissSuccessToast(toast.id)} style={styles.main}>
             <View style={[styles.check, { backgroundColor: tone.badge }]}>
-              <Ionicons name={tone.icon} size={22} color="#ffffff" />
+              <Ionicons name={tone.icon} size={22} color={colors.onInk} />
             </View>
             <View style={styles.body}>
               <Text style={styles.title}>{toast.title}</Text>
@@ -68,7 +69,7 @@ const styles = StyleSheet.create({
   host: { position: 'absolute', left: 16, right: 16, alignItems: 'center', pointerEvents: 'box-none' },
   toast: {
     flexDirection: 'row', alignItems: 'center', gap: 8, maxWidth: 520, minHeight: 56,
-    paddingVertical: 10, paddingLeft: 12, paddingRight: 10, borderRadius: 20, backgroundColor: '#17361d',
+    paddingVertical: 10, paddingLeft: 12, paddingRight: 10, borderRadius: 20, backgroundColor: colors.ink,
     boxShadow: '0px 6px 12px rgba(0, 0, 0, 0.18)',
   },
   errorToast: { backgroundColor: '#5c1a10' },
@@ -77,6 +78,6 @@ const styles = StyleSheet.create({
   actionText: { color: '#c8ecc1', fontSize: 14, fontWeight: '800' },
   check: { width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center', backgroundColor: '#4f8a45' },
   body: { flexShrink: 1, gap: 2 },
-  title: { color: '#ffffff', fontSize: 15, fontWeight: '800' },
+  title: { color: colors.onInk, fontSize: 15, fontWeight: '800' },
   message: { color: '#d8e6d2', fontSize: 13, lineHeight: 18 },
 });

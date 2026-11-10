@@ -5,6 +5,7 @@ import { MAX_WATERING_INTERVAL_DAYS, MIN_WATERING_INTERVAL_DAYS } from './persis
 import { setPlantWateringInterval } from './store';
 import { getWateringPlan } from './watering';
 import type { GardenPlant } from './types';
+import { colors } from '../../theme/tokens';
 
 const presets = [3, 5, 7, 10, 14, 21, 30];
 
@@ -34,14 +35,14 @@ export function WateringIntervalDialog({ gardenId, plant, onClose }: { gardenId:
             <Text style={styles.text}>De quanto em quanto tempo você costuma regar {plant.name}? A barra de água usa essa frequência e a sua última rega registrada.</Text>
             <View style={styles.stepper}>
               <Pressable accessibilityRole="button" accessibilityLabel="Diminuir um dia" disabled={busy || days <= MIN_WATERING_INTERVAL_DAYS} onPress={() => step(-1)} style={[styles.stepButton, (busy || days <= MIN_WATERING_INTERVAL_DAYS) && styles.disabled]}>
-                <Ionicons name="remove" size={24} color="#17361d" />
+                <Ionicons name="remove" size={24} color={colors.ink} />
               </Pressable>
               <View style={styles.value} accessibilityLiveRegion="polite">
                 <Text style={styles.valueNumber}>{days}</Text>
                 <Text style={styles.valueUnit}>{days === 1 ? 'dia' : 'dias'}</Text>
               </View>
               <Pressable accessibilityRole="button" accessibilityLabel="Aumentar um dia" disabled={busy || days >= MAX_WATERING_INTERVAL_DAYS} onPress={() => step(1)} style={[styles.stepButton, (busy || days >= MAX_WATERING_INTERVAL_DAYS) && styles.disabled]}>
-                <Ionicons name="add" size={24} color="#17361d" />
+                <Ionicons name="add" size={24} color={colors.ink} />
               </Pressable>
             </View>
             <View style={styles.presets}>
@@ -53,7 +54,7 @@ export function WateringIntervalDialog({ gardenId, plant, onClose }: { gardenId:
             </View>
             {reference ? (
               <View style={styles.note}>
-                <Ionicons name="book-outline" size={18} color="#586653" />
+                <Ionicons name="book-outline" size={18} color={colors.text} />
                 <Text style={styles.noteText}>Referência da espécie: a cada {reference.min}–{reference.max} dias em ambiente interno. Confira o solo antes de regar; calor, vaso e estação mudam o ritmo.</Text>
               </View>
             ) : null}
@@ -78,26 +79,26 @@ export function WateringIntervalDialog({ gardenId, plant, onClose }: { gardenId:
 
 const styles = StyleSheet.create({
   overlay: { flex: 1, backgroundColor: 'rgba(15,28,17,0.5)', justifyContent: 'center', alignItems: 'center', padding: 24 },
-  dialog: { width: '100%', maxWidth: 440, maxHeight: '90%', backgroundColor: '#fbf9f5', borderRadius: 24 },
+  dialog: { width: '100%', maxWidth: 440, maxHeight: '90%', backgroundColor: colors.background, borderRadius: 24 },
   content: { padding: 24, gap: 16 },
-  title: { fontSize: 22, fontWeight: '800', color: '#17361d' },
-  text: { fontSize: 15, lineHeight: 23, color: '#586653' },
+  title: { fontSize: 22, fontWeight: '800', color: colors.ink },
+  text: { fontSize: 15, lineHeight: 23, color: colors.text },
   stepper: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 20 },
-  stepButton: { width: 52, height: 52, borderRadius: 26, alignItems: 'center', justifyContent: 'center', backgroundColor: '#eef2e8' },
+  stepButton: { width: 52, height: 52, borderRadius: 26, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.surfaceMuted },
   value: { minWidth: 96, alignItems: 'center' },
-  valueNumber: { fontSize: 40, fontWeight: '800', color: '#17361d' },
-  valueUnit: { fontSize: 14, color: '#586653' },
+  valueNumber: { fontSize: 40, fontWeight: '800', color: colors.ink },
+  valueUnit: { fontSize: 14, color: colors.text },
   presets: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 8 },
-  preset: { minWidth: 48, minHeight: 40, paddingHorizontal: 12, alignItems: 'center', justifyContent: 'center', borderRadius: 20, borderWidth: 1, borderColor: '#c2c8bf' },
-  presetSelected: { backgroundColor: '#17361d', borderColor: '#17361d' },
-  presetText: { fontSize: 14, fontWeight: '700', color: '#17361d' },
-  presetTextSelected: { color: '#fff' },
-  note: { flexDirection: 'row', gap: 8, padding: 12, borderRadius: 14, backgroundColor: '#f1f3ec' },
-  noteText: { flex: 1, fontSize: 13, lineHeight: 20, color: '#586653' },
-  primary: { minHeight: 52, padding: 16, borderRadius: 16, alignItems: 'center', justifyContent: 'center', backgroundColor: '#17361d' },
-  primaryText: { color: '#fff', fontWeight: '700', fontSize: 16 },
-  secondary: { minHeight: 48, padding: 12, borderRadius: 16, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: '#c2c8bf' },
-  secondaryText: { color: '#17361d', fontWeight: '700', fontSize: 15 },
-  error: { color: '#93000a', fontSize: 14 },
+  preset: { minWidth: 48, minHeight: 40, paddingHorizontal: 12, alignItems: 'center', justifyContent: 'center', borderRadius: 20, borderWidth: 1, borderColor: colors.borderStrong },
+  presetSelected: { backgroundColor: colors.ink, borderColor: colors.ink },
+  presetText: { fontSize: 14, fontWeight: '700', color: colors.ink },
+  presetTextSelected: { color: colors.onInk },
+  note: { flexDirection: 'row', gap: 8, padding: 12, borderRadius: 14, backgroundColor: colors.surfaceSoft },
+  noteText: { flex: 1, fontSize: 13, lineHeight: 20, color: colors.text },
+  primary: { minHeight: 52, padding: 16, borderRadius: 16, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.ink },
+  primaryText: { color: colors.onInk, fontWeight: '700', fontSize: 16 },
+  secondary: { minHeight: 48, padding: 12, borderRadius: 16, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: colors.borderStrong },
+  secondaryText: { color: colors.ink, fontWeight: '700', fontSize: 15 },
+  error: { color: colors.danger, fontSize: 14 },
   disabled: { opacity: 0.45 },
 });

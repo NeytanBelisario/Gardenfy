@@ -4,6 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { toneColors } from '../../components/CareMeter';
 import { waterTone } from './careMeterTones';
 import { describeWaterStatus, type WaterStatus } from './watering';
+import { colors } from '../../theme/tokens';
 
 /** Compact water status for plant lists: icon, short status and a thin level bar. */
 export function PlantWaterIndicator({ status }: { status: WaterStatus }) {
@@ -14,8 +15,8 @@ export function PlantWaterIndicator({ status }: { status: WaterStatus }) {
   return (
     <View style={styles.wrap}>
       <View style={styles.row}>
-        <Ionicons name={urgent ? 'water' : 'water-outline'} size={15} color={tone === 'neutral' ? '#2f6f8f' : color} />
-        <Text style={[styles.status, { color: tone === 'neutral' ? '#586653' : color }, urgent && styles.urgent]} numberOfLines={1}>{describeWaterStatus(status)}</Text>
+        <Ionicons name={urgent ? 'water' : 'water-outline'} size={15} color={tone === 'neutral' ? colors.water : color} />
+        <Text style={[styles.status, { color: tone === 'neutral' ? colors.text : color }, urgent && styles.urgent]} numberOfLines={1}>{describeWaterStatus(status)}</Text>
       </View>
       <View style={styles.track} accessible accessibilityRole="progressbar" accessibilityLabel={'Água: ' + describeWaterStatus(status)} accessibilityValue={{ min: 0, max: 100, now: percent }}>
         <View style={[styles.fill, { width: `${percent}%`, backgroundColor: color }]} />

@@ -4,12 +4,13 @@ import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { usePathname, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useShellUi } from './shellUiStore';
+import { colors } from '../../theme/tokens';
 
 const COLORS = {
-  background: '#fbf9f5',
-  primary: '#17361d',
-  secondary: '#476644',
-  white: '#ffffff',
+  background: colors.background,
+  primary: colors.ink,
+  secondary: colors.accent,
+  white: colors.surface,
 } as const;
 
 const navItems = [
@@ -133,9 +134,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'flex-end',
     justifyContent: 'space-between',
-    backgroundColor: '#ffffff',
+    backgroundColor: colors.surface,
     borderWidth: 1,
-    borderColor: '#e7e9e0',
+    borderColor: colors.border,
     boxShadow: '0px 8px 18px rgba(23, 54, 29, 0.14)',
   },
   navItem: {

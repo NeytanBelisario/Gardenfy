@@ -11,6 +11,7 @@ import { findPlantCareProfile } from '../gardens/careProfiles';
 import { usePlantPhotoRequest } from '../plant-analysis/usePlantPhotoRequest';
 import { identificationErrorMessage, identifyPlantPhoto } from './identificationService';
 import type { PlantCandidate } from './types';
+import { colors } from '../../theme/tokens';
 
 type Mode = 'general' | 'add' | 'update';
 
@@ -65,7 +66,7 @@ function IdentificationView({ mode, id, plantId }: { mode: Mode; id?: string; pl
           <View style={styles.card}>
             <Text accessibilityRole="header" style={styles.heading}>Em qual jardim?</Text>
             {gardens.map((item) => <Pressable key={item.id} accessibilityRole="radio" accessibilityLabel={item.name} accessibilityState={{ checked: gardenId === item.id, disabled: busy }} disabled={busy} onPress={() => setChosenGarden(item.id)} style={[styles.choice, gardenId === item.id && styles.selected]}>
-              <Ionicons name={gardenId === item.id ? 'radio-button-on' : 'radio-button-off'} size={20} color="#476644" /><Text style={styles.choiceText}>{item.name}</Text>
+              <Ionicons name={gardenId === item.id ? 'radio-button-on' : 'radio-button-off'} size={20} color={colors.accent} /><Text style={styles.choiceText}>{item.name}</Text>
             </Pressable>)}
           </View>
         ) : null}
@@ -73,10 +74,10 @@ function IdentificationView({ mode, id, plantId }: { mode: Mode; id?: string; pl
           <>
             <Text style={styles.caption}>{plant ? `Atualizar identificação de ${plant.name}` : `Adicionar em ${garden.name}`}</Text>
             <View style={styles.actions}>
-              <Pressable accessibilityRole="button" accessibilityLabel="Tirar foto" disabled={busy} accessibilityState={{ disabled: busy }} onPress={() => flow.select('camera')} style={[styles.primary, busy && styles.disabled]}><Ionicons name="camera-outline" size={22} color="#fff" /><Text style={styles.primaryText}>Tirar foto</Text></Pressable>
-              <Pressable accessibilityRole="button" accessibilityLabel="Escolher foto da galeria" disabled={busy} accessibilityState={{ disabled: busy }} onPress={() => flow.select('gallery')} style={[styles.secondary, busy && styles.disabled]}><Ionicons name="images-outline" size={22} color="#17361d" /><Text style={styles.label}>Galeria</Text></Pressable>
+              <Pressable accessibilityRole="button" accessibilityLabel="Tirar foto" disabled={busy} accessibilityState={{ disabled: busy }} onPress={() => flow.select('camera')} style={[styles.primary, busy && styles.disabled]}><Ionicons name="camera-outline" size={22} color={colors.onInk} /><Text style={styles.primaryText}>Tirar foto</Text></Pressable>
+              <Pressable accessibilityRole="button" accessibilityLabel="Escolher foto da galeria" disabled={busy} accessibilityState={{ disabled: busy }} onPress={() => flow.select('gallery')} style={[styles.secondary, busy && styles.disabled]}><Ionicons name="images-outline" size={22} color={colors.ink} /><Text style={styles.label}>Galeria</Text></Pressable>
             </View>
-            {busy ? <View style={styles.loading}><ActivityIndicator color="#476644" /><Text accessibilityLiveRegion="polite" style={styles.text}>{flow.phase === 'saving' ? 'Guardando sua planta...' : flow.phase === 'selecting' ? 'Escolhendo foto...' : 'Buscando espécies parecidas...'}</Text></View> : null}
+            {busy ? <View style={styles.loading}><ActivityIndicator color={colors.accent} /><Text accessibilityLiveRegion="polite" style={styles.text}>{flow.phase === 'saving' ? 'Guardando sua planta...' : flow.phase === 'selecting' ? 'Escolhendo foto...' : 'Buscando espécies parecidas...'}</Text></View> : null}
             {flow.phase === 'analyzing' ? <Pressable accessibilityRole="button" onPress={flow.cancel} style={styles.secondary}><Text style={styles.label}>Cancelar identificação</Text></Pressable> : null}
             {flow.error ? <Text accessibilityRole="alert" style={styles.error}>{flow.error}</Text> : null}
             {flow.notice ? <Text accessibilityLiveRegion="polite" style={styles.text}>{flow.notice}</Text> : null}
@@ -92,7 +93,7 @@ function IdentificationView({ mode, id, plantId }: { mode: Mode; id?: string; pl
                 <Text accessibilityRole="header" style={styles.heading}>Confira a espécie</Text>
                 <Text style={styles.caption}>As sugestões podem estar incorretas. A pontuação indica confiança na identificação, sem avaliar a saúde da planta.</Text>
                 {candidates.map((item, index) => <Pressable key={item.scientificName} accessibilityRole="radio" accessibilityLabel={`${item.commonName}, ${item.scientificName}, ${Math.round(item.confidence * 100)}% de confiança`} accessibilityState={{ checked: item === candidate, disabled: busy }} disabled={busy} onPress={() => setReview({ candidates, index, name: item.commonName })} style={[styles.choice, item === candidate && styles.selected]}>
-                  <Ionicons name={item === candidate ? 'radio-button-on' : 'radio-button-off'} size={22} color="#476644" />
+                  <Ionicons name={item === candidate ? 'radio-button-on' : 'radio-button-off'} size={22} color={colors.accent} />
                   <View style={styles.choiceCopy}><Text style={styles.label}>{item.commonName}</Text><Text style={styles.caption}>{item.scientificName}</Text><Text style={styles.caption}>{Math.round(item.confidence * 100)}% de confiança</Text></View>
                 </Pressable>)}
                 {candidate.confidence < 0.5 ? <Text style={styles.warning}>A confiança é baixa. Confira a espécie ou tente uma foto mais nítida antes de salvar.</Text> : null}
@@ -104,7 +105,7 @@ function IdentificationView({ mode, id, plantId }: { mode: Mode; id?: string; pl
                 <Pressable accessibilityRole="button" disabled={busy} onPress={flow.discard} style={styles.secondary}><Text style={styles.label}>Descartar e escolher outra foto</Text></Pressable>
               </View>
             ) : null}
-            {mode !== 'update' ? <Pressable accessibilityRole="button" disabled={busy} onPress={catalog} style={styles.secondary}><Ionicons name="leaf-outline" size={20} color="#476644" /><Text style={styles.label}>Escolher pelo catálogo</Text></Pressable> : null}
+            {mode !== 'update' ? <Pressable accessibilityRole="button" disabled={busy} onPress={catalog} style={styles.secondary}><Ionicons name="leaf-outline" size={20} color={colors.accent} /><Text style={styles.label}>Escolher pelo catálogo</Text></Pressable> : null}
           </>
         ) : !gardens.length && mode === 'general' ? (
           <View style={styles.card}><Text style={styles.heading}>Primeiro, um lugar para sua planta</Text><Text style={styles.text}>Crie seu jardim para guardar as plantas identificadas e acompanhar seus cuidados.</Text><Pressable accessibilityRole="button" onPress={() => router.push('/gardens/new')} style={styles.primary}><Text style={styles.primaryText}>Criar meu primeiro jardim</Text></Pressable></View>
@@ -123,27 +124,27 @@ function IdentificationView({ mode, id, plantId }: { mode: Mode; id?: string; pl
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: '#fbf9f5' },
+  screen: { flex: 1, backgroundColor: colors.background },
   content: { width: '100%', maxWidth: 720, alignSelf: 'center', padding: 20, gap: 16 },
-  hero: { backgroundColor: '#17361d', borderRadius: 24, padding: 20, gap: 10 },
-  title: { color: '#fff', fontSize: 24, fontWeight: '800' },
+  hero: { backgroundColor: colors.ink, borderRadius: 24, padding: 20, gap: 10 },
+  title: { color: colors.onInk, fontSize: 24, fontWeight: '800' },
   heroText: { color: '#d6e2d0', fontSize: 15, lineHeight: 22 },
   actions: { flexDirection: 'row', flexWrap: 'wrap', gap: 12 },
-  primary: { minHeight: 52, backgroundColor: '#17361d', borderRadius: 16, padding: 16, flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'center', gap: 8 },
-  primaryText: { color: '#fff', fontSize: 16, fontWeight: '700', textAlign: 'center', flexShrink: 1 },
-  secondary: { minHeight: 52, borderWidth: 1, borderColor: '#c2c8bf', borderRadius: 16, padding: 16, flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', gap: 8 },
-  label: { color: '#17361d', fontSize: 16, fontWeight: '700', flexShrink: 1 },
-  heading: { color: '#17361d', fontSize: 22, fontWeight: '800' },
-  text: { color: '#586653', fontSize: 15, lineHeight: 24 },
-  caption: { color: '#586653', fontSize: 13, lineHeight: 21 },
-  card: { backgroundColor: '#fff', borderRadius: 24, padding: 20, gap: 14, borderWidth: 1, borderColor: '#e7e9e0' },
-  photo: { height: 220, width: '100%', borderRadius: 16, backgroundColor: '#eef2e8' },
-  input: { minHeight: 52, borderRadius: 12, borderWidth: 1, borderColor: '#c2c8bf', padding: 16, fontSize: 16, color: '#17361d' },
-  choice: { minHeight: 52, flexDirection: 'row', alignItems: 'center', gap: 12, borderRadius: 16, borderWidth: 1, borderColor: '#e7e9e0', padding: 16 },
-  selected: { backgroundColor: '#eef2e8', borderColor: '#476644' },
+  primary: { minHeight: 52, backgroundColor: colors.ink, borderRadius: 16, padding: 16, flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'center', gap: 8 },
+  primaryText: { color: colors.onInk, fontSize: 16, fontWeight: '700', textAlign: 'center', flexShrink: 1 },
+  secondary: { minHeight: 52, borderWidth: 1, borderColor: colors.borderStrong, borderRadius: 16, padding: 16, flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', gap: 8 },
+  label: { color: colors.ink, fontSize: 16, fontWeight: '700', flexShrink: 1 },
+  heading: { color: colors.ink, fontSize: 22, fontWeight: '800' },
+  text: { color: colors.text, fontSize: 15, lineHeight: 24 },
+  caption: { color: colors.text, fontSize: 13, lineHeight: 21 },
+  card: { backgroundColor: colors.surface, borderRadius: 24, padding: 20, gap: 14, borderWidth: 1, borderColor: colors.border },
+  photo: { height: 220, width: '100%', borderRadius: 16, backgroundColor: colors.surfaceMuted },
+  input: { minHeight: 52, borderRadius: 12, borderWidth: 1, borderColor: colors.borderStrong, padding: 16, fontSize: 16, color: colors.ink },
+  choice: { minHeight: 52, flexDirection: 'row', alignItems: 'center', gap: 12, borderRadius: 16, borderWidth: 1, borderColor: colors.border, padding: 16 },
+  selected: { backgroundColor: colors.surfaceMuted, borderColor: colors.accent },
   choiceCopy: { flex: 1, gap: 4 },
-  choiceText: { flex: 1, fontSize: 16, color: '#17361d' },
-  error: { color: '#93000a', backgroundColor: '#ffdad6', borderRadius: 16, padding: 16, fontSize: 15, lineHeight: 23 },
+  choiceText: { flex: 1, fontSize: 16, color: colors.ink },
+  error: { color: colors.danger, backgroundColor: colors.dangerTint, borderRadius: 16, padding: 16, fontSize: 15, lineHeight: 23 },
   warning: { color: '#684400', backgroundColor: '#fff1d6', borderRadius: 16, padding: 16, fontSize: 15, lineHeight: 23 },
   loading: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   credit: { minHeight: 44, justifyContent: 'center', gap: 8 },

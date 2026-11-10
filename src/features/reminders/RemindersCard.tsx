@@ -5,6 +5,7 @@ import { useGardensState } from '../gardens/store';
 import { buildReminderSchedule, REMINDER_HOURS } from './reminderPlan';
 import { getNotificationPermission, remindersSupported, requestNotificationPermission, type NotificationPermission } from './scheduler';
 import { saveReminderSettings, useReminderSettings } from './settings';
+import { colors } from '../../theme/tokens';
 
 function formatNext(date: Date, now = new Date()) {
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
@@ -48,13 +49,13 @@ export function RemindersCard() {
   return (
     <View style={styles.card}>
       <View style={styles.header}>
-        <View style={styles.icon}><Ionicons name={enabled ? 'notifications' : 'notifications-outline'} size={22} color="#9a6700" /></View>
+        <View style={styles.icon}><Ionicons name={enabled ? 'notifications' : 'notifications-outline'} size={22} color={colors.sun} /></View>
         <View style={styles.headerCopy}>
           <Text accessibilityRole="header" style={styles.title}>Lembretes de rega</Text>
           <Text style={styles.text}>Um aviso por dia, só quando alguma planta precisa de água.</Text>
         </View>
         <Switch accessibilityLabel="Lembretes de rega" value={enabled} disabled={!remindersSupported || busy} onValueChange={toggle}
-          trackColor={{ false: '#d5d9cf', true: '#8fbf86' }} thumbColor={enabled ? '#17361d' : '#ffffff'} />
+          trackColor={{ false: '#d5d9cf', true: '#8fbf86' }} thumbColor={enabled ? colors.ink : colors.surface} />
       </View>
 
       {!remindersSupported ? (
@@ -82,7 +83,7 @@ export function RemindersCard() {
           })}
         </View>
         <View style={styles.next}>
-          <Ionicons name="time-outline" size={18} color="#476644" />
+          <Ionicons name="time-outline" size={18} color={colors.accent} />
           <Text style={styles.nextText}>{next
             ? 'Próximo aviso: ' + formatNext(next.date) + ' · ' + (next.plantCount === 1 ? '1 planta' : next.plantCount + ' plantas')
             : 'Nenhuma rega prevista nos próximos dias. Defina a frequência e registre as regas para receber avisos.'}</Text>
@@ -96,24 +97,24 @@ export function RemindersCard() {
 }
 
 const styles = StyleSheet.create({
-  card: { backgroundColor: '#ffffff', borderRadius: 24, padding: 20, gap: 14, borderWidth: 1, borderColor: '#e7e9e0' },
+  card: { backgroundColor: colors.surface, borderRadius: 24, padding: 20, gap: 14, borderWidth: 1, borderColor: colors.border },
   header: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-  icon: { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center', backgroundColor: '#fdf3d7' },
+  icon: { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.sunTint },
   headerCopy: { flex: 1, gap: 2 },
-  title: { color: '#17361d', fontSize: 18, fontWeight: '800' },
-  text: { color: '#586653', fontSize: 13, lineHeight: 19 },
-  label: { color: '#17361d', fontSize: 14, fontWeight: '700' },
+  title: { color: colors.ink, fontSize: 18, fontWeight: '800' },
+  text: { color: colors.text, fontSize: 13, lineHeight: 19 },
+  label: { color: colors.ink, fontSize: 14, fontWeight: '700' },
   hours: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  hour: { minWidth: 52, minHeight: 40, paddingHorizontal: 12, alignItems: 'center', justifyContent: 'center', borderRadius: 20, borderWidth: 1, borderColor: '#c2c8bf' },
-  hourSelected: { backgroundColor: '#17361d', borderColor: '#17361d' },
-  hourText: { color: '#17361d', fontSize: 14, fontWeight: '700' },
-  hourTextSelected: { color: '#ffffff' },
-  next: { flexDirection: 'row', gap: 8, alignItems: 'flex-start', padding: 12, borderRadius: 14, backgroundColor: '#f1f3ec' },
-  nextText: { flex: 1, color: '#33452f', fontSize: 13, lineHeight: 20, fontWeight: '600' },
-  note: { color: '#6b7666', fontSize: 12, lineHeight: 18 },
+  hour: { minWidth: 52, minHeight: 40, paddingHorizontal: 12, alignItems: 'center', justifyContent: 'center', borderRadius: 20, borderWidth: 1, borderColor: colors.borderStrong },
+  hourSelected: { backgroundColor: colors.ink, borderColor: colors.ink },
+  hourText: { color: colors.ink, fontSize: 14, fontWeight: '700' },
+  hourTextSelected: { color: colors.onInk },
+  next: { flexDirection: 'row', gap: 8, alignItems: 'flex-start', padding: 12, borderRadius: 14, backgroundColor: colors.surfaceSoft },
+  nextText: { flex: 1, color: colors.textLead, fontSize: 13, lineHeight: 20, fontWeight: '600' },
+  note: { color: colors.textSoft, fontSize: 12, lineHeight: 18 },
   warning: { gap: 6, padding: 12, borderRadius: 14, backgroundColor: '#fbf0d6' },
   warningText: { color: '#6b4a00', fontSize: 13, lineHeight: 20 },
   link: { alignSelf: 'flex-start', minHeight: 36, justifyContent: 'center' },
-  linkText: { color: '#17361d', fontSize: 14, fontWeight: '800', textDecorationLine: 'underline' },
-  error: { color: '#93000a', fontSize: 13 },
+  linkText: { color: colors.ink, fontSize: 14, fontWeight: '800', textDecorationLine: 'underline' },
+  error: { color: colors.danger, fontSize: 13 },
 });
