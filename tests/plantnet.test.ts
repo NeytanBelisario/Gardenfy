@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { IdentificationError, MAX_IDENTIFICATION_BASE64, mapPlantNetStatus, parseIdentificationRequest, parsePlantNetResponse, requestPlantNet } from '../supabase/functions/identify-plant/core';
+import { IdentificationError, MAX_IDENTIFICATION_BASE64, mapPlantNetStatus, parseIdentificationRequest, parsePlantNetResponse, requestPlantNet, stripImageMetadata } from '../supabase/functions/identify-plant/core';
 import { createPhotoRequestService } from '../src/features/plant-analysis/analysisService';
 import { createSupabasePhotoTransport } from '../src/features/plant-analysis/supabaseAnalysis';
 import { PlantAnalysisError } from '../src/features/plant-analysis/analysisErrors';
@@ -86,4 +86,35 @@ test('client refuses malformed, duplicate and oversized suggestion lists before 
     assert.throws(() => parseIdentificationPayload(payload), (error) => error instanceof PlantAnalysisError && error.code === 'invalid-response');
   }
   assert.throws(() => parseIdentificationPayload({ candidates: [] }), (error) => error instanceof PlantAnalysisError && error.code === 'not-found');
+});
+
+const ascii = (text: string) => [...text].map((char) => char.charCodeAt(0));
+const segment = (marker: number, payload: number[]) => [0xff, marker, (payload.length + 2) >> 8, (payload.length + 2) & 0xff, ...payload];
+const includesText = (bytes: Uint8Array, text: string) => Buffer.from(bytes).includes(Buffer.from(text));
+
+test('photo metadata (GPS, device, comments) is removed before reaching Pl@ntNet', () => {
+  const jfif = segment(0xe0, ascii('JFIF\0\x01\x01\0\0\x01\0\x01\0\0'));
+  const exif = segment(0xe1, ascii('Exif\0\0GPS-22.9,-43.2 Pixel'));
+  const comment = segment(0xfe, ascii('casa da Ana'));
+  const scan = [0xff, 0xda, 0x00, 0x08, 1, 2, 3, 4, 5, 6, 0x11, 0x22, 0xff, 0xd9];
+  const bytes = Uint8Array.from([0xff, 0xd8, ...jfif, ...exif, ...comment, ...scan]);
+  const parsed = parseIdentificationRequest({ base64: Buffer.from(bytes).toString('base64'), mimeType: 'image/jpeg' });
+  assert.deepEqual([...parsed.bytes], [0xff, 0xd8, ...jfif, ...scan]);
+  assert.ok(!includesText(parsed.bytes, 'GPS') && !includesText(parsed.bytes, 'Ana'));
+
+  const chunk = (type: string, data: number[]) => [0, 0, data.length >> 8, data.length & 0xff, ...ascii(type), ...data, 0, 0, 0, 0];
+  const header = [137, 80, 78, 71, 13, 10, 26, 10];
+  const ihdr = chunk('IHDR', new Array(13).fill(1));
+  const idat = chunk('IDAT', [9, 9, 9]);
+  const iend = chunk('IEND', []);
+  const png = Uint8Array.from([...header, ...ihdr, ...chunk('tEXt', ascii('Author\0Ana')), ...chunk('eXIf', ascii('GPS')), ...idat, ...iend]);
+  assert.deepEqual([...stripImageMetadata(png, 'image/png')], [...header, ...ihdr, ...idat, ...iend]);
+});
+
+test('photos without metadata or with an unexpected structure are sent unchanged', () => {
+  const clean = Uint8Array.from([0xff, 0xd8, ...segment(0xdb, [0, 1, 2]), 0xff, 0xda, 0x00, 0x02, 7, 0xff, 0xd9]);
+  assert.equal(stripImageMetadata(clean, 'image/jpeg'), clean);
+  const truncated = Uint8Array.from([0xff, 0xd8, 0xff, 0xe1, 0x40, 0x00, 1, 2]);
+  assert.equal(stripImageMetadata(truncated, 'image/jpeg'), truncated);
+  assert.equal(parseIdentificationRequest(jpeg).bytes.length, 6);
 });

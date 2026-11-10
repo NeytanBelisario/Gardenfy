@@ -2,6 +2,17 @@
 
 Atualize este arquivo ao encerrar sessões que mudem o estado do projeto. Não armazene credenciais ou configurações privadas.
 
+## Sessão de 10/11/2026 — deploy da 1.2.0 e 1.3.1 (privacidade e estabilidade)
+
+- **Deploy da 1.2.0:** chave `GEMINI_API_KEY` cadastrada pelo painel do Supabase. A primeira tentativa, pela CLI no PowerShell, gravou um valor diferente da chave e a função respondia `configuration`; o diagnóstico veio da comparação do SHA-256 mostrado por `supabase secrets list`. Projeto vinculado à CLI (`supabase link`), migração `care_estimates` aplicada e `estimate-care` publicada. Testada com chamadas reais: espécie conhecida (HTTP 200), mesma espécie vinda do cache (1 s) e espécie inventada (`known: false`).
+- **Base:** PR #30 (1.3.0) integrado em `develop` (`203b167`); branch `release/1.3.1` a partir dele. Versão 1.3.1, `versionCode` 2.
+- **Feito:** rascunho da [política de privacidade](PRIVACY.md); aviso antes da primeira foto (`src/features/privacy`); tela "Seus dados" (`src/app/privacy.tsx`, link no Perfil); remoção de metadados da foto em `identify-plant` (`stripImageMetadata`); `ErrorBoundary` no layout com `AppErrorScreen` e `reportError`.
+- **Checks:** `npm run check` (130 testes) e `deno check` do `identify-plant`. A nova versão do `identify-plant` foi publicada e testada com uma foto PNG com GPS (HTTP 200, Monstera deliciosa). Não executado: telas no navegador ou celular.
+- **Pendências do usuário:**
+  - revisar a política (responsável e contato já preenchidos);
+  - conta no Sentry.
+- **Próximo passo:** perguntar sobre o PR `release/1.3.1` → `develop`. O usuário pretende validar e ajustar a 1.3 antes da 1.4.
+
 ## Sessão de 10/11/2026 — 1.3.0 (interface e base de produto)
 
 - **Base:** PR #29 (1.2.0) integrado em `develop` (`519cdd5`). O merge foi feito antes de o CI aparecer no PR (falha no comando de espera); o CI do push em `develop` rodou depois e passou em todos os passos, inclusive `deno check` de `estimate-care` e o export Android/web. Daqui em diante, esperar os checks existirem antes do merge.

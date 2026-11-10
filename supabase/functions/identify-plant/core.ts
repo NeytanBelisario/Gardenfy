@@ -18,7 +18,66 @@ export function parseIdentificationRequest(value: unknown) {
   const isJpeg = bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff;
   const isPng = [137, 80, 78, 71, 13, 10, 26, 10].every((byte, index) => bytes[index] === byte);
   if (photo.mimeType === 'image/jpeg' ? !isJpeg : !isPng) throw new IdentificationError('image', 400);
-  return { bytes, mimeType: photo.mimeType };
+  return { bytes: stripImageMetadata(bytes, photo.mimeType), mimeType: photo.mimeType };
+}
+
+type Bytes = Uint8Array<ArrayBuffer>;
+
+// JPEG segments that can carry location, device, dates or text: APP1 (Exif/XMP), APP13 (IPTC) and comments.
+const JPEG_METADATA_MARKERS = new Set([0xe1, 0xed, 0xfe]);
+const PNG_METADATA_CHUNKS = new Set(['eXIf', 'tEXt', 'iTXt', 'zTXt', 'tIME']);
+
+/**
+ * Removes metadata (GPS, device, dates, comments) before the photo leaves our server.
+ * Pixels are untouched; a structure that cannot be walked safely is returned as is.
+ */
+export function stripImageMetadata(bytes: Bytes, mimeType: string): Bytes {
+  return (mimeType === 'image/png' ? stripPng(bytes) : stripJpeg(bytes)) ?? bytes;
+}
+
+function stripJpeg(bytes: Bytes): Bytes | null {
+  const kept: Bytes[] = [bytes.subarray(0, 2)];
+  let removed = false;
+  let pos = 2;
+  while (pos + 1 < bytes.length) {
+    if (bytes[pos] !== 0xff) return null;
+    const marker = bytes[pos + 1];
+    if (marker === 0xff) { pos++; continue; }
+    if (marker === 0xda) { kept.push(bytes.subarray(pos)); return removed ? concat(kept) : bytes; }
+    if (marker === 0x01 || (marker >= 0xd0 && marker <= 0xd7)) { kept.push(bytes.subarray(pos, pos + 2)); pos += 2; continue; }
+    if (pos + 3 >= bytes.length) return null;
+    const length = (bytes[pos + 2] << 8) | bytes[pos + 3];
+    const end = pos + 2 + length;
+    if (length < 2 || end > bytes.length) return null;
+    if (JPEG_METADATA_MARKERS.has(marker)) removed = true;
+    else kept.push(bytes.subarray(pos, end));
+    pos = end;
+  }
+  return null;
+}
+
+function stripPng(bytes: Bytes): Bytes | null {
+  const kept: Bytes[] = [bytes.subarray(0, 8)];
+  let removed = false;
+  let pos = 8;
+  while (pos + 12 <= bytes.length) {
+    const length = ((bytes[pos] << 24) | (bytes[pos + 1] << 16) | (bytes[pos + 2] << 8) | bytes[pos + 3]) >>> 0;
+    const end = pos + 12 + length;
+    if (end > bytes.length) return null;
+    const type = String.fromCharCode(bytes[pos + 4], bytes[pos + 5], bytes[pos + 6], bytes[pos + 7]);
+    if (PNG_METADATA_CHUNKS.has(type)) removed = true;
+    else kept.push(bytes.subarray(pos, end));
+    pos = end;
+    if (type === 'IEND') return removed ? concat(kept) : bytes;
+  }
+  return null;
+}
+
+function concat(parts: Bytes[]): Bytes {
+  const out = new Uint8Array(parts.reduce((total, part) => total + part.length, 0));
+  let offset = 0;
+  for (const part of parts) { out.set(part, offset); offset += part.length; }
+  return out;
 }
 
 export function parsePlantNetResponse(value: unknown) {

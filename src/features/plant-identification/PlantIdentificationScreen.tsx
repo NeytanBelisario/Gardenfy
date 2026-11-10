@@ -9,6 +9,9 @@ import { showSuccessToast } from '../../components/shell/successToastStore';
 import { savePlantIdentification, useGardenDetails, useGardenSummaries } from '../gardens/store';
 import { findPlantCareProfile } from '../gardens/careProfiles';
 import { usePlantPhotoRequest } from '../plant-analysis/usePlantPhotoRequest';
+import type { PhotoSource } from '../plant-analysis/photoSelection';
+import { acceptPhotoNotice, usePhotoNotice } from '../privacy/photoNotice';
+import { PhotoNoticeDialog } from '../privacy/PhotoNoticeDialog';
 import { identificationErrorMessage, identifyPlantPhoto } from './identificationService';
 import type { PlantCandidate } from './types';
 import { colors } from '../../theme/tokens';
@@ -31,6 +34,10 @@ function IdentificationView({ mode, id, plantId }: { mode: Mode; id?: string; pl
   const garden = useGardenDetails(gardenId);
   const plant = garden?.plants.find((item) => item.id === plantId);
   const flow = usePlantPhotoRequest(identifyPlantPhoto, identificationErrorMessage);
+  const photoNotice = usePhotoNotice();
+  const [noticeFor, setNoticeFor] = useState<PhotoSource>();
+  // A primeira foto passa pelo aviso de privacidade; depois do aceite, segue direto.
+  const choosePhoto = (source: PhotoSource) => { if (photoNotice.accepted) flow.select(source); else setNoticeFor(source); };
   const scroll = useRef<ScrollView>(null);
   const lastScrolledDraft = useRef<typeof flow.draft>(null);
   const [review, setReview] = useState<{ candidates: PlantCandidate[]; index: number; name: string }>();
@@ -74,8 +81,8 @@ function IdentificationView({ mode, id, plantId }: { mode: Mode; id?: string; pl
           <>
             <Text style={styles.caption}>{plant ? `Atualizar identificação de ${plant.name}` : `Adicionar em ${garden.name}`}</Text>
             <View style={styles.actions}>
-              <Pressable accessibilityRole="button" accessibilityLabel="Tirar foto" disabled={busy} accessibilityState={{ disabled: busy }} onPress={() => flow.select('camera')} style={[styles.primary, busy && styles.disabled]}><Ionicons name="camera-outline" size={22} color={colors.onInk} /><Text style={styles.primaryText}>Tirar foto</Text></Pressable>
-              <Pressable accessibilityRole="button" accessibilityLabel="Escolher foto da galeria" disabled={busy} accessibilityState={{ disabled: busy }} onPress={() => flow.select('gallery')} style={[styles.secondary, busy && styles.disabled]}><Ionicons name="images-outline" size={22} color={colors.ink} /><Text style={styles.label}>Galeria</Text></Pressable>
+              <Pressable accessibilityRole="button" accessibilityLabel="Tirar foto" disabled={busy} accessibilityState={{ disabled: busy }} onPress={() => choosePhoto('camera')} style={[styles.primary, busy && styles.disabled]}><Ionicons name="camera-outline" size={22} color={colors.onInk} /><Text style={styles.primaryText}>Tirar foto</Text></Pressable>
+              <Pressable accessibilityRole="button" accessibilityLabel="Escolher foto da galeria" disabled={busy} accessibilityState={{ disabled: busy }} onPress={() => choosePhoto('gallery')} style={[styles.secondary, busy && styles.disabled]}><Ionicons name="images-outline" size={22} color={colors.ink} /><Text style={styles.label}>Galeria</Text></Pressable>
             </View>
             {busy ? <View style={styles.loading}><ActivityIndicator color={colors.accent} /><Text accessibilityLiveRegion="polite" style={styles.text}>{flow.phase === 'saving' ? 'Guardando sua planta...' : flow.phase === 'selecting' ? 'Escolhendo foto...' : 'Buscando espécies parecidas...'}</Text></View> : null}
             {flow.phase === 'analyzing' ? <Pressable accessibilityRole="button" onPress={flow.cancel} style={styles.secondary}><Text style={styles.label}>Cancelar identificação</Text></Pressable> : null}
@@ -118,6 +125,7 @@ function IdentificationView({ mode, id, plantId }: { mode: Mode; id?: string; pl
         </Pressable>
       </ScrollView>
       </KeyboardAvoidingView>
+      {noticeFor ? <PhotoNoticeDialog onCancel={() => setNoticeFor(undefined)} onAccept={() => { const source = noticeFor; setNoticeFor(undefined); acceptPhotoNotice(); flow.select(source); }} /> : null}
       {mode === 'general' ? <AppNavbar /> : null}
     </View>
   );

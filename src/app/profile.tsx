@@ -41,6 +41,9 @@ export default function ProfileScreen() {
         <Pressable accessibilityRole="button" onPress={() => router.push('/gardens/new')} style={({ pressed }) => [styles.action, pressed && styles.pressed]}>
           <Ionicons name="add-circle-outline" size={22} color={colors.ink} /><Text style={styles.actionText}>Criar um jardim</Text><Ionicons name="arrow-forward" size={20} color={colors.ink} />
         </Pressable>
+        <Pressable accessibilityRole="button" onPress={() => router.push('/privacy')} style={({ pressed }) => [styles.action, pressed && styles.pressed]}>
+          <Ionicons name="shield-checkmark-outline" size={22} color={colors.ink} /><Text style={styles.actionText}>Seus dados e privacidade</Text><Ionicons name="arrow-forward" size={20} color={colors.ink} />
+        </Pressable>
       </ScrollView>
       <AppNavbar hidden={navbarHidden} />
     </View>
