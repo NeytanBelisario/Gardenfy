@@ -18,3 +18,16 @@ test('a newer toast is not dismissed by the previous toast timer', () => {
   dismissSuccessToast(second.id);
   assert.equal(getSuccessToast(), null);
 });
+
+test('a toast can carry an action and a tone without changing the default', () => {
+  let undone = 0;
+  showSuccessToast('Rega registrada', 'Monstera', { tone: 'water', action: { label: 'Desfazer', onPress: () => { undone++; } } });
+  const toast = getSuccessToast();
+  assert.equal(toast?.tone, 'water');
+  toast?.action?.onPress();
+  assert.equal(undone, 1);
+  showSuccessToast('Planta adicionada');
+  assert.equal(getSuccessToast()?.action, undefined);
+  assert.equal(getSuccessToast()?.tone, undefined);
+  dismissSuccessToast();
+});

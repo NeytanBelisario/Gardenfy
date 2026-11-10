@@ -11,6 +11,8 @@ export type GardenMetric = {
 
 export type PlantHealthTone = 'vital' | 'stable' | 'dry';
 
+export type PlantLightSpot = 'sun' | 'bright' | 'shade';
+
 export type GardenPlant = {
   id: string;
   name: string;
@@ -22,6 +24,10 @@ export type GardenPlant = {
   growthDays?: number;
   lastAnalyzedPhotoUri?: string;
   lastAnalyzedAt?: string;
+  /** User-chosen watering frequency in days; overrides the species reference. */
+  wateringIntervalDays?: number;
+  /** Where the user keeps the plant; compared with the species light preference. */
+  lightSpot?: PlantLightSpot;
   status: {
     label: string;
     tone: PlantHealthTone;
