@@ -1,10 +1,10 @@
 import { lastPlantCare } from './careActivity';
-import { getPlantCareProfile } from './careProfiles';
+import { getCareReference, type CareReferenceSource } from './careEstimate';
 import type { GardenPlant } from './types';
 
 export type WateringPlan =
-  | { source: 'custom'; intervalDays: number; reference?: { min: number; max: number } }
-  | { source: 'species'; intervalDays: number; reference: { min: number; max: number } };
+  | { source: 'custom'; intervalDays: number; reference?: { min: number; max: number }; referenceSource?: CareReferenceSource }
+  | { source: 'species'; intervalDays: number; reference: { min: number; max: number }; referenceSource: CareReferenceSource };
 
 /** 'unknown' = no frequency to compare with; 'never' = frequency known, no watering registered yet. */
 export type WaterState = 'unknown' | 'never' | 'ok' | 'soon' | 'due' | 'overdue';
@@ -31,10 +31,11 @@ export function calendarDaysBetween(from: Date, to: Date) {
 }
 
 export function getWateringPlan(plant: GardenPlant): WateringPlan | undefined {
-  const reference = getPlantCareProfile(plant)?.wateringDays;
-  if (plant.wateringIntervalDays) return { source: 'custom', intervalDays: plant.wateringIntervalDays, reference };
+  const care = getCareReference(plant);
+  const reference = care?.wateringDays;
+  if (plant.wateringIntervalDays) return { source: 'custom', intervalDays: plant.wateringIntervalDays, reference, referenceSource: care?.source };
   // The shorter end of the range prompts a soil check before the plant dries too much.
-  return reference ? { source: 'species', intervalDays: reference.min, reference } : undefined;
+  return care && reference ? { source: 'species', intervalDays: reference.min, reference, referenceSource: care.source } : undefined;
 }
 
 export function getWaterStatus(plant: GardenPlant, now = new Date()): WaterStatus {
@@ -70,5 +71,6 @@ export function describeWaterStatus(status: WaterStatus) {
 
 export function describeWateringPlan(plan: WateringPlan) {
   const every = 'A cada ' + plural(plan.intervalDays, 'dia', 'dias');
-  return plan.source === 'custom' ? every + ' · definido por você' : every + ' · referência da espécie';
+  if (plan.source === 'custom') return every + ' · definido por você';
+  return every + (plan.referenceSource === 'ai' ? ' · estimativa da IA para a espécie' : ' · referência da espécie');
 }

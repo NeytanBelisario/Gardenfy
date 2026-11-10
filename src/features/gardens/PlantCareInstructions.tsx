@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { Linking, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { getPlantCareProfile } from './careProfiles';
+import { currentCareEstimate } from './careEstimate';
+import { spotLabel } from './light';
 import type { GardenPlant } from './types';
 
 const careTopics = [
@@ -13,6 +15,7 @@ const careTopics = [
 
 export function PlantCareInstructions({ plant }: { plant: GardenPlant }) {
   const profile = getPlantCareProfile(plant);
+  const estimate = currentCareEstimate(plant);
   const [linkError, setLinkError] = useState<string>();
   if (!profile) {
     return (
@@ -20,6 +23,15 @@ export function PlantCareInstructions({ plant }: { plant: GardenPlant }) {
         <View style={[styles.icon, { backgroundColor: '#eef2e8' }]}><Ionicons name="book-outline" size={22} color="#476644" /></View>
         <Text style={styles.label}>Ainda sem ficha para esta espécie</Text>
         <Text style={styles.textCenter}>Você já pode registrar regas e adubações. Nenhuma orientação é criada automaticamente a partir da foto.</Text>
+        {estimate?.known ? (
+          <View style={styles.note}>
+            <Ionicons name="sparkles-outline" size={18} color="#5b3f86" />
+            <Text style={styles.noteText}>
+              Estimativa da IA para {estimate.scientificName}: regar a cada {estimate.wateringDays.min === estimate.wateringDays.max ? estimate.wateringDays.min : estimate.wateringDays.min + ' a ' + estimate.wateringDays.max} dias,{' '}
+              de preferência em {(['bright', 'sun', 'shade'] as const).filter((spot) => estimate.lightFit[spot] === 'ideal').map((spot) => spotLabel(spot).toLowerCase()).join(' ou ')}. É uma referência da espécie, não uma medição: confira o substrato e ajuste a frequência se precisar.
+            </Text>
+          </View>
+        ) : estimate ? <Text style={styles.textCenter}>A IA não reconheceu esta espécie com segurança, então as barras dependem da frequência que você definir.</Text> : null}
       </View>
     );
   }

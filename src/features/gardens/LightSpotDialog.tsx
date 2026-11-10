@@ -1,7 +1,8 @@
 import React, { useRef, useState } from 'react';
 import { Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { getPlantCareProfile, type LightFit } from './careProfiles';
+import type { LightFit } from './careProfiles';
+import { getCareReference } from './careEstimate';
 import { lightFitLabels, lightSpotOptions } from './light';
 import { setPlantLightSpot } from './store';
 import type { GardenPlant, PlantLightSpot } from './types';
@@ -13,7 +14,8 @@ const fitColors: Record<LightFit, { bg: string; fg: string }> = {
 };
 
 export function LightSpotDialog({ gardenId, plant, onClose }: { gardenId: string; plant: GardenPlant; onClose: () => void }) {
-  const lightFit = getPlantCareProfile(plant)?.lightFit;
+  const reference = getCareReference(plant);
+  const lightFit = reference?.lightFit;
   const [busy, setBusy] = useState(false);
   const busyRef = useRef(false);
   const [error, setError] = useState<string | null>(null);
@@ -32,7 +34,7 @@ export function LightSpotDialog({ gardenId, plant, onClose }: { gardenId: string
         <View style={styles.dialog} accessibilityViewIsModal>
           <ScrollView contentContainerStyle={styles.content}>
             <Text accessibilityRole="header" style={styles.title}>Onde {plant.name} fica?</Text>
-            <Text style={styles.text}>{lightFit ? 'Escolha o local mais parecido. Mostramos como cada um combina com a espécie.' : 'Escolha o local mais parecido. Sem ficha da espécie, não dá para comparar com o que ela prefere.'}</Text>
+            <Text style={styles.text}>{lightFit ? 'Escolha o local mais parecido. Mostramos como cada um combina com a espécie' + (reference?.source === 'ai' ? ', pela estimativa da IA (referência, não medição).' : '.') : 'Escolha o local mais parecido. Sem ficha da espécie, não dá para comparar com o que ela prefere.'}</Text>
             {lightSpotOptions.map((option) => {
               const selected = plant.lightSpot === option.spot;
               const fit = lightFit?.[option.spot];

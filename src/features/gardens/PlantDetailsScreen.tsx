@@ -17,6 +17,7 @@ import { describeLightDetail, describeLightStatus, getLightStatus } from './ligh
 import { describeRoutineDetail, describeRoutineStatus, getRoutineStatus } from './routine';
 import { describeWaterStatus, describeWateringPlan, getWaterStatus } from './watering';
 import { CareMeter } from '../../components/CareMeter';
+import { useCareEstimateStatus } from './CareEstimateSync';
 import { lightTone, routineTone, waterTone } from './careMeterTones';
 import { formatCareDay, lastPlantCare } from './careActivity';
 import { recordPlantCare, useGardenDetails } from './store';
@@ -64,6 +65,9 @@ export default function PlantDetailsScreen() {
   const routine = plant ? getRoutineStatus(plant) : undefined;
   const water = plant ? getWaterStatus(plant) : undefined;
   const lastFertilize = plant ? lastPlantCare(plant, 'fertilize') : undefined;
+  const estimateStatus = useCareEstimateStatus(plant);
+  const aiBadge = 'Estimativa da IA';
+  const lookupHint = estimateStatus === 'loading' ? 'Buscando a referência da espécie…' : undefined;
   const back = () => { if (!busyRef.current) { if (garden) router.replace({ pathname: '/gardens/[id]', params: { id: garden.id } }); else router.replace('/'); } };
   const record = async (careType: PlantCareType) => {
     if (!garden || !plant || busyRef.current || action || management) return;
@@ -95,13 +99,15 @@ export default function PlantDetailsScreen() {
             {water ? <CareMeter
               icon="water" iconColor="#2f6f8f" tint="#e2eff6" label="Água"
               status={describeWaterStatus(water)} level={water.level} tone={waterTone[water.state]}
-              detail={[water.lastWateredAt ? 'Última rega ' + formatCareDay(water.lastWateredAt) : null, water.plan ? describeWateringPlan(water.plan) : 'Escolha de quanto em quanto tempo você rega para acompanhar.'].filter(Boolean).join(' · ')}
+              badge={water.plan?.source === 'species' && water.plan.referenceSource === 'ai' ? aiBadge : undefined}
+              detail={[water.lastWateredAt ? 'Última rega ' + formatCareDay(water.lastWateredAt) : null, water.plan ? describeWateringPlan(water.plan) : lookupHint ?? 'Escolha de quanto em quanto tempo você rega para acompanhar.'].filter(Boolean).join(' · ')}
               action={{ label: water.plan ? 'Ajustar' : 'Definir', icon: 'options-outline', accessibilityLabel: 'Ajustar frequência de rega', disabled: busy, onPress: () => setIntervalOpen(true) }}
             /> : null}
             {light ? <CareMeter
               icon="sunny" iconColor="#9a6700" tint="#fdf3d7" label="Luz"
               status={describeLightStatus(light)} level={light.level} tone={light.fit ? lightTone[light.fit] : 'neutral'}
-              detail={describeLightDetail(light)}
+              badge={light.fit && light.referenceSource === 'ai' ? aiBadge : undefined}
+              detail={!light.fit && light.spot && lookupHint ? lookupHint : describeLightDetail(light)}
               action={{ label: light.spot ? 'Mudar' : 'Definir', icon: 'location-outline', accessibilityLabel: 'Definir onde a planta fica', disabled: busy, onPress: () => setLightOpen(true) }}
             /> : null}
             {routine ? <CareMeter

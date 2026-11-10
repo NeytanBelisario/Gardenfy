@@ -1,5 +1,6 @@
 import type { GardenIconName } from './iconNames';
 import type { PlantSpecies } from '../plant-identification/types';
+import type { CareEstimate } from './careEstimate';
 
 export type GardenMetricKind = 'light' | 'water';
 
@@ -28,6 +29,8 @@ export type GardenPlant = {
   wateringIntervalDays?: number;
   /** Where the user keeps the plant; compared with the species light preference. */
   lightSpot?: PlantLightSpot;
+  /** AI species reference, used only when there is no curated profile. Not a measurement. */
+  careEstimate?: CareEstimate;
   status: {
     label: string;
     tone: PlantHealthTone;
