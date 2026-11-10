@@ -419,3 +419,9 @@ enabled = true
 verify_jwt = false
 import_map = "./functions/identify-plant/deno.json"
 entrypoint = "./functions/identify-plant/index.ts"
+
+[functions.estimate-care]
+enabled = true
+verify_jwt = false
+import_map = "./functions/estimate-care/deno.json"
+entrypoint = "./functions/estimate-care/index.ts"

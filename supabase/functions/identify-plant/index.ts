@@ -16,7 +16,7 @@ const identify = withSupabase({ auth: 'publishable' }, async (request) => {
     const contentLength = Number(request.headers.get('content-length'));
     if (contentLength > 8 * 1024 * 1024 + 1024) throw new IdentificationError('image', 413);
     const photo = parseIdentificationRequest(await request.json().catch(() => null));
-    await consumeQuota(request, salt, 450);
+    await consumeQuota(request, salt, { dailyBudget: { key: 'plantnet-global', limit: 450 } });
     const controller = new AbortController();
     const abort = () => controller.abort();
     if (request.signal.aborted) abort();
