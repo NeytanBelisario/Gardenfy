@@ -150,7 +150,7 @@ const styles = StyleSheet.create({
   titleRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   title: { color: colors.ink, fontSize: 32, fontWeight: '800', flexShrink: 1 },
   titleCompact: { fontSize: 26 },
-  infoButton: { width: 34, height: 34, alignItems: 'center', justifyContent: 'center', borderRadius: 17, backgroundColor: colors.surfaceMuted, borderWidth: 1, borderColor: '#d9e2d2' },
+  infoButton: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center', borderRadius: 20, backgroundColor: colors.surfaceMuted, borderWidth: 1, borderColor: '#d9e2d2' },
   species: { color: colors.accent, fontSize: 15, fontStyle: 'italic' },
   heading: { color: colors.ink, fontSize: 22, fontWeight: '800' },
   text: { color: colors.text, fontSize: 15, lineHeight: 24 },

@@ -5,9 +5,12 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { dismissSuccessToast, useSuccessToast } from './successToastStore';
 import { colors } from '../../theme/tokens';
+import { useAccessibilityPrefs } from '../../hooks/useAccessibilityPrefs';
 
 const VISIBLE_MS = 2600;
 const VISIBLE_WITH_ACTION_MS = 5000;
+// Com leitor de tela, chegar ao botão Desfazer leva mais tempo.
+const SCREEN_READER_FACTOR = 3;
 
 const toneStyle = {
   success: { badge: '#4f8a45', icon: 'checkmark' },
@@ -19,17 +22,25 @@ export function SuccessToastHost() {
   const toast = useSuccessToast();
   const insets = useSafeAreaInsets();
   const progress = useRef(new Animated.Value(0)).current;
+  const { screenReader, reduceMotion } = useAccessibilityPrefs();
 
   useEffect(() => {
     if (!toast) return;
     AccessibilityInfo.announceForAccessibility(toast.message ? `${toast.title}. ${toast.message}` : toast.title);
-    progress.setValue(0);
-    Animated.spring(progress, { toValue: 1, friction: 7, tension: 80, useNativeDriver: true }).start();
+    if (reduceMotion) progress.setValue(1);
+    else {
+      progress.setValue(0);
+      Animated.spring(progress, { toValue: 1, friction: 7, tension: 80, useNativeDriver: true }).start();
+    }
+    const visible = (toast.action ? VISIBLE_WITH_ACTION_MS : VISIBLE_MS) * (screenReader ? SCREEN_READER_FACTOR : 1);
     const timer = setTimeout(() => {
+      if (reduceMotion) { dismissSuccessToast(toast.id); return; }
       Animated.timing(progress, { toValue: 0, duration: 180, useNativeDriver: true })
         .start(() => dismissSuccessToast(toast.id));
-    }, toast.action ? VISIBLE_WITH_ACTION_MS : VISIBLE_MS);
+    }, visible);
     return () => clearTimeout(timer);
+    // Preferências lidas no momento em que o toast aparece; mudá-las não reinicia o tempo.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [toast, progress]);
 
   if (!toast) return null;
@@ -74,7 +85,7 @@ const styles = StyleSheet.create({
   },
   errorToast: { backgroundColor: '#5c1a10' },
   main: { flexShrink: 1, flexDirection: 'row', alignItems: 'center', gap: 12, paddingRight: 8 },
-  action: { minHeight: 40, paddingHorizontal: 14, justifyContent: 'center', borderRadius: 14, backgroundColor: 'rgba(255,255,255,0.14)' },
+  action: { minHeight: 48, paddingHorizontal: 14, justifyContent: 'center', borderRadius: 14, backgroundColor: 'rgba(255,255,255,0.14)' },
   actionText: { color: '#c8ecc1', fontSize: 14, fontWeight: '800' },
   check: { width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center', backgroundColor: '#4f8a45' },
   body: { flexShrink: 1, gap: 2 },
