@@ -39,7 +39,7 @@ export function SuccessToastHost() {
   const translateY = progress.interpolate({ inputRange: [0, 1], outputRange: [-16, 0] });
 
   return (
-    <View pointerEvents="box-none" style={[styles.host, { top: insets.top + 72 }]}>
+    <View style={[styles.host, { top: insets.top + 72 }]}>
       <Animated.View style={{ opacity: progress, transform: [{ translateY }, { scale }] }}>
         <View style={[styles.toast, toast.tone === 'error' && styles.errorToast]}>
           <Pressable accessibilityRole="button" accessibilityLabel={toast.message ? `${toast.title}. ${toast.message}` : toast.title}
@@ -65,11 +65,11 @@ export function SuccessToastHost() {
 }
 
 const styles = StyleSheet.create({
-  host: { position: 'absolute', left: 16, right: 16, alignItems: 'center' },
+  host: { position: 'absolute', left: 16, right: 16, alignItems: 'center', pointerEvents: 'box-none' },
   toast: {
     flexDirection: 'row', alignItems: 'center', gap: 8, maxWidth: 520, minHeight: 56,
     paddingVertical: 10, paddingLeft: 12, paddingRight: 10, borderRadius: 20, backgroundColor: '#17361d',
-    shadowColor: '#000000', shadowOpacity: 0.18, shadowRadius: 12, shadowOffset: { width: 0, height: 6 }, elevation: 8,
+    boxShadow: '0px 6px 12px rgba(0, 0, 0, 0.18)',
   },
   errorToast: { backgroundColor: '#5c1a10' },
   main: { flexShrink: 1, flexDirection: 'row', alignItems: 'center', gap: 12, paddingRight: 8 },

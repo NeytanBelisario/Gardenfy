@@ -275,10 +275,10 @@ export function AppHeader({
       </Modal>
 
       <View
-        pointerEvents={drawerVisible ? 'none' : 'auto'}
         style={[
           styles.header,
           {
+            pointerEvents: drawerVisible ? 'none' : 'auto',
             paddingTop: insets.top + 4,
           },
         ]}
@@ -329,11 +329,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.white,
     paddingHorizontal: 18,
     paddingBottom: 28,
-    shadowColor: '#000000',
-    shadowOpacity: 0.12,
-    shadowRadius: 18,
-    shadowOffset: { width: 6, height: 0 },
-    elevation: 24,
+    boxShadow: '6px 0px 18px rgba(0, 0, 0, 0.12)',
   },
   drawerProfileCard: {
     borderRadius: 28,
