@@ -25,17 +25,18 @@ import {
   gardenIconOptions,
   gardenIconLabels,
 } from '../../features/gardens/icons';
+import { colors } from '../../theme/tokens';
 
 const COLORS = {
-  background: '#fbf9f5',
-  primary: '#17361d',
-  secondary: '#476644',
-  surfaceLow: '#f5f3ef',
-  surfaceHigh: '#eae8e4',
+  background: colors.background,
+  primary: colors.ink,
+  secondary: colors.accent,
+  surfaceLow: colors.surfaceWarm,
+  surfaceHigh: colors.surfaceWarmHigh,
   tertiarySoft: '#ffb783',
   tertiaryText: '#301400',
   textMuted: '#737971',
-  white: '#ffffff',
+  white: colors.surface,
 } as const;
 
 function IdentityIcon({
@@ -381,7 +382,7 @@ const styles = StyleSheet.create({
     fontWeight: '900',
   },
   secondaryButton: {
-    minHeight: 44,
+    minHeight: 48,
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: 10,

@@ -4,6 +4,7 @@ import { KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, StyleShee
 import { GardenIdentityIcon, gardenIconLabels, gardenIconOptions } from './icons';
 import { deleteGarden, deletePlant, updateGarden, updatePlant } from './store';
 import type { GardenDetails, GardenPlant } from './types';
+import { colors } from '../../theme/tokens';
 
 export type GardenManagementAction = {
   mode: 'edit' | 'delete';
@@ -99,7 +100,7 @@ export function GardenManagementDialog({ garden, action, onClose, onGardenDelete
                     <View style={styles.row}>
                       {gardenIconOptions.map((value) => (
                         <Pressable key={value} accessibilityRole="button" accessibilityLabel={gardenIconLabels[value]} accessibilityState={{ selected: icon === value, disabled: busy }} disabled={busy} onPress={() => setIcon(value)} style={[styles.choice, icon === value && styles.selected]}>
-                          <GardenIdentityIcon icon={value} size={28} color="#17361d" />
+                          <GardenIdentityIcon icon={value} size={28} color={colors.ink} />
                         </Pressable>
                       ))}
                     </View>
@@ -129,20 +130,20 @@ export function GardenManagementDialog({ garden, action, onClose, onGardenDelete
 
 const styles = StyleSheet.create({
   overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.45)', justifyContent: 'center', alignItems: 'center', padding: 24 },
-  dialog: { width: '100%', maxWidth: 480, maxHeight: '90%', backgroundColor: '#fbf9f5', borderRadius: 24 },
+  dialog: { width: '100%', maxWidth: 480, maxHeight: '90%', backgroundColor: colors.background, borderRadius: 24 },
   content: { padding: 24, gap: 16 },
-  title: { fontSize: 24, fontWeight: '800', color: '#17361d' },
-  label: { fontWeight: '700', color: '#17361d' },
-  text: { color: '#17361d', fontSize: 16, lineHeight: 24 },
-  input: { backgroundColor: '#eae8e4', padding: 16, borderRadius: 12, color: '#17361d', fontSize: 16 },
+  title: { fontSize: 24, fontWeight: '800', color: colors.ink },
+  label: { fontWeight: '700', color: colors.ink },
+  text: { color: colors.ink, fontSize: 16, lineHeight: 24 },
+  input: { backgroundColor: colors.surfaceWarmHigh, padding: 16, borderRadius: 12, color: colors.ink, fontSize: 16 },
   row: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  choice: { padding: 12, borderRadius: 12, alignItems: 'center', borderWidth: 1, borderColor: '#c2c8bf' },
-  selected: { backgroundColor: '#c8ecc1', borderColor: '#17361d' },
-  primary: { padding: 16, borderRadius: 12, alignItems: 'center', backgroundColor: '#17361d' },
-  destructive: { backgroundColor: '#93000a' },
-  primaryText: { color: '#ffffff', fontWeight: '700', fontSize: 16 },
+  choice: { padding: 12, borderRadius: 12, alignItems: 'center', borderWidth: 1, borderColor: colors.borderStrong },
+  selected: { backgroundColor: '#c8ecc1', borderColor: colors.ink },
+  primary: { padding: 16, borderRadius: 12, alignItems: 'center', backgroundColor: colors.ink },
+  destructive: { backgroundColor: colors.danger },
+  primaryText: { color: colors.onInk, fontWeight: '700', fontSize: 16 },
   deleteLink: { minHeight: 48, alignSelf: 'center', justifyContent: 'center', padding: 12 },
-  deleteText: { color: '#93000a', fontSize: 14, fontWeight: '700' },
-  error: { color: '#93000a' },
+  deleteText: { color: colors.danger, fontSize: 14, fontWeight: '700' },
+  error: { color: colors.danger },
   disabled: { opacity: 0.6 },
 });

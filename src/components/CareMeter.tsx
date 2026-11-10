@@ -2,6 +2,7 @@ import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useCompactLayout } from '../hooks/useCompactLayout';
+import { colors } from '../theme/tokens';
 
 export type CareMeterTone = 'good' | 'warn' | 'alert' | 'neutral';
 
@@ -42,11 +43,11 @@ export function CareMeter({ icon, iconColor, tint, label, status, detail, level,
             <Text style={styles.label}>{label}</Text>
             {badge ? <View style={styles.badge}><Text style={styles.badgeText}>{badge}</Text></View> : null}
           </View>
-          <Text style={[styles.status, compact && styles.statusCompact, { color: tone === 'neutral' ? '#17361d' : toneColors[tone] }]}>{status}</Text>
+          <Text style={[styles.status, compact && styles.statusCompact, { color: tone === 'neutral' ? colors.ink : toneColors[tone] }]}>{status}</Text>
         </View>
         {action ? (
           <Pressable accessibilityRole="button" accessibilityLabel={action.accessibilityLabel ?? action.label} disabled={action.disabled} onPress={action.onPress} hitSlop={6} style={[styles.action, compact && styles.actionCompact, action.disabled && styles.disabled]}>
-            {compact ? <Ionicons name={action.icon} size={20} color="#476644" /> : <Text style={styles.actionText}>{action.label}</Text>}
+            {compact ? <Ionicons name={action.icon} size={20} color={colors.accent} /> : <Text style={styles.actionText}>{action.label}</Text>}
           </Pressable>
         ) : null}
       </View>
@@ -59,7 +60,7 @@ export function CareMeter({ icon, iconColor, tint, label, status, detail, level,
 }
 
 const styles = StyleSheet.create({
-  meter: { gap: 10, padding: 14, borderRadius: 18, backgroundColor: '#fff' },
+  meter: { gap: 10, padding: 14, borderRadius: 18, backgroundColor: colors.surface },
   meterCompact: { padding: 12, gap: 8 },
   top: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   topCompact: { gap: 10 },
@@ -67,16 +68,16 @@ const styles = StyleSheet.create({
   iconCompact: { width: 32, height: 32, borderRadius: 16 },
   copy: { flex: 1, gap: 1 },
   labelRow: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 6 },
-  badge: { paddingHorizontal: 8, paddingVertical: 2, borderRadius: 10, backgroundColor: '#efe8f7' },
-  badgeText: { fontSize: 11, fontWeight: '700', color: '#5b3f86' },
-  label: { fontSize: 13, fontWeight: '700', color: '#586653', textTransform: 'uppercase', letterSpacing: 0.6 },
+  badge: { paddingHorizontal: 8, paddingVertical: 2, borderRadius: 10, backgroundColor: colors.aiTint },
+  badgeText: { fontSize: 11, fontWeight: '700', color: colors.ai },
+  label: { fontSize: 13, fontWeight: '700', color: colors.text, textTransform: 'uppercase', letterSpacing: 0.6 },
   status: { fontSize: 17, fontWeight: '800' },
   statusCompact: { fontSize: 15 },
-  action: { minHeight: 36, paddingHorizontal: 12, justifyContent: 'center', borderRadius: 12, backgroundColor: '#eef2e8' },
-  actionCompact: { width: 40, height: 40, paddingHorizontal: 0, alignItems: 'center', borderRadius: 20 },
-  actionText: { fontSize: 13, fontWeight: '700', color: '#476644' },
+  action: { minHeight: 44, paddingHorizontal: 12, justifyContent: 'center', borderRadius: 12, backgroundColor: colors.surfaceMuted },
+  actionCompact: { width: 44, height: 44, paddingHorizontal: 0, alignItems: 'center', borderRadius: 22 },
+  actionText: { fontSize: 13, fontWeight: '700', color: colors.accent },
   track: { height: 10, borderRadius: 5, backgroundColor: '#e6e9e1', overflow: 'hidden' },
   fill: { height: '100%', borderRadius: 5 },
-  detail: { fontSize: 13, lineHeight: 20, color: '#586653' },
+  detail: { fontSize: 13, lineHeight: 20, color: colors.text },
   disabled: { opacity: 0.5 },
 });

@@ -9,6 +9,7 @@ import { SuccessToastHost } from '../components/shell/SuccessToastHost';
 import { ReminderSync } from '../features/reminders/ReminderSync';
 import { CareEstimateSync } from '../features/gardens/CareEstimateSync';
 import { GardensBootstrap } from '../features/gardens/GardensBootstrap';
+import { colors } from '../theme/tokens';
 
 export default function AppLayout() {
   const insets = useSafeAreaInsets();
@@ -32,6 +33,6 @@ export default function AppLayout() {
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: '#fbf9f5' },
-  systemInset: { position: 'absolute', bottom: 0, left: 0, right: 0, backgroundColor: '#fbf9f5', pointerEvents: 'none' },
+  screen: { flex: 1, backgroundColor: colors.background },
+  systemInset: { position: 'absolute', bottom: 0, left: 0, right: 0, backgroundColor: colors.background, pointerEvents: 'none' },
 });

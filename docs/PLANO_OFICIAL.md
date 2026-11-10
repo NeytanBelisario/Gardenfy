@@ -39,8 +39,8 @@ Regras complementares:
 |---|---|---|---|
 | **1.1.0** | Dia a dia: Para hoje, rega rápida, barras, sequência, lembretes | `entregue` em `develop` (validação no celular na 1.6) | — |
 | **1.1.1** | Ajustes da 1.1: telas estreitas, avisos do web | `entregue` em `develop` | P |
-| **1.2.0** | Cuidados para qualquer espécie (estimativa por IA + catálogo maior) | `em andamento` (código pronto; falta deploy) | M |
-| **1.3.0** | Interface e base de produto (design system, onboarding, acessibilidade, privacidade, monitoramento) | `planejada (1.3.0)` | M |
+| **1.2.0** | Cuidados para qualquer espécie (estimativa por IA + catálogo maior) | `entregue` em `develop` (falta deploy da função) | M |
+| **1.3.0** | Interface e base de produto (design system, onboarding, acessibilidade, privacidade, monitoramento) | `em andamento` (monitoramento e privacidade na 1.3.1) | M |
 | **1.4.0** | Conta e sincronização (login, backup na nuvem, exclusão de conta) | `planejada (1.4.0)` | G |
 | **1.5.0** | Moedas, conquistas e perfil | `planejada (1.5.0)` | G |
 | **1.6.0** | Saúde da planta (análise por foto) | `planejada (1.6.0)` | G |
@@ -83,7 +83,7 @@ Cada feature tem objetivo, escopo da primeira entrega, o que fica fora, arquitet
 
 ### 1.2.0 — Cuidados para qualquer espécie
 
-> **Status (10/11/2026): `em andamento`.** Código na branch `release/1.2.0` (notas em [releases/1.2.0.md](releases/1.2.0.md)): função `estimate-care`, tabela `care_estimates`, `CareEstimate` salvo na planta, sincronização em segundo plano, selo "Estimativa da IA" e 30 fichas curadas. Falta o deploy, que depende da chave Gemini. Diferença do escopo original: em vez de um cache separado no AsyncStorage, a estimativa fica salva na própria planta (`careEstimate`), o que faz Para hoje, lista do jardim e lembretes usarem a estimativa sem nova chamada.
+> **Status (10/11/2026): `entregue` em `develop` ([PR #29](https://github.com/NeytanBelisario/Gardenfy/pull/29)).** Código (notas em [releases/1.2.0.md](releases/1.2.0.md)): função `estimate-care`, tabela `care_estimates`, `CareEstimate` salvo na planta, sincronização em segundo plano, selo "Estimativa da IA" e 30 fichas curadas. Falta o deploy, que depende da chave Gemini. Diferença do escopo original: em vez de um cache separado no AsyncStorage, a estimativa fica salva na própria planta (`careEstimate`), o que faz Para hoje, lista do jardim e lembretes usarem a estimativa sem nova chamada.
 
 **Objetivo:** as barras de Água e Luz funcionarem para qualquer espécie identificada pelo Pl@ntNet, não só para as quatro que têm ficha.
 
@@ -103,6 +103,8 @@ Cada feature tem objetivo, escopo da primeira entrega, o que fica fora, arquitet
 **Precisa do usuário:** chave Gemini do AI Studio num projeto sem faturamento, cadastrada como secret `GEMINI_API_KEY`; ok para `supabase db push` e para o deploy da função; aceitar que o plano free pode usar as requisições para treino (só vai o nome da espécie).
 
 ### 1.3.0 — Interface e base de produto
+
+> **Status (10/11/2026): `em andamento`** na branch `release/1.3.0`, mantendo a identidade visual atual (decisão do usuário). Feito: tokens e componentes base ([DESIGN.md](DESIGN.md)), primeiros passos na tela inicial, alvos de 48 dp, toast de Desfazer adaptado ao leitor de tela e animações leves que respeitam "reduzir movimento". Monitoramento e política de privacidade dependem do usuário e viram uma 1.3.1. Notas em [releases/1.3.0.md](releases/1.3.0.md).
 
 **Objetivo:** deixar o app com cara de produto antes de crescer em número de telas, e cumprir o básico que a loja exige.
 
@@ -277,7 +279,7 @@ Modelo para uma ideia nova:
 | Quando | O que |
 |---|---|
 | 1.2.0 | Chave Gemini (AI Studio, sem faturamento) como secret e ok para o deploy |
-| 1.3.0 | Direção visual, conta de monitoramento e política de privacidade |
+| 1.3.1 | Conta de monitoramento (ex.: Sentry) e texto/aceite da política de privacidade (visual: manter o atual) |
 | 1.4.0 | OAuth Google, assinatura Android definitiva, conta Play Console e 12+ testadores |
 | 1.5.0 | Valores da economia e itens cosméticos |
 | 1.6.0 | Escolha do provedor de saúde, orçamento de IA e validação no celular de tudo desde a 1.1.0 |
@@ -290,3 +292,4 @@ Modelo para uma ideia nova:
 - **10/11/2026** — Testes no celular e APKs adiados até a 1.6, que valida tudo desde a 1.1.0; até lá cada versão passa só pelos checks automatizados. Versões seguem em sequência, com pergunta ao usuário sobre o PR para `develop` ao fim de cada uma. PRs #26 (1.1.0) e #27 (este plano) integrados em `develop`.
 - **10/11/2026** — Adubação na 1.1.1: mantida a frase "Última adubação"; frequência própria fica como ideia para depois da 1.2.
 - **10/11/2026** — 1.2.0: a estimativa da IA é salva na própria planta (`careEstimate`) em vez de um cache local separado; o cache compartilhado por espécie continua no Supabase (`care_estimates`). Modelo padrão `gemini-3.1-flash-lite`, configurável por `GEMINI_MODEL`.
+- **10/11/2026** — 1.3.0 mantém a identidade visual atual. Onboarding como checklist "Primeiros passos" na tela inicial, derivado dos dados (nada é marcado à mão). Monitoramento e política de privacidade saem da 1.3.0 e vão para uma 1.3.1, quando o usuário tiver a conta e o texto.

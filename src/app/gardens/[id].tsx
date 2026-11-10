@@ -13,6 +13,7 @@ import { PlantWaterIndicator } from '../../features/gardens/PlantWaterIndicator'
 import { WaterNowButton } from '../../features/gardens/WaterNowButton';
 import { describeWaterStatus, getWaterStatus } from '../../features/gardens/watering';
 import { useGardenDetails } from '../../features/gardens/store';
+import { colors } from '../../theme/tokens';
 
 export default function GardenDetailsScreen() {
   const router = useRouter();
@@ -34,18 +35,18 @@ export default function GardenDetailsScreen() {
             <GardenIdentityIcon icon={garden.icon} size={42} color="#c4d9b9" />
             <Text style={styles.eyebrow}>{garden.label}</Text>
             <Text accessibilityRole="header" style={styles.title}>{garden.name}</Text>
-            {thirsty ? <View style={styles.heroAlert}><Ionicons name="water" size={16} color="#17361d" /><Text style={styles.heroAlertText}>{thirsty === 1 ? '1 planta precisa de água hoje' : thirsty + ' plantas precisam de água hoje'}</Text></View> : null}
+            {thirsty ? <View style={styles.heroAlert}><Ionicons name="water" size={16} color={colors.ink} /><Text style={styles.heroAlertText}>{thirsty === 1 ? '1 planta precisa de água hoje' : thirsty + ' plantas precisam de água hoje'}</Text></View> : null}
             <Text style={styles.heroText}>{garden.plantCount} {garden.plantCount === 1 ? 'planta' : 'plantas'} · {gardenCareCount(garden)} {gardenCareCount(garden) === 1 ? 'cuidado registrado' : 'cuidados registrados'}</Text>
           </View>
           <View style={styles.actions}>
-            <Pressable accessibilityRole="button" onPress={add} style={styles.primary}><Ionicons name="add" size={20} color="#fff" /><Text style={styles.primaryText}>Adicionar planta</Text></Pressable>
-            <Pressable accessibilityRole="button" accessibilityLabel="Editar jardim" onPress={() => setAction({ mode: 'edit' })} style={styles.secondary}><Ionicons name="create-outline" size={20} color="#17361d" /><Text style={styles.label}>Editar jardim</Text></Pressable>
+            <Pressable accessibilityRole="button" onPress={add} style={styles.primary}><Ionicons name="add" size={20} color={colors.onInk} /><Text style={styles.primaryText}>Adicionar planta</Text></Pressable>
+            <Pressable accessibilityRole="button" accessibilityLabel="Editar jardim" onPress={() => setAction({ mode: 'edit' })} style={styles.secondary}><Ionicons name="create-outline" size={20} color={colors.ink} /><Text style={styles.label}>Editar jardim</Text></Pressable>
           </View>
           <Text accessibilityRole="header" style={styles.heading}>Minhas plantas</Text>
           {garden.plantCount > 0 ? <View style={styles.search}>
-            <Ionicons name="search-outline" size={20} color="#586653" />
-            <TextInput accessibilityLabel="Buscar plantas neste jardim" placeholder="Buscar suas plantas" value={query} onChangeText={setQuery} style={styles.input} placeholderTextColor="#586653" />
-            {query ? <Pressable accessibilityRole="button" accessibilityLabel="Limpar busca" onPress={() => setQuery('')} style={styles.clear}><Ionicons name="close-circle" size={22} color="#586653" /></Pressable> : null}
+            <Ionicons name="search-outline" size={20} color={colors.text} />
+            <TextInput accessibilityLabel="Buscar plantas neste jardim" placeholder="Buscar suas plantas" value={query} onChangeText={setQuery} style={styles.input} placeholderTextColor={colors.text} />
+            {query ? <Pressable accessibilityRole="button" accessibilityLabel="Limpar busca" onPress={() => setQuery('')} style={styles.clear}><Ionicons name="close-circle" size={22} color={colors.text} /></Pressable> : null}
           </View> : null}
           {plants.map((plant) => {
             const water = getWaterStatus(plant);
@@ -58,7 +59,7 @@ export default function GardenDetailsScreen() {
             </View>;
           })}
           {!plants.length ? <View style={styles.empty}>
-            <Ionicons name={garden.plantCount ? 'search-outline' : 'leaf-outline'} size={44} color="#476644" />
+            <Ionicons name={garden.plantCount ? 'search-outline' : 'leaf-outline'} size={44} color={colors.accent} />
             <Text style={styles.heading}>{garden.plantCount ? 'Nenhuma planta com esse nome' : 'Seu jardim está pronto'}</Text>
             <Text style={styles.text}>{garden.plantCount ? 'Tente buscar por outro nome ou pela espécie.' : 'Adicione sua primeira planta pelo catálogo ou identifique por foto. Depois, registre os cuidados aqui.'}</Text>
             <Pressable accessibilityRole="button" onPress={garden.plantCount ? () => setQuery('') : add} style={styles.secondary}><Text style={styles.label}>{garden.plantCount ? 'Limpar busca' : 'Escolher minha primeira planta'}</Text></Pressable>
@@ -71,30 +72,30 @@ export default function GardenDetailsScreen() {
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: '#fbf9f5' },
+  screen: { flex: 1, backgroundColor: colors.background },
   content: { width: '100%', maxWidth: 720, alignSelf: 'center', padding: 20, gap: 18 },
-  hero: { padding: 26, gap: 12, borderRadius: 28, backgroundColor: '#17361d' },
+  hero: { padding: 26, gap: 12, borderRadius: 28, backgroundColor: colors.ink },
   eyebrow: { color: '#c4d9b9', fontSize: 13 },
-  title: { color: '#fff', fontSize: 32, fontWeight: '800' },
+  title: { color: colors.onInk, fontSize: 32, fontWeight: '800' },
   heroText: { color: '#d6e2d0', fontSize: 14, lineHeight: 23 },
   actions: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
-  primary: { minHeight: 52, backgroundColor: '#17361d', borderRadius: 16, padding: 16, flexDirection: 'row', flexWrap: 'wrap', gap: 8, alignItems: 'center', justifyContent: 'center' },
-  primaryText: { color: '#fff', fontSize: 15, fontWeight: '700', textAlign: 'center', flexShrink: 1 },
-  secondary: { minHeight: 52, borderWidth: 1, borderColor: '#c2c8bf', borderRadius: 16, padding: 16, flexDirection: 'row', flexWrap: 'wrap', gap: 8, alignItems: 'center', justifyContent: 'center' },
-  heading: { color: '#17361d', fontSize: 22, fontWeight: '800' },
-  label: { color: '#17361d', fontSize: 15, fontWeight: '700' },
-  text: { color: '#586653', fontSize: 15, lineHeight: 24 },
-  caption: { color: '#586653', fontSize: 13, lineHeight: 21 },
+  primary: { minHeight: 52, backgroundColor: colors.ink, borderRadius: 16, padding: 16, flexDirection: 'row', flexWrap: 'wrap', gap: 8, alignItems: 'center', justifyContent: 'center' },
+  primaryText: { color: colors.onInk, fontSize: 15, fontWeight: '700', textAlign: 'center', flexShrink: 1 },
+  secondary: { minHeight: 52, borderWidth: 1, borderColor: colors.borderStrong, borderRadius: 16, padding: 16, flexDirection: 'row', flexWrap: 'wrap', gap: 8, alignItems: 'center', justifyContent: 'center' },
+  heading: { color: colors.ink, fontSize: 22, fontWeight: '800' },
+  label: { color: colors.ink, fontSize: 15, fontWeight: '700' },
+  text: { color: colors.text, fontSize: 15, lineHeight: 24 },
+  caption: { color: colors.text, fontSize: 13, lineHeight: 21 },
   plantMain: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 14 },
-  plantCard: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 16, borderRadius: 24, backgroundColor: '#fff', borderWidth: 1, borderColor: '#e7e9e0' },
+  plantCard: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 16, borderRadius: 24, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border },
   photo: { width: 64, height: 72, borderRadius: 16 },
   plantCopy: { flex: 1, gap: 6 },
-  plantName: { color: '#17361d', fontSize: 18, fontWeight: '800' },
+  plantName: { color: colors.ink, fontSize: 18, fontWeight: '800' },
   heroAlert: { alignSelf: 'flex-start', flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 14, backgroundColor: '#c8ecc1' },
-  heroAlertText: { color: '#17361d', fontSize: 13, fontWeight: '800' },
-  search: { flexDirection: 'row', alignItems: 'center', gap: 10, minHeight: 52, paddingLeft: 16, borderRadius: 16, backgroundColor: '#eef2e8' },
-  input: { flex: 1, paddingVertical: 16, fontSize: 16, color: '#17361d' },
+  heroAlertText: { color: colors.ink, fontSize: 13, fontWeight: '800' },
+  search: { flexDirection: 'row', alignItems: 'center', gap: 10, minHeight: 52, paddingLeft: 16, borderRadius: 16, backgroundColor: colors.surfaceMuted },
+  input: { flex: 1, paddingVertical: 16, fontSize: 16, color: colors.ink },
   clear: { minWidth: 48, minHeight: 48, alignItems: 'center', justifyContent: 'center' },
-  empty: { alignItems: 'center', gap: 16, padding: 24, borderRadius: 24, backgroundColor: '#fff' },
+  empty: { alignItems: 'center', gap: 16, padding: 24, borderRadius: 24, backgroundColor: colors.surface },
   pressed: { opacity: 0.75 },
 });

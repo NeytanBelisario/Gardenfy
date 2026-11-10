@@ -2,6 +2,15 @@
 
 Atualize este arquivo ao encerrar sessões que mudem o estado do projeto. Não armazene credenciais ou configurações privadas.
 
+## Sessão de 10/11/2026 — 1.3.0 (interface e base de produto)
+
+- **Base:** PR #29 (1.2.0) integrado em `develop` (`519cdd5`). O merge foi feito antes de o CI aparecer no PR (falha no comando de espera); o CI do push em `develop` rodou depois e passou em todos os passos, inclusive `deno check` de `estimate-care` e o export Android/web. Daqui em diante, esperar os checks existirem antes do merge.
+- **Branch:** `release/1.3.0`, versão 1.3.0. Usuário escolheu manter a identidade visual atual.
+- **Feito:** tokens (`src/theme/tokens.ts`) aplicados em 26 arquivos com os mesmos valores; `Button` e `Card` em `src/components/ui`; checklist "Primeiros passos" (`src/features/onboarding`) na home; alvos de 48 dp; `useAccessibilityPrefs` (toast de Desfazer 3× mais longo com leitor de tela, sem animação com "reduzir movimento"); `usePopOnTrue` no botão de rega e no Para hoje. Guia em [DESIGN.md](DESIGN.md).
+- **Checks:** `npm run check` (128 testes). Não executado: visual no navegador/celular e TalkBack.
+- **Pendências do usuário:** monitoramento e política de privacidade (1.3.1); secret `GEMINI_API_KEY` para o deploy da 1.2.0 (o usuário vai cadastrar e avisar; então rodar `db push` e `functions deploy estimate-care`).
+- **Próximo passo:** perguntar sobre o PR `release/1.3.0` → `develop`. A 1.4.0 (conta e sincronização) depende de OAuth Google, assinatura Android e decisão dos métodos de login.
+
 ## Sessão de 10/11/2026 — 1.2.0 (estimativa de cuidados por IA)
 
 - **Base:** PR #28 (1.1.1) integrado em `develop` (`04c9e4f`) por instrução do usuário; branch `release/1.2.0` a partir dele. Versão 1.2.0, `versionCode` 2.
