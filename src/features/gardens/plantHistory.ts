@@ -43,6 +43,18 @@ export function formatHistoryDate(value: string) {
   });
 }
 
+/** Short timeline label: "Hoje · 09:10", "Ontem · 18:30", "13 nov · 09:10" (with the year when it differs). */
+export function formatHistoryDay(value: string, now = new Date()) {
+  const date = new Date(value);
+  const time = date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+  const startOf = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+  const diff = Math.round((startOf(now) - startOf(date)) / 86_400_000);
+  if (diff === 0) return 'Hoje · ' + time;
+  if (diff === 1) return 'Ontem · ' + time;
+  const day = date.getDate() + ' ' + date.toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '');
+  return (date.getFullYear() === now.getFullYear() ? day : day + ' ' + date.getFullYear()) + ' · ' + time;
+}
+
 export function careDateFields(value: string) {
   const date = new Date(value);
   const pad = (number: number) => String(number).padStart(2, '0');

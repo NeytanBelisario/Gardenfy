@@ -37,6 +37,13 @@ export function spotLabel(spot: PlantLightSpot) {
   return lightSpotOptions.find((option) => option.spot === spot)!.label;
 }
 
+const spotPhrases: Record<PlantLightSpot, string> = { sun: 'Fica no sol direto', bright: 'Fica na claridade', shade: 'Fica com pouca luz' };
+
+/** Where the plant is, as a sentence ("Fica na claridade"). */
+export function spotPhrase(spot: PlantLightSpot) {
+  return spotPhrases[spot];
+}
+
 export function describeLightStatus(status: LightStatus) {
   if (!status.spot) return 'Onde ela fica?';
   if (!status.fit) return spotLabel(status.spot);
