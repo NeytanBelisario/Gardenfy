@@ -2,18 +2,6 @@
 
 Atualize este arquivo ao encerrar sessões que mudem o estado do projeto. Não armazene credenciais ou configurações privadas.
 
-## Sessão de 13/11/2026 — página da planta 1.3.2
-
-- **Branch:** `fix/plant-details-1.3.2`, a partir de `develop` atualizado (`cbb62d2`, PR #31). Árvore inicialmente limpa. PR #32 de documentação do APK anterior segue independente, sem merge nesta sessão.
-- **Autorização:** usuário aprovou a análise da referência visual e pediu a implementação da 1.3.2.
-- **Feito:** foto/nome compactos, informações no cabeçalho, próxima rega com data e ciclo crescente de tempo decorrido, luz/adubação secundárias, histórico expansível com Rotina, edição/exclusão e registros preservados. Estados sem dados e origem das referências mantidos. Sem novas dependências ou migrações.
-- **Versão:** app/package/lockfile 1.3.2, Android versionCode 3. Runtime appVersion: não enviar OTA dessa versão esperando atualizar APK 1.3.1.
-- **Checks:** `npm.cmd run check` aprovado (typecheck, lint sem avisos, 132 testes); export Android/web aprovado (13 rotas), `git diff --check` aprovado. Metro descartou cache incompatível e refez o índice no export com sucesso. Ambiente local Node 24.14.0/npm 11.9.0, diferente das versões recomendadas; CI deve validar o runtime fixado.
-- **Limites:** nenhuma inspeção visual/cliques em navegador, execução Android ou TalkBack nesta sessão. Roteiro em [releases/1.3.2.md](releases/1.3.2.md). Sem build, OTA, deploy, release ou merge.
-- **Preview:** servidor já existente em localhost:8083 respondeu `packager-status:running`; não iniciado outro em 8084. Recarregar a página para revisar a branch atual.
-- **Backup:** etapa de interface/testes `c39cf54` publicada em `origin/fix/plant-details-1.3.2`; documentação/versionamento publicados na etapa seguinte.
-- **Próximo passo:** revisar a interface no web em localhost:8083, executar roteiro manual e ajustar conforme feedback. PR será aberto como rascunho para develop enquanto aguarda revisão visual.
-
 ## Sessão de 10/11/2026 — deploy da 1.2.0 e 1.3.1 (privacidade e estabilidade)
 
 - **Deploy da 1.2.0:** chave `GEMINI_API_KEY` cadastrada pelo painel do Supabase. A primeira tentativa, pela CLI no PowerShell, gravou um valor diferente da chave e a função respondia `configuration`; o diagnóstico veio da comparação do SHA-256 mostrado por `supabase secrets list`. Projeto vinculado à CLI (`supabase link`), migração `care_estimates` aplicada e `estimate-care` publicada. Testada com chamadas reais: espécie conhecida (HTTP 200), mesma espécie vinda do cache (1 s) e espécie inventada (`known: false`).

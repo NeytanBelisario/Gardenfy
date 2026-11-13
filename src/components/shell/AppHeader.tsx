@@ -32,7 +32,6 @@ type AppHeaderProps = {
   title?: string;
   mode?: 'menu' | 'back';
   onPressLeading?: () => void;
-  trailingAction?: { label: string; icon: React.ComponentProps<typeof Ionicons>['name']; onPress: () => void; disabled?: boolean };
 };
 
 const menuItems = [
@@ -47,7 +46,6 @@ export function AppHeader({
   title = 'Gardenfy',
   mode = 'menu',
   onPressLeading,
-  trailingAction,
 }: AppHeaderProps) {
   const router = useRouter();
   const insets = useSafeAreaInsets();
@@ -298,8 +296,8 @@ export function AppHeader({
           <Text numberOfLines={2} style={styles.headerBrand}>{title}</Text>
         </View>
 
-        <Pressable accessibilityRole="button" accessibilityLabel={trailingAction?.label ?? 'Abrir meu espaço'} disabled={trailingAction?.disabled} style={styles.avatarWrap} onPress={trailingAction?.onPress ?? handleProfilePress}>
-          <Ionicons name={trailingAction?.icon ?? 'person-outline'} size={20} color={COLORS.primary} />
+        <Pressable accessibilityRole="button" accessibilityLabel="Abrir meu espaço" style={styles.avatarWrap} onPress={handleProfilePress}>
+          <Ionicons name="person-outline" size={20} color={COLORS.primary} />
         </Pressable>
       </View>
     </>
@@ -441,8 +439,8 @@ const styles = StyleSheet.create({
     letterSpacing: -0.8,
   },
   avatarWrap: {
-    width: 48,
-    height: 48,
+    width: 44,
+    height: 44,
     borderRadius: 22,
     borderWidth: 1.5,
     borderColor: COLORS.primary,
