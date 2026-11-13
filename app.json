@@ -2,7 +2,7 @@
   "expo": {
     "name": "Gardenfy",
     "slug": "Gardenfy",
-    "version": "1.3.1",
+    "version": "1.3.2",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "gardenfy",
@@ -33,7 +33,7 @@
       },
       "predictiveBackGestureEnabled": false,
       "package": "br.com.gardenfy.app",
-      "versionCode": 2
+      "versionCode": 3
     },
     "web": {
       "output": "static",
