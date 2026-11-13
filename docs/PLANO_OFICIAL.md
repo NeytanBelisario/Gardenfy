@@ -78,6 +78,8 @@ Branch `release/1.1.1`, notas em [releases/1.1.1.md](releases/1.1.1.md).
 
 Decisão de 10/11/2026: as versões 1.1.0 a 1.5.0 seguem sem APK nem validação no celular. Cada versão continua passando por `npm run check` (typecheck, lint e testes automatizados); a validação completa no aparelho acontece na 1.6, cobrindo tudo o que foi entregue desde a 1.1.0. Até lá, nada é promovido para `main` nem publicado como release.
 
+Atualização de 12/11/2026: por decisão do usuário, a validação no celular foi antecipada para a 1.3.1, com APK do EAS (perfil `production`) gerado a partir de `develop`. Ajustes de JavaScript seguem por EAS Update no canal `production`, que só alcança APKs com o mesmo `runtimeVersion` (1.3.1). Continua sem promoção para `main` nem release no GitHub.
+
 ## 5. Features planejadas
 
 Cada feature tem objetivo, escopo da primeira entrega, o que fica fora, arquitetura, riscos e o que é preciso do usuário.
@@ -295,3 +297,4 @@ Modelo para uma ideia nova:
 - **10/11/2026** — 1.3.0 mantém a identidade visual atual. Onboarding como checklist "Primeiros passos" na tela inicial, derivado dos dados (nada é marcado à mão). Monitoramento e política de privacidade saem da 1.3.0 e vão para uma 1.3.1, quando o usuário tiver a conta e o texto.
 - **10/11/2026** — 1.3.1 começa sem esperar a conta de monitoramento: o rascunho da política é escrito a partir do código, com aviso antes da primeira foto (em vez de um aceite geral na abertura do app), tela "Seus dados", remoção de metadados da foto no servidor e tela de erro com `reportError` pronto para o Sentry. Usuário pretende validar e ajustar a 1.3 em seguida.
 - **10/11/2026** — Deploy da 1.2.0: chave Gemini cadastrada pelo painel do Supabase (o cadastro pela CLI no PowerShell gravou um valor diferente da chave), migração aplicada e `estimate-care` publicada e testada.
+- **12/11/2026** — Validação no celular antecipada para a 1.3.1: APK gerado pelo EAS a partir de `develop` para validar e ajustar a 1.3 antes da 1.4. A 1.6 continua prevista para a validação completa.

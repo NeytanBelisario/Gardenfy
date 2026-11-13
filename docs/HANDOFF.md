@@ -2,6 +2,16 @@
 
 Atualize este arquivo ao encerrar sessões que mudem o estado do projeto. Não armazene credenciais ou configurações privadas.
 
+## Sessão de 12/11/2026 — APK de validação da 1.3.1
+
+- **Decisão do usuário:** antecipar a validação no celular para a 1.3.1 (antes prevista só na 1.6), para validar e ajustar a 1.3 antes da 1.4. Registrada no [plano oficial](PLANO_OFICIAL.md) e em `plano-oficial.html`.
+- **Build EAS:** perfil `production`, a partir de `develop` (`cbb62d2`, merge do PR #31). Build `4577bc27-6c1a-4ea2-b97d-594f1bfba69b`, concluído em 12/11/2026 (~20 min). [Logs](https://expo.dev/accounts/ydiony/projects/Gardenfy/builds/4577bc27-6c1a-4ea2-b97d-594f1bfba69b).
+- **Download do APK:** <https://expo.dev/artifacts/eas/QIS0jY43LfaGRpLKHVowyvEXQ4laAyFSG0DaKsR_y6Q.apk> (link do EAS; artefatos podem expirar conforme o plano da conta). Cópia local em `%LOCALAPPDATA%/Gardenfy/builds/Gardenfy-1.3.1-validation-cbb62d2.apk`.
+- **Conferido no arquivo baixado:** HTTP 200, 96.917.717 bytes, SHA-256 `76e4521021482df7ad5d9a9cf54963357aab1d81a761313c17449fecc1744bae`; pacote `br.com.gardenfy.app`, versão 1.3.1, `versionCode` 2, target SDK 36; assinatura v2 verificada (certificado SHA-256 `770b8469…e8eae7`, keystore padrão do EAS). Não é release do GitHub nem foi promovido para `main`.
+- **Não executado:** instalação e roteiro no celular (fica com o usuário).
+- **Ajustes durante a validação:** mudanças só de JS/assets vão por `eas update --channel production`; chegam apenas a APKs com `runtimeVersion` 1.3.1 (este). Mudança nativa exige novo build.
+- **Próximo passo:** usuário instalar por cima do app atual, validar a 1.3 e reportar ajustes.
+
 ## Sessão de 10/11/2026 — deploy da 1.2.0 e 1.3.1 (privacidade e estabilidade)
 
 - **Deploy da 1.2.0:** chave `GEMINI_API_KEY` cadastrada pelo painel do Supabase. A primeira tentativa, pela CLI no PowerShell, gravou um valor diferente da chave e a função respondia `configuration`; o diagnóstico veio da comparação do SHA-256 mostrado por `supabase secrets list`. Projeto vinculado à CLI (`supabase link`), migração `care_estimates` aplicada e `estimate-care` publicada. Testada com chamadas reais: espécie conhecida (HTTP 200), mesma espécie vinda do cache (1 s) e espécie inventada (`known: false`).
