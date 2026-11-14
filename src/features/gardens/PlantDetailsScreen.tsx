@@ -15,7 +15,8 @@ import { PlantWateringCard } from './PlantWateringCard';
 import { describeLightStatus, getLightStatus, spotPhrase } from './light';
 import { getRoutineStatus } from './routine';
 import { PlantHistoryCard } from './PlantHistoryCard';
-import { getWaterStatus, type WaterState } from './watering';
+import { getWaterStatus } from './watering';
+import { careSummary } from './waterPresentation';
 import { useCareEstimateStatus } from './CareEstimateSync';
 import { lastPlantCare } from './careActivity';
 import { recordPlantCare, useGardenDetails } from './store';
@@ -28,16 +29,6 @@ type IoniconName = React.ComponentProps<typeof Ionicons>['name'];
 const lightFitColor: Record<LightFit, string> = { ideal: colors.accentStrong, ok: colors.sun, poor: colors.danger };
 
 const topGlow = 'linear-gradient(180deg, #dde8d4 0%, rgba(251, 249, 245, 0) 100%)';
-
-/** Summary pill next to the plant name; reflects only the watering calendar. */
-const careSummary: Record<WaterState, { label: string; icon: IoniconName; color: string; tint: string }> = {
-  ok: { label: 'Cuidados em dia', icon: 'checkmark', color: colors.accentStrong, tint: colors.leafTint },
-  soon: { label: 'Cuidados em dia', icon: 'checkmark', color: colors.accentStrong, tint: colors.leafTint },
-  due: { label: 'Regar hoje', icon: 'water-outline', color: colors.sun, tint: colors.sunTint },
-  overdue: { label: 'Rega atrasada', icon: 'alert-circle-outline', color: colors.danger, tint: colors.dangerTint },
-  never: { label: 'Primeira rega pendente', icon: 'water-outline', color: colors.text, tint: colors.surfaceWarmHigh },
-  unknown: { label: 'Defina a rega', icon: 'options-outline', color: colors.text, tint: colors.surfaceWarmHigh },
-};
 
 function RoundButton({ icon, label, disabled, onPress }: { icon: IoniconName; label: string; disabled?: boolean; onPress: () => void }) {
   return (

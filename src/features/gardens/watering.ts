@@ -74,3 +74,10 @@ export function describeWateringPlan(plan: WateringPlan) {
   if (plan.source === 'custom') return every + ' · definido por você';
   return every + (plan.referenceSource === 'ai' ? ' · estimativa da IA para a espécie' : ' · referência da espécie');
 }
+
+const urgencyRank: Record<WaterState, number> = { overdue: 0, due: 1, soon: 2, never: 3, ok: 4, unknown: 5 };
+
+/** Garden list order: late first (most late on top), then today, tomorrow, never watered, on track and unknown. */
+export function compareWaterUrgency(a: WaterStatus, b: WaterStatus) {
+  return urgencyRank[a.state] - urgencyRank[b.state] || (a.daysUntil ?? 0) - (b.daysUntil ?? 0);
+}
