@@ -14,7 +14,8 @@ Use os tokens em código novo. Os valores literais que sobraram (tons pontuais d
 
 - **`Button`**: `primary`, `secondary` ou `soft`, com ícone opcional, estados desabilitado/ocupado anunciados e altura mínima de 52 dp.
 - **`Card`**: superfície branca com borda (`default`) ou verde-clara (`muted`).
-- Já existentes: `CareMeter` (barras de cuidado, com selo e modo compacto) e `PlantPhoto`.
+- Já existente: `PlantPhoto`.
+- Rega (`src/features/gardens`): `CycleTimer` (timer de dias em segmentos, com modo compacto) e `waterPresentation` (texto da próxima rega, cores por estado e selo de situação), usados na página da planta e no card do jardim.
 
 ## Acessibilidade
 
