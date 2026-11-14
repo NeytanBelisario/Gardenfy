@@ -2,6 +2,14 @@
 
 Atualize este arquivo ao encerrar sessões que mudem o estado do projeto. Não armazene credenciais ou configurações privadas.
 
+## Sessão de 13/11/2026 — página da planta 1.3.2
+
+- **Branch:** `fix/plant-details-1.3.2`, a partir de `develop` (`cbb62d2`, PR #31). Uma primeira versão (`c39cf54`) foi revertida (`eb4e7fc`) e refeita nesta sessão com o usuário revisando cada iteração no web local (localhost:8083). PR #32 (documentação do APK 1.3.1) segue independente.
+- **Feito:** topo com degradê e botões redondos; foto ao lado do nome com lápis de edição e selo de situação; card de próxima rega com timer de dias em segmentos e datas relativas; Luz com status por adequação e local em frase; Adubar com última data; histórico recolhível em linha do tempo com Rotina. Detalhes em [releases/1.3.2.md](releases/1.3.2.md). Sem novas dependências ou migrações.
+- **Versão:** app/package/lockfile 1.3.2, Android `versionCode` 3. Runtime `appVersion`: OTA desta versão não alcança o APK 1.3.1.
+- **Checks:** `npm run check` aprovado (typecheck, lint sem avisos, 137 testes). Visual aprovado pelo usuário no Expo web. Não executado: Android, TalkBack e degradê nativo.
+- **Próximo passo:** PR `fix/plant-details-1.3.2` → `develop`. Em seguida, 1.3.3 (tela do jardim), a partir de `develop` atualizado.
+
 ## Sessão de 10/11/2026 — deploy da 1.2.0 e 1.3.1 (privacidade e estabilidade)
 
 - **Deploy da 1.2.0:** chave `GEMINI_API_KEY` cadastrada pelo painel do Supabase. A primeira tentativa, pela CLI no PowerShell, gravou um valor diferente da chave e a função respondia `configuration`; o diagnóstico veio da comparação do SHA-256 mostrado por `supabase secrets list`. Projeto vinculado à CLI (`supabase link`), migração `care_estimates` aplicada e `estimate-care` publicada. Testada com chamadas reais: espécie conhecida (HTTP 200), mesma espécie vinda do cache (1 s) e espécie inventada (`known: false`).
