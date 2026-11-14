@@ -2,6 +2,15 @@
 
 Atualize este arquivo ao encerrar sessões que mudem o estado do projeto. Não armazene credenciais ou configurações privadas.
 
+## Sessão de 13/11/2026 — tela do jardim 1.3.3
+
+- **Base:** PR #34 (1.3.2) integrado em `develop` (`94e8d5a`) com autorização do usuário; branch `fix/garden-screen-1.3.3` a partir dele.
+- **Feito:** topo com degradê, atalhos "Adicionar planta" e "Identificar por foto", "Plantas do jardim" com contador, cards com próxima rega, timer compacto, botão de rega e chip de luz, lista por urgência de rega. Timer e textos de rega compartilhados com a página da planta. Detalhes em [releases/1.3.3.md](releases/1.3.3.md).
+- **Versão:** 1.3.3, Android `versionCode` 4. Sem build ou OTA.
+- **Checks:** `npm run check` aprovado (typecheck, lint sem avisos, 138 testes). Visual aprovado pelo usuário no Expo web. Não executado: Android e TalkBack.
+- **Pendências do usuário (de 1.3.1):** conta no Sentry e revisão da política de privacidade.
+- **Próximo passo:** 1.3.4, a partir de `develop` atualizado, só com pedido explícito do usuário.
+
 ## Sessão de 13/11/2026 — página da planta 1.3.2
 
 - **Branch:** `fix/plant-details-1.3.2`, a partir de `develop` (`cbb62d2`, PR #31). Uma primeira versão (`c39cf54`) foi revertida (`eb4e7fc`) e refeita nesta sessão com o usuário revisando cada iteração no web local (localhost:8083). PR #32 (documentação do APK 1.3.1) segue independente.
