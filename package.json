@@ -1,7 +1,7 @@
 {
   "name": "gardenfy",
   "main": "expo-router/entry",
-  "version": "1.3.2",
+  "version": "1.3.3",
   "scripts": {
     "postinstall": "node scripts/patch-query-string.cjs",
     "start": "expo start",

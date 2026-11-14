@@ -42,7 +42,8 @@ Regras complementares:
 | **1.2.0** | Cuidados para qualquer espécie (estimativa por IA + catálogo maior) | `entregue` em `develop`, função ativa em produção | M |
 | **1.3.0** | Interface e base de produto (design system, onboarding, acessibilidade, animações) | `entregue` em `develop` | M |
 | **1.3.1** | Privacidade e estabilidade (política, "Seus dados", fotos sem metadados, tela de erro) | `em andamento` (falta Sentry e contato da política) | P |
-| **1.3.2** | Página da planta: timer de rega, luz/adubação e histórico em linha do tempo | `concluída` em `fix/plant-details-1.3.2`; PR para `develop` | P |
+| **1.3.2** | Página da planta: timer de rega, luz/adubação e histórico em linha do tempo | `entregue` em `develop` ([PR #34](https://github.com/NeytanBelisario/Gardenfy/pull/34)) | P |
+| **1.3.3** | Tela do jardim: topo com degradê, atalhos, cards com próxima rega e timer, ordem por urgência | `concluída` em `fix/garden-screen-1.3.3`; PR para `develop` | P |
 | **1.4.0** | Conta e sincronização (login, backup na nuvem, exclusão de conta) | `planejada (1.4.0)` | G |
 | **1.5.0** | Moedas, conquistas e perfil | `planejada (1.5.0)` | G |
 | **1.6.0** | Saúde da planta (análise por foto) | `planejada (1.6.0)` | G |
@@ -83,7 +84,11 @@ Decisão de 10/11/2026: as versões 1.1.0 a 1.5.0 seguem sem APK nem validação
 
 ### 1.3.2 — Ajustes da página da planta
 
-Autorizada em 13/11/2026 após análise da referência visual enviada pelo usuário e refinada com ele no web local. Entregue: foto e nome lado a lado com lápis de edição, próxima rega com data e timer de dias em segmentos (contagem pelo calendário, sem leitura de umidade), datas relativas, Luz com status por adequação e local em frase, Adubar com a última data, histórico recolhível em linha do tempo com Rotina. Diferencia frequência pessoal, referência curada e estimativa da IA. Não inclui previsão de adubação ou avaliação de saúde. Notas: [releases/1.3.2.md](releases/1.3.2.md). Sem promoção ou distribuição automática.
+Autorizada em 13/11/2026 após análise da referência visual enviada pelo usuário e refinada com ele no web local. Entregue: foto e nome lado a lado com lápis de edição, próxima rega com data e timer de dias em segmentos (contagem pelo calendário, sem leitura de umidade), datas relativas, Luz com status por adequação e local em frase, Adubar com a última data, histórico recolhível em linha do tempo com Rotina. Diferencia frequência pessoal, referência curada e estimativa da IA. Não inclui previsão de adubação ou avaliação de saúde. Notas: [releases/1.3.2.md](releases/1.3.2.md). Sem promoção ou distribuição automática. Integrada em `develop` pelo PR #34.
+
+### 1.3.3 — Tela do jardim
+
+Autorizada em 13/11/2026 depois da 1.3.2, com o mesmo fluxo de revisão visual no web local. Entregue: topo com degradê, ícone e nome do jardim com lápis de edição e total de cuidados registrados; atalhos "Adicionar planta" e "Identificar por foto"; seção "Plantas do jardim" com contador; cards com foto, selo de situação, próxima rega, timer compacto, botão de rega e chip de luz; lista ordenada por urgência de rega (quem precisa de água primeiro) e busca a partir de 6 plantas. Timer e textos de rega compartilhados com a página da planta (`CycleTimer`, `waterPresentation`); `CareMeter` e `PlantWaterIndicator` removidos. Sem novas medições: o timer continua sendo contagem pelo calendário. Notas: [releases/1.3.3.md](releases/1.3.3.md).
 
 Cada feature tem objetivo, escopo da primeira entrega, o que fica fora, arquitetura, riscos e o que é preciso do usuário.
 
@@ -273,7 +278,10 @@ Toda ideia nova entra aqui. Depois da análise, ganha versão na linha do tempo.
 | 09/11/2026 | Integração com floriculturas (kits prontos) | `analisada` | 2.2.0 | Piloto via WhatsApp primeiro |
 | 09/11/2026 | Melhorias de interface | `planejada` | 1.3.0 + contínuo | — |
 | — | Frequência própria de adubação | `ideia` | depois da 1.2 | 10/11: mantida só a frase "Última adubação"; avaliar com a referência por espécie da 1.2 |
-| 13/11/2026 | Reorganizar detalhes da planta conforme referência visual | `entregue` na branch, PR para `develop` | 1.3.2 | Timer de rega em segmentos; histórico em linha do tempo; sem novas medições |
+| 13/11/2026 | Reorganizar detalhes da planta conforme referência visual | `entregue` em `develop` (PR #34) | 1.3.2 | Timer de rega em segmentos; histórico em linha do tempo; sem novas medições |
+| 13/11/2026 | Reorganizar a tela do jardim conforme referência visual | `concluída`, PR para `develop` | 1.3.3 | Ordem por urgência de rega; timer compartilhado com a página da planta |
+| 13/11/2026 | Estatísticas do jardim (regas por semana, sequência, histórico agregado) | `ideia` | — | Surgiu na análise da tela do jardim; avaliar junto do Plus (estatísticas avançadas) |
+| 13/11/2026 | "Esta semana no jardim": agenda de 7 dias com as regas previstas | `ideia` | — | Sugestão para preencher jardins com poucas plantas; calculada pelas frequências, sem dado novo. A 1.3.3 foi fechada sem ela |
 
 Modelo para uma ideia nova:
 
@@ -294,6 +302,7 @@ Modelo para uma ideia nova:
 
 ## 9. Histórico de decisões
 
+- **13/11/2026** — PR #34 (1.3.2) integrado em `develop` com autorização do usuário. 1.3.3 (tela do jardim) desenvolvida em `fix/garden-screen-1.3.3` a partir de `develop` (`94e8d5a`), com revisão visual do usuário no web local; ajustes pedidos: "Plantas do jardim" em vez de "Minhas plantas" e sem contagem de plantas no topo. Usuário fechou a 1.3.3 e autorizou integrar em `develop`. Versão 1.3.3 e `versionCode` 4 preparados; sem build ou OTA. Estatísticas e agenda da semana vão para a Caixa de ideias.
 - **13/11/2026** — Usuário aprovou a proposta de reorganização da página da planta e autorizou desenvolver a 1.3.2. Implementação em `fix/plant-details-1.3.2`, partindo de `develop` (`cbb62d2`). O PR #32 permanece independente: documenta o APK anterior e não é dependência de código desta interface. Versão 1.3.2 e `versionCode` 3 preparados para futuro build; nenhum OTA ou build distribuído nesta tarefa. Primeira implementação revertida e refeita com revisão visual do usuário: o ciclo virou timer de dias em segmentos (em vez de barra de progresso), edição foi para um lápis junto ao nome e o histórico virou linha do tempo.
 
 - **09/11/2026** — Plano criado. Versionamento em três números, com ajuste mínimo via OTA. Ordem: 1.2 IA de cuidados → 1.3 interface → 1.4 conta → 1.5 moedas → 1.6 saúde → 2.0 Play + Plus → 2.1 ligas → 2.2 floriculturas. Ranks divididos entre perfil (1.5) e ligas (2.1). Floriculturas depois do lançamento, começando por um piloto sem pagamento no app.
