@@ -1,6 +1,7 @@
-const { getDefaultConfig } = require('expo/metro-config');
+const { getSentryExpoConfig } = require('@sentry/react-native/metro');
 
-const config = getDefaultConfig(__dirname);
+// Padrão do Expo, mais os identificadores que ligam cada erro ao source map.
+const config = getSentryExpoConfig(__dirname);
 
 if (!config.resolver.assetExts.includes('glb')) {
   config.resolver.assetExts.push('glb');

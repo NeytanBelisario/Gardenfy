@@ -69,6 +69,10 @@
             "imageWidth": 200
           }
         }
+      ],
+      [
+        "@sentry/react-native",
+        { "url": "https://sentry.io/", "organization": "my-company-xr2", "project": "react-native" }
       ]
     ],
     "experiments": {
