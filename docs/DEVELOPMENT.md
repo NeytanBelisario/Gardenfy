@@ -156,7 +156,7 @@ npx eas-cli@latest login
 npx eas-cli@latest build --platform android --profile production
 ```
 
-`EXPO_PUBLIC_SUPABASE_URL` e `EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY` ficam nas variáveis do ambiente `production` do projeto EAS, porque `.env` não é enviado ao build. Pacote `br.com.gardenfy.app`; incremente `android.versionCode` em `app.json` a cada nova versão. Não troque as credenciais de assinatura no painel: um APK assinado com outra chave não atualiza o app instalado.
+`EXPO_PUBLIC_SUPABASE_URL`, `EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY` e `EXPO_PUBLIC_SENTRY_DSN` ficam nas variáveis do ambiente `production` do projeto EAS, porque `.env` não é enviado ao build. O `SENTRY_AUTH_TOKEN` (token de organização do Sentry, visibilidade "secret") envia os source maps durante o build; sem ele, defina `SENTRY_DISABLE_AUTO_UPLOAD=true` ou o envio falha. O relatório de falhas só liga fora do modo de desenvolvimento e com DSN, e não roda no Expo Go. Pacote `br.com.gardenfy.app`; incremente `android.versionCode` em `app.json` a cada nova versão. Não troque as credenciais de assinatura no painel: um APK assinado com outra chave não atualiza o app instalado.
 
 ### Hotfix sem novo APK (EAS Update)
 
