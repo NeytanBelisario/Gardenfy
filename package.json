@@ -1,7 +1,7 @@
 {
   "name": "gardenfy",
   "main": "expo-router/entry",
-  "version": "1.3.3",
+  "version": "1.3.4",
   "scripts": {
     "postinstall": "node scripts/patch-query-string.cjs",
     "start": "expo start",
@@ -21,6 +21,7 @@
     "@react-navigation/bottom-tabs": "^7.15.5",
     "@react-navigation/elements": "^2.9.10",
     "@react-navigation/native": "^7.1.33",
+    "@sentry/react-native": "~7.11.0",
     "expo": "~55.0.32",
     "expo-constants": "~55.0.14",
     "expo-device": "~55.0.21",

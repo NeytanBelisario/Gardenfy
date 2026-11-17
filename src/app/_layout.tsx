@@ -10,12 +10,15 @@ import { AppErrorScreen } from '../components/shell/AppErrorScreen';
 import { ReminderSync } from '../features/reminders/ReminderSync';
 import { CareEstimateSync } from '../features/gardens/CareEstimateSync';
 import { GardensBootstrap } from '../features/gardens/GardensBootstrap';
+import { initMonitoring, withMonitoring } from '../features/monitoring/monitoring';
 import { colors } from '../theme/tokens';
+
+initMonitoring();
 
 // Erros de renderização nas telas caem aqui (expo-router), sem fechar o app.
 export const ErrorBoundary = AppErrorScreen;
 
-export default function AppLayout() {
+function AppLayout() {
   const insets = useSafeAreaInsets();
   const [keyboardVisible, setKeyboardVisible] = useState(false);
   useEffect(() => {
@@ -35,6 +38,8 @@ export default function AppLayout() {
     </View>
   );
 }
+
+export default withMonitoring(AppLayout);
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.background },

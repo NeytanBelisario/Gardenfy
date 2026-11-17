@@ -1,8 +1,8 @@
 # Política de privacidade do Gardenfy
 
-> **Rascunho para revisão (versão 1.3.1).** Antes de publicar na Play Store, confira se o texto continua batendo com o app.
+> **Rascunho para revisão (versão 1.3.4).** Antes de publicar na Play Store, confira se o texto continua batendo com o app.
 
-Última atualização: 10 de novembro de 2026.
+Última atualização: 16 de novembro de 2026.
 
 O Gardenfy é um app para cuidar de plantas: você organiza jardins, registra regas e recebe lembretes. Esta política explica quais dados o app usa, para quê, com quem eles são compartilhados e como você pode apagá-los. Ela segue a Lei Geral de Proteção de Dados (Lei 13.709/2018, LGPD).
 
@@ -16,6 +16,7 @@ O Gardenfy é um app para cuidar de plantas: você organiza jardins, registra re
 - Só saem do aparelho, e só quando você usa o recurso:
   - a **foto** que você manda identificar, sem os dados de localização;
   - o **nome da espécie**, para buscar a referência de cuidados.
+- Se o app quebrar, um **relatório técnico da falha** vai ao Sentry, sem seus jardins, plantas ou fotos.
 
 ## 1. Dados que ficam no seu aparelho
 
@@ -58,6 +59,15 @@ Para limitar o número de pedidos e proteger as cotas gratuitas, o servidor usa 
 - **Registros do provedor:** a Supabase, que hospeda o servidor, mantém registros técnicos de acesso (como IP e horário) por um período curto, conforme a política dela.
 - **Base legal:** legítimo interesse em manter o serviço disponível e seguro (art. 7º, IX).
 
+### Relatório de falhas (Sentry)
+
+- **O que é enviado:** quando o app quebra, um relatório técnico com a mensagem do erro, o trecho do código onde ele aconteceu, as últimas telas abertas, a versão do app e o modelo e o sistema do aparelho.
+- **O que não é enviado:** jardins, plantas, apelidos, fotos, histórico de cuidados, o conteúdo dos logs do app e o endereço IP. Endereços de requisições vão sem os parâmetros.
+- **Quando:** só em falhas. Não há medição de desempenho, gravação de tela nem rastreamento de uso.
+- **Retenção:** o Sentry apaga os relatórios automaticamente ao fim do prazo de retenção do plano contratado.
+- **Para quê:** descobrir e corrigir falhas.
+- **Base legal:** legítimo interesse em manter o app funcionando (art. 7º, IX).
+
 ### Atualizações do app
 
 O app consulta os servidores da Expo para baixar correções. Essa consulta revela dados técnicos: endereço IP, versão do app e sistema operacional.
@@ -69,11 +79,12 @@ O app consulta os servidores da Expo para baixar correções. Essa consulta reve
 
 ## 4. Compartilhamento e transferência internacional
 
-Os dados enviados (foto sem metadados, nome da espécie e dados técnicos de acesso) são processados por:
+Os dados enviados (foto sem metadados, nome da espécie, relatórios de falha e dados técnicos de acesso) são processados por:
 
 - **Supabase:** hospedagem do servidor.
 - **Pl@ntNet:** França.
 - **Google:** Gemini.
+- **Sentry:** relatórios de falha, Estados Unidos.
 - **Expo:** atualizações.
 
 Esses fornecedores podem tratar os dados fora do Brasil. Não compartilhamos dados com outros terceiros, não fazemos publicidade e não vendemos dados.

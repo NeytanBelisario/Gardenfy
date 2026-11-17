@@ -3,15 +3,8 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter, type ErrorBoundaryProps } from 'expo-router';
 import { Button } from '../ui/Button';
+import { reportError } from '../../features/monitoring/monitoring';
 import { colors, font, space } from '../../theme/tokens';
-
-/**
- * Ponto único de relato de falhas. Hoje só registra em desenvolvimento;
- * o serviço de monitoramento (ex.: Sentry) entra aqui quando houver conta.
- */
-export function reportError(error: unknown) {
-  if (__DEV__) console.error('[Gardenfy] erro na tela', error);
-}
 
 /** Tela mostrada quando uma rota quebra, no lugar da tela vermelha ou do app fechando. */
 export function AppErrorScreen({ error, retry }: ErrorBoundaryProps) {

@@ -2,6 +2,16 @@
 
 Atualize este arquivo ao encerrar sessões que mudem o estado do projeto. Não armazene credenciais ou configurações privadas.
 
+## Sessão de 16/11/2026 — relatório de falhas 1.3.4
+
+- **Base:** PR #35 (1.3.3) já integrado em `develop` (`2c99623`); branch `fix/sentry-1.3.4` a partir dele.
+- **Feito:** `@sentry/react-native` ~7.11.0 com plugin (`my-company-xr2`/`react-native`) e `getSentryExpoConfig` no Metro; `src/features/monitoring` (`initMonitoring`, `reportError`, `withMonitoring`, filtros de rastros com testes); política e tela "Seus dados" atualizadas. Configuração manual: o `@sentry/wizard` exige login interativo. Detalhes em [releases/1.3.4.md](releases/1.3.4.md).
+- **Versão:** 1.3.4, Android `versionCode` 5. Dependência nativa, sem OTA. Sem build.
+- **Checks:** `npm run check` (142 testes), `expo install --check` e `expo export` Android/web com DSN. Não executado: build EAS, erro de teste no painel e celular.
+- **EAS:** `EXPO_PUBLIC_SENTRY_DSN` e `SENTRY_AUTH_TOKEN` (secret, escopo `org:ci`, validado com `sentry-cli info`) cadastrados no ambiente `production`.
+- **Pendências do usuário:** "Prevent Storing of IP Addresses" no Sentry; revisão da política.
+- **Próximo passo:** PR `fix/sentry-1.3.4` → `develop`; depois, build da 1.3.4 e um erro de teste para confirmar a chegada no painel.
+
 ## Sessão de 13/11/2026 — tela do jardim 1.3.3
 
 - **Base:** PR #34 (1.3.2) integrado em `develop` (`94e8d5a`) com autorização do usuário; branch `fix/garden-screen-1.3.3` a partir dele.

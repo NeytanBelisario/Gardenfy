@@ -29,6 +29,7 @@ const sections: Section[] = [
       'Identificar por foto: a foto vai ao Pl@ntNet, sem localização e outros dados gravados na imagem. O servidor do Gardenfy não guarda a foto.',
       'Estimativa da IA: só o nome da espécie vai ao Gemini (Google), quando ela não tem ficha no app. A resposta fica salva por espécie, sem ligação com você.',
       'Contra abuso: o servidor guarda um código derivado do seu IP, nunca o IP em si, por até 2 dias.',
+      'Relatório de falhas: se o app quebrar, um relatório técnico (erro, tela, versão do app e do aparelho) vai ao Sentry, sem jardins, plantas, fotos ou IP.',
     ],
   },
   {
