@@ -299,7 +299,7 @@ Modelo para uma ideia nova:
 | Quando | O que |
 |---|---|
 | 1.3.1 | Revisar a [política de privacidade](PRIVACY.md) |
-| 1.3.4 | `EXPO_PUBLIC_SENTRY_DSN` e `SENTRY_AUTH_TOKEN` no ambiente `production` do EAS; bloquear IP no painel do Sentry |
+| 1.3.4 | Bloquear IP no painel do Sentry (DSN e token já estão no EAS) |
 | 1.4.0 | OAuth Google, assinatura Android definitiva, conta Play Console e 12+ testadores |
 | 1.5.0 | Valores da economia e itens cosméticos |
 | 1.6.0 | Escolha do provedor de saúde, orçamento de IA e validação no celular de tudo desde a 1.1.0 |
